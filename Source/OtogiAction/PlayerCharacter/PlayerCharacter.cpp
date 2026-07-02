@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "../Component/Move/MoveComponent.h"
 #include "../Component/Camera/MoveCameraComponent.h"
+#include "PlayerComponent/PlayerDodgeComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()

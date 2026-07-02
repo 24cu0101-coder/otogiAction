@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
 #include "PlayerCharacter.generated.h"
 
@@ -16,6 +15,7 @@ class UMoveComponent;
 class UMoveCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class UPlayerDodgeComponent;		//回避を実行するクラス
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter //, public IAbilitySystemInterface
@@ -67,8 +67,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+
+
 protected:
 	//入力イベント発生時に実行される内部関数
 	void OnCharacterMovement(const FInputActionValue& Value);
 	void OnCameraMovement(const FInputActionValue& Value);
+
+	//回避のcomponentを登録(髙山記述)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
+	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
 };
