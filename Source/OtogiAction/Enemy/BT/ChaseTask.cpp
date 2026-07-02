@@ -10,6 +10,7 @@ UChaseTask::UChaseTask()
 {
     NodeName = TEXT("Chase Player");
 
+    bNotifyTick = true;
 }
 
 EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

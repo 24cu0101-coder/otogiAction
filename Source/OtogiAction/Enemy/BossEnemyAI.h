@@ -20,6 +20,7 @@ namespace BBKeys
 {
 	const FName PlayerActor = TEXT("PlayerActor");
 	const FName CanAttack = TEXT("CanAttack");
+	const FName CanChase = TEXT("CanChase");
 }
 
 UCLASS()
@@ -35,27 +36,27 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	//// AIPerceptionコンポーネント
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Perception")
-	//UAIPerceptionComponent* AIPerceptionComp;
+	// AIPerceptionコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Perception")
+	UAIPerceptionComponent* AIPerceptionComp;
 
-	//// 視覚の設定用オブジェクト
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Perception")
-	//UAISenseConfig_Sight* SightConfig;
+	// 視覚の設定用オブジェクト
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Perception")
+	UAISenseConfig_Sight* SightConfig;
 
 	// ターゲットが更新されたときに呼ばれる関数（イベントバインド用）
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI")
-	//UBehaviorTree* BehaviorTreeAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI")
+	UBehaviorTree* BehaviorTreeAsset;
 
-	//ACharacter* TargetActor;
+	ACharacter* TargetActor;
 
-	//TObjectPtr<ABossEnemyCharacter> EnemyCharacter;
+	TObjectPtr<ABossEnemyCharacter> EnemyCharacter;
 private:
-	////コンポーネントの保持
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI|Param", meta = (AllowPrivateAccess = "true"))
-	//TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
+	//コンポーネントの保持
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI|Param", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
 
 };

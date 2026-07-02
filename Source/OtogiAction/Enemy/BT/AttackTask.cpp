@@ -14,6 +14,7 @@ UAttackTask::UAttackTask()
 	bNotifyTick = false;
 }
 
+//タスク開始
 EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* AIController = OwnerComp.GetAIOwner();
@@ -29,7 +30,7 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 	return EBTNodeResult::InProgress;
 }
 
-//終了時に流れる関数
+//タスク終了
 void UAttackTask::OnAttackAnimationFinished(TWeakObjectPtr<UBehaviorTreeComponent> OwnerCompPtr)
 {
 	if (OwnerCompPtr.IsValid())
