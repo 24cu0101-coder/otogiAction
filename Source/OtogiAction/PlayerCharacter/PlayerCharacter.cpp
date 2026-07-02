@@ -56,6 +56,10 @@ APlayerCharacter::APlayerCharacter()
 
 	//カメラ操作コンポーネント生成
 	MovementCameraComp = CreateDefaultSubobject<UMoveCameraComponent>(TEXT("CameraComp"));
+
+	//回避コンポーネント生成
+	PlayerDodgeComp = CreateDefaultSubobject<UPlayerDodgeComponent>(TEXT("DodgeComp"));
+
 }
 
 //ゲームが始まったときに生成
@@ -90,7 +94,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCharacterMovement);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
-		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnCameraMovement);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
 
 	}
 
@@ -133,9 +137,10 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
 	//componentがあったら
-	if (DodgeComponent)
-	{
+	if (PlayerDodgeComp)
 
+	{
+		PlayerDodgeComp->ExecuteAbility();
 	}
 		
 

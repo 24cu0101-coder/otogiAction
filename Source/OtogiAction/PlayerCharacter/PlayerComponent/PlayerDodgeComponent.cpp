@@ -5,18 +5,8 @@ UPlayerDodgeComponent::UPlayerDodgeComponent()
 	
 	PrimaryComponentTick.bCanEverTick = true;
 
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
-
-	//アビリティシステムコンポーネントがあるなら
-	if (AbilitySystemComponent)
-	{
-		//回避アビリティがあるなら
-		if (DodgeAbility)
-		{
-
-		}
-
-	}
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("DodgeComponentASC"));
+	
 }
 
 
@@ -25,7 +15,14 @@ void UPlayerDodgeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
+	{
+		if (GetOwner()->HasAuthority() && DodgeAbility)
+		{
+			//プレイヤーにDodgeAbilityを付与する
+			DodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
+		}
+	}
 	
 }
 
@@ -38,24 +35,31 @@ void UPlayerDodgeComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// ...
 }
 
-//
-void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
-{
-	//ヌルチェック
-	if (!DodgeASC || !DodgeAbility)
-	{
-		return;
-	}
 
-	if (GetOwner()->HasAuthority())
-	{
-		//プレイヤーにDodgeAbilityを付与する
-		DodgeHandle = DodgeASC->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
-	}
-}
 
 void UPlayerDodgeComponent::ExecuteAbility()
 {
+
+	
+	UE_LOG(LogTemp, Log, TEXT("oo"));
+
+	//アビリティシステムコンポーネントがあるなら
+	if (AbilitySystemComponent)
+	{
+		UE_LOG(LogTemp, Log, TEXT("yy"));
+
+		//回避アビリティがあるなら
+		if (DodgeAbility)
+		{
+			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
+		}
+	}
+
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("jj"));
+
+	}
 
 }
 

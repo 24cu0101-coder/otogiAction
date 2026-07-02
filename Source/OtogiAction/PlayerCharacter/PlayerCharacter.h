@@ -57,6 +57,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UMoveCameraComponent* MovementCameraComp;
 
+	//カメラ操作コンポーネント(髙山)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
+	UPlayerDodgeComponent* PlayerDodgeComp;
+
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -78,7 +82,7 @@ protected:
 	void OnCameraMovement(const FInputActionValue& Value);
 	void OnPlayerDodge(const FInputActionValue& Value);
 
-	//回避のcomponentを登録(髙山記述)
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
-	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
+	////回避のcomponentを登録(髙山記述)
+	//UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
+	//TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
 };
