@@ -67,12 +67,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* DodgeAction;
+
 
 
 protected:
 	//入力イベント発生時に実行される内部関数
 	void OnCharacterMovement(const FInputActionValue& Value);
 	void OnCameraMovement(const FInputActionValue& Value);
+	void OnPlayerDodge(const FInputActionValue& Value);
 
 	//回避のcomponentを登録(髙山記述)
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "DodgeComponent")

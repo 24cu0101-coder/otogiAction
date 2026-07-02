@@ -5,7 +5,18 @@ UPlayerDodgeComponent::UPlayerDodgeComponent()
 	
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+
+	//アビリティシステムコンポーネントがあるなら
+	if (AbilitySystemComponent)
+	{
+		//回避アビリティがあるなら
+		if (DodgeAbility)
+		{
+
+		}
+
+	}
 }
 
 
@@ -14,7 +25,7 @@ void UPlayerDodgeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	
 	
 }
 
@@ -42,3 +53,9 @@ void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
 		DodgeHandle = DodgeASC->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
 	}
 }
+
+void UPlayerDodgeComponent::ExecuteAbility()
+{
+
+}
+

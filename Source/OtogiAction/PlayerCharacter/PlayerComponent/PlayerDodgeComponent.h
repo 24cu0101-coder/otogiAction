@@ -23,8 +23,13 @@ protected:
 	virtual void BeginPlay() override;
 
 
+
+	//Abilityシステムコンポーネントクラス変数
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge.Ability")
+	UAbilitySystemComponent* AbilitySystemComponent;
+
 	//回避のアビリティ
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "DodgeGas")
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "Dodge.Gas")
 	TSubclassOf<UGameplayAbility> DodgeAbility;
 
 
@@ -38,6 +43,11 @@ public:
 
 	//初期化時に呼ばれるabilityを付与する関数
 	void DodgeAbilitySet(UAbilitySystemComponent* DodgeASC);
+
+	//アビリティを呼び出す関数
+	void ExecuteAbility();
+
+	
 		
 };
 

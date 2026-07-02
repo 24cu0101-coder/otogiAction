@@ -90,6 +90,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCharacterMovement);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnCameraMovement);
+
 	}
 
 }
@@ -125,5 +127,17 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 		//ˆÚ“®ŠÖ”‚ğŒÄ‚Ño‚·
 		MovementCameraComp->CameraMove(LookAxisVector);
 	}
+}
+
+//‰ñ”ğ‚Ìˆ—(‰º‹L“r’†)
+void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
+{
+	//component‚ª‚ ‚Á‚½‚ç
+	if (DodgeComponent)
+	{
+
+	}
+		
+
 }
 
