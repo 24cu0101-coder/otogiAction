@@ -7,8 +7,8 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "../Component/Move/MoveComponent.h"
-#include "../Component/Camera/MoveCameraComponent.h"
+#include "PlayerComponent/Move/MoveComponent.h"
+#include "PlayerComponent/Camera/MoveCameraComponent.h"
 #include "PlayerComponent/PlayerDodgeComponent.h"
 
 //コンストラクタ
@@ -38,7 +38,7 @@ APlayerCharacter::APlayerCharacter()
 		//カメラ追従ラグを使うか設定
 		m_SpringArmComp->bEnableCameraLag = true;
 		//カメラ追従ラグの速度を設定
-		m_SpringArmComp->CameraLagSpeed = 10.0f;
+		m_SpringArmComp->CameraLagSpeed = 1000.0f;
 		//カメラ回転ラグを使うかを設定
 		m_SpringArmComp->bEnableCameraRotationLag = true;
 		//カメラ回転ラグの速度を設定

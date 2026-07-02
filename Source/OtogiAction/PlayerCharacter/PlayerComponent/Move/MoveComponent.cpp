@@ -5,6 +5,7 @@
 #include "MoveComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Camera/CameraComponent.h"
 
 //コンストラクタ
 UMoveComponent::UMoveComponent()
@@ -70,15 +71,20 @@ void UMoveComponent::MoveForword(float Value)
 {
 	if (!OwnerCharacter || !OwnerCharacter->GetController() || Value == 0.0f) return;
 
-	//コントローラーの向き
-	const FRotator Rotation = OwnerCharacter->GetController()->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	
 
-	//カメラの前方ベクトル
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	if (UCameraComponent* PlayerCamera = OwnerCharacter->FindComponentByClass<UCameraComponent>())
+	{
+		//スプリングアームの向き
+		const FRotator Rotation = PlayerCamera->GetComponentRotation();
+		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
-	//移動入力を与える
-	OwnerCharacter->AddMovementInput(Direction, Value);
+		//カメラの前方ベクトル
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+		//移動入力を与える
+		OwnerCharacter->AddMovementInput(Direction, Value);
+	}
 }
 
 //キャラクターの左右移動
@@ -86,15 +92,18 @@ void UMoveComponent::MoveRight(float Value)
 {
 	if (!OwnerCharacter || !OwnerCharacter->GetController() || Value == 0.0f) return;
 
-	//コントローラーの向き
-	const FRotator Rotation = OwnerCharacter->GetController()->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	if (UCameraComponent* PlayerCamera = OwnerCharacter->FindComponentByClass<UCameraComponent>())
+	{
+		//スプリングアームの向き
+		const FRotator Rotation = PlayerCamera->GetComponentRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	//カメラの前方ベクトル
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		//カメラの前方ベクトル
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	//移動入力を与える
-	OwnerCharacter->AddMovementInput(Direction, Value);
+		//移動入力を与える
+		OwnerCharacter->AddMovementInput(Direction, Value);
+	}
 }
 
 //キャラクターを指定座標まで移動させる関数

@@ -10,7 +10,7 @@
 UMoveCameraComponent::UMoveCameraComponent()
 {
 	//Tickはオフ
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 }
 
@@ -34,6 +34,15 @@ void UMoveCameraComponent::BeginPlay()
 			//カメラとアクターの同期を切る
 			SpringArmComp->bUsePawnControlRotation = false;
 
+			//アクターとのPitch回転の同期を切る
+			SpringArmComp->bInheritPitch = false;
+
+			//アクターとのYaw回転の同期を切る
+			SpringArmComp->bInheritYaw = false;
+
+			//アクターとのRoll回転の同期を切る
+			SpringArmComp->bInheritRoll = false;
+
 			//キャラクターのコントローラーの回転をカメラと同期
 			OwnerCharacter->bUseControllerRotationYaw = false;
 		}
@@ -54,11 +63,15 @@ void UMoveCameraComponent::CameraMove(FVector2D InputValue)
 
 	if (SpringArmComp)
 	{
-		FRotator CurrentRot = SpringArmComp->GetRelativeRotation();
-		CurrentRot.Yaw += InputValue.X;
-		CurrentRot.Pitch = FMath::Clamp(CurrentRot.Pitch + InputValue.Y, -60.0f, 60.0f); // 画面がひっくり返らないように制限
+		//世界の回転を取得
+		FRotator CurrentRot = SpringArmComp->GetComponentRotation();
 
-		SpringArmComp->SetRelativeRotation(CurrentRot);
+		// 画面がひっくり返らないように制限
+		CurrentRot.Yaw += InputValue.X;
+		CurrentRot.Pitch = FMath::Clamp(CurrentRot.Pitch + InputValue.Y, -60.0f, 60.0f); 
+
+		//世界の角度でカメラの向きを上書き
+		SpringArmComp->SetWorldRotation(CurrentRot);
 	}
 }
 
