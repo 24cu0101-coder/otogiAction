@@ -16,16 +16,11 @@ class UBehaviorTree;
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 
-//namespace BBKeys
-//{
-//	const FName PlayerActor = TEXT("PlayerActor");
-//	const FName DistanceToPlayer = TEXT("DistanceToPlayer");
-//	const FName AttackRange = TEXT("AttackRange");
-//	const FName MonitoringRange = TEXT("MonitoringRange");
-//	const FName WaitTime = TEXT("WaitTime");
-//	const FName IsPlayerInSight = TEXT("IsPlayerInSight");
-//	const FName CanAttack = TEXT("CanAttack");
-//}
+namespace BBKeys
+{
+	const FName PlayerActor = TEXT("PlayerActor");
+	const FName CanAttack = TEXT("CanAttack");
+}
 
 UCLASS()
 class OTOGIACTION_API ABossEnemyAI : public AAIController
