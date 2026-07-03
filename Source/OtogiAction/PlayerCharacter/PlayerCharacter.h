@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "AbilitySystemInterface.h"
 #include "PlayerCharacter.generated.h"
 
 //前方宣言
-class UAbilitySytemComponent;
+class UAbilitySystemComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UMoveComponent;
@@ -16,9 +17,10 @@ class UMoveCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 class UPlayerDodgeComponent;		//回避を実行するクラス
+class USkillComponent;
 
 UCLASS()
-class OTOGIACTION_API APlayerCharacter : public ACharacter //, public IAbilitySystemInterface
+class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -41,6 +43,9 @@ public:
 	FORCEINLINE UMoveComponent* GetCustomMovementComponent() const { return MovementCharaComp; }
 	FORCEINLINE UMoveCameraComponent* GetCustomCameraComponent() const { return MovementCameraComp; }
 
+	//AbilitySystemInterfaceのゲッター関数
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
 private:
 	//スプリングアームコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -48,6 +53,10 @@ private:
 	//カメラコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* m_CameraComp;
+
+	//AbilitySystemコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	UAbilitySystemComponent* AbilitySystemComp;
 
 	//キャラ移動コンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -60,6 +69,10 @@ private:
 	//カメラ操作コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
 	UPlayerDodgeComponent* PlayerDodgeComp;
+
+	//スキルコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
+	USkillComponent* SkillComp;
 
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -74,6 +87,22 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* DodgeAction;
 
+	//スキル選択
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* SwitchSkillGroup;
+
+	//スキル発動
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ExcuteSkill1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ExcuteSkill2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ExcuteSkill3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ExcuteSkill4;
 
 
 protected:
@@ -81,8 +110,9 @@ protected:
 	void OnCharacterMovement(const FInputActionValue& Value);
 	void OnCameraMovement(const FInputActionValue& Value);
 	void OnPlayerDodge(const FInputActionValue& Value);
-
-	////回避のcomponentを登録(髙山記述)
-	//UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
-	//TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
+	void OnSwitchSkillGroup(const FInputActionValue& Value);
+	void OnSkill1Pressed();
+	void OnSkill2Pressed();
+	void OnSkill3Pressed();
+	void OnSkill4Pressed();
 };

@@ -10,6 +10,7 @@
 #include "PlayerComponent/Move/MoveComponent.h"
 #include "PlayerComponent/Camera/MoveCameraComponent.h"
 #include "PlayerComponent/PlayerDodgeComponent.h"
+#include "PlayerComponent/SkillComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -51,6 +52,9 @@ APlayerCharacter::APlayerCharacter()
 		m_CameraComp->SetupAttachment(m_SpringArmComp, USpringArmComponent::SocketName);
 	}
 
+	//AbilitySystem
+	AbilitySystemComp = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+
 	//キャラクター移動コンポーネント生成
 	MovementCharaComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComp"));
 
@@ -60,6 +64,8 @@ APlayerCharacter::APlayerCharacter()
 	//回避コンポーネント生成
 	PlayerDodgeComp = CreateDefaultSubobject<UPlayerDodgeComponent>(TEXT("DodgeComp"));
 
+	//スキルコンポーネントの生成
+	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
 }
 
 //ゲームが始まったときに生成
@@ -75,6 +81,13 @@ void APlayerCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	//SkillComponentに自分のASCを渡す
+	if (SkillComp && GetAbilitySystemComponent())
+	{
+		SkillComp->RegisterAbilities(GetAbilitySystemComponent());
+	}
+
 }
 
 //毎フレーム処理
@@ -92,12 +105,26 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// 入力アクションをバインドする
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		//キャラとカメラの移動
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCharacterMovement);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
+		//回避
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
+		//スキルの切り替え
+		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
+		//スキルの発動四つ
+		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill1Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill2, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill2Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill3, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill3Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill4, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill4Pressed);
 
 	}
 
+}
+
+UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComp;
 }
 
 //キャラクター移動
@@ -144,5 +171,47 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 	}
 		
 
+}
+
+//スキル群の切り替え
+void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
+{
+	if (SkillComp)
+	{
+		//スキルの切り替え
+		float AxsisValue = Value.Get<float>();
+		int32 Direction = AxsisValue > 0.f ? 1 : -1;
+		SkillComp->SwitchSkillGroup(Direction);
+	}
+}
+
+//スキルの発動
+void APlayerCharacter::OnSkill1Pressed()
+{
+	if (SkillComp)
+	{
+		SkillComp->RequestSkillTrigger(0);
+	}
+}
+void APlayerCharacter::OnSkill2Pressed()
+{
+	if (SkillComp)
+	{
+		SkillComp->RequestSkillTrigger(1);
+	}
+}
+void APlayerCharacter::OnSkill3Pressed()
+{
+	if (SkillComp)
+	{
+		SkillComp->RequestSkillTrigger(2);
+	}
+}
+void APlayerCharacter::OnSkill4Pressed()
+{
+	if (SkillComp)
+	{
+		SkillComp->RequestSkillTrigger(3);
+	}
 }
 
