@@ -16,14 +16,12 @@ class UMoveComponent;
 class UMoveCameraComponent;
 class UInputMappingContext;
 class UInputAction;
-<<<<<<< HEAD
+
 class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
 class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
 
-=======
 class UPlayerDodgeComponent;		//回避を実行するクラス
 class USkillComponent;
->>>>>>> origin/master
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -76,16 +74,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
 	UPlayerDodgeComponent* PlayerDodgeComp;
 
-<<<<<<< HEAD
 	//通常攻撃コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NormalAttack", meta = (AllowPrivateAccess = "true"))
 	UNormalAttackComponent* NormalAttackComp;
 
-=======
 	//スキルコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	USkillComponent* SkillComp;
->>>>>>> origin/master
 
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -101,12 +96,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* DodgeAction;
 
-<<<<<<< HEAD
 	//通常攻撃のインプットアクション(髙山)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* NormalAttackAction;
 
-=======
 	//スキル選択
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SwitchSkillGroup;
@@ -123,26 +116,18 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* ExcuteSkill4;
->>>>>>> origin/master
 
 
 protected:
 	//入力イベント発生時に実行される内部関数
 	void OnCharacterMovement(const FInputActionValue& Value);
 	void OnCameraMovement(const FInputActionValue& Value);
-<<<<<<< HEAD
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
 	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
 
-	////回避のcomponentを登録(髙山記述)
-	//UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
-	//TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
-=======
-	void OnPlayerDodge(const FInputActionValue& Value);
 	void OnSwitchSkillGroup(const FInputActionValue& Value);
 	void OnSkill1Pressed();
 	void OnSkill2Pressed();
 	void OnSkill3Pressed();
 	void OnSkill4Pressed();
->>>>>>> origin/master
 };

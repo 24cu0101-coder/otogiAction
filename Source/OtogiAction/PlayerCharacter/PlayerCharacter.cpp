@@ -64,15 +64,15 @@ APlayerCharacter::APlayerCharacter()
 	//回避コンポーネント生成
 	PlayerDodgeComp = CreateDefaultSubobject<UPlayerDodgeComponent>(TEXT("DodgeComp"));
 
-<<<<<<< HEAD
+
 	//通常攻撃コンポーネント生成
 	NormalAttackComp = CreateDefaultSubobject<UNormalAttackComponent>(TEXT("NormalAtComp"));
 
 
-=======
+
 	//スキルコンポーネントの生成
 	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
->>>>>>> origin/master
+
 }
 
 //ゲームが始まったときに生成
@@ -115,9 +115,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//キャラとカメラの移動
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCharacterMovement);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
-<<<<<<< HEAD
 		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
-=======
 		//回避
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
 		//スキルの切り替え
@@ -127,7 +125,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(ExcuteSkill2, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill2Pressed);
 		EnhancedInputComponent->BindAction(ExcuteSkill3, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill3Pressed);
 		EnhancedInputComponent->BindAction(ExcuteSkill4, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill4Pressed);
->>>>>>> origin/master
 
 	}
 
@@ -182,7 +179,6 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 	}
 }
 
-<<<<<<< HEAD
 //
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
@@ -194,7 +190,6 @@ void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value)
 
 	}
 }
-=======
 //スキル群の切り替え
 void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 {
@@ -237,4 +232,3 @@ void APlayerCharacter::OnSkill4Pressed()
 	}
 }
 
->>>>>>> origin/master
