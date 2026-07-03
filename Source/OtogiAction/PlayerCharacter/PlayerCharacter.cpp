@@ -60,6 +60,10 @@ APlayerCharacter::APlayerCharacter()
 	//回避コンポーネント生成
 	PlayerDodgeComp = CreateDefaultSubobject<UPlayerDodgeComponent>(TEXT("DodgeComp"));
 
+	//通常攻撃コンポーネント生成
+	NormalAttackComp = CreateDefaultSubobject<UNormalAttackComponent>(TEXT("NormalAtComp"));
+
+
 }
 
 //ゲームが始まったときに生成
@@ -95,6 +99,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCharacterMovement);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
+		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
 
 	}
 
@@ -133,16 +138,25 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 	}
 }
 
-//回避の処理(下記途中)
+//回避(髙山)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
-	//componentがあったら
+	//回避コンポーネントがあったら
 	if (PlayerDodgeComp)
-
 	{
+		//コンポーネントの処理実行
 		PlayerDodgeComp->ExecuteAbility();
 	}
-		
-
 }
 
+//
+void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
+{
+	//通常攻撃コンポーネントがあったら
+	if (NormalAttackComp)
+	{
+		//コンポーネントの処理実行
+		NormalAttackComp->ExecuteNormalAttackAbility();
+
+	}
+}

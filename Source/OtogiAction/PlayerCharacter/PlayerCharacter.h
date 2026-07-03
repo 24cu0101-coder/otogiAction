@@ -15,7 +15,9 @@ class UMoveComponent;
 class UMoveCameraComponent;
 class UInputMappingContext;
 class UInputAction;
-class UPlayerDodgeComponent;		//回避を実行するクラス
+class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
+class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
+
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter //, public IAbilitySystemInterface
@@ -57,9 +59,14 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UMoveCameraComponent* MovementCameraComp;
 
-	//カメラ操作コンポーネント(髙山)
+	//キャラ回避コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
 	UPlayerDodgeComponent* PlayerDodgeComp;
+
+	//通常攻撃コンポーネント(髙山)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NormalAttack", meta = (AllowPrivateAccess = "true"))
+	UNormalAttackComponent* NormalAttackComp;
+
 
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -71,8 +78,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	//回避のインプットアクション(髙山)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* DodgeAction;
+
+	//通常攻撃のインプットアクション(髙山)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* NormalAttackAction;
 
 
 
@@ -80,7 +92,8 @@ protected:
 	//入力イベント発生時に実行される内部関数
 	void OnCharacterMovement(const FInputActionValue& Value);
 	void OnCameraMovement(const FInputActionValue& Value);
-	void OnPlayerDodge(const FInputActionValue& Value);
+	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
+	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
 
 	////回避のcomponentを登録(髙山記述)
 	//UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
