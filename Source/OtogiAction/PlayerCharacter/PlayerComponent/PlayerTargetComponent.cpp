@@ -72,11 +72,99 @@ AActor* UPlayerTargetComponent::GetSoftLockTarget(float SoftLockRadius)
 
 AActor* UPlayerTargetComponent::GetCloseEnemyInRadius(float Radius)
 {
-	return nullptr;
+	AActor* Owner = GetOwner();
+	if (!Owner)return nullptr;
+
+	FVector SearchOrigin = Owner->GetActorLocation();
+
+	TArray<AActor*>ActorsToIgnore;
+	ActorsToIgnore.Add(Owner);
+
+	TArray <FHitResult> HitResults;
+
+	//開始と終了を同じ位置に設定して周囲の敵をスキャン
+	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
+		GetWorld(),
+		SearchOrigin,
+		SearchOrigin,
+		Radius,
+		UEngineTypes::ConvertToTraceType(ECC_Pawn), 
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::None,
+		HitResults,
+		true
+	);
+	AActor* ClosestEnemy = nullptr;
+	float ClosestDistance = UE_BIG_NUMBER;
+	//スキャンに引っかかったEnemyをターゲットに暫定
+	if (bHit)
+	{
+		for (const FHitResult& Hit : HitResults)
+		{
+			AActor* HitActor = Hit.GetActor();
+			if (HitActor && HitActor != Owner)
+			{
+				float Dist = FVector::Dist(SearchOrigin, HitActor->GetActorLocation());
+				if (Dist < ClosestDistance)
+				{
+					ClosestDistance = Dist;
+					ClosestEnemy = HitActor;
+				}
+			}
+		}
+	}
+
+	return ClosestEnemy;
 }
 
+//最もターゲットしやすい敵を探索する
 AActor* UPlayerTargetComponent::FindBestTargetForward()
 {
-	return nullptr;
+	AActor* Owner = GetOwner();
+	if (!Owner) return nullptr;
+
+	FVector StartLoc = Owner->GetActorLocation();
+	FVector EndLoc = StartLoc + (Owner->GetActorForwardVector() * TargetRange);
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(Owner);
+
+	TArray<FHitResult> HitResults;
+
+	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
+		GetWorld(),
+		StartLoc,
+		EndLoc,
+		TargetRadius,
+		UEngineTypes::ConvertToTraceType(ECC_Pawn),
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::ForDuration,
+		HitResults,
+		true
+	);
+
+	AActor* BestTarget = nullptr;
+	float ClosestDistance = UE_BIG_NUMBER;
+
+	if (bHit)
+	{
+		for (const FHitResult& Hit : HitResults)
+		{
+			AActor* HitActor = Hit.GetActor();
+			if (HitActor && HitActor != Owner)
+			{
+				float Dist = FVector::Dist(StartLoc, HitActor->GetActorLocation());
+				if (Dist < ClosestDistance)
+				{
+					ClosestDistance = Dist;
+					BestTarget = HitActor;
+				}
+			}
+		}
+	}
+
+	return BestTarget;
 }
 

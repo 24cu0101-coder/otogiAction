@@ -41,7 +41,7 @@ private:
 
 	//ターゲットロックオンをするための最大射程
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target Setting", meta = (AllowPrivateAccess = true));
-	float TargetRenge = 1500.f;
+	float TargetRange = 1500.f;
 
 	//ターゲット検索用の球体の半径
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target Setting", meta = (AllowPrivateAccess = true));
