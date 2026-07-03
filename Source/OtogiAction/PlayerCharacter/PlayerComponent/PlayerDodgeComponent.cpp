@@ -1,4 +1,11 @@
+
+//--------------------------------------------------------------------------------------------------------
+//回避コンポーネント
+//-----------------------------------------------------------------------------------------------------
 #include "PlayerDodgeComponent.h"
+#include "GameplayTagContainer.h"
+
+
 
 UPlayerDodgeComponent::UPlayerDodgeComponent()
 {
@@ -56,6 +63,27 @@ void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
 
 void UPlayerDodgeComponent::ExecuteAbility()
 {
+	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
 
+<<<<<<< HEAD
+=======
+	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
+
+	//アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	if (!AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) && !AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
+	{
+		//回避アビリティがあるなら
+		if (DodgeAbility)
+		{
+			//アビリティ実行
+			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
+		}
+	}
+>>>>>>> origin/master
 }
 
