@@ -40,7 +40,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	
+
+	//初期化時に呼ばれるabilityを付与する関数
+	void DodgeAbilitySet(UAbilitySystemComponent* DodgeASC);
+
 	//アビリティを呼び出す関数
 	void ExecuteAbility();
 

@@ -19,9 +19,8 @@ void UGAPlayerDodge::ActivateAbility(
 	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
 
 	//クラッシュ、バグ回避のためのチェック
-	if (!PlayerActor)
+	if (!PlayerActor || !DodgeMontage)
 	{
-
 		//リターン
 		return;
 	}
@@ -40,9 +39,6 @@ void UGAPlayerDodge::ActivateAbility(
 //回避開始の処理
 void UGAPlayerDodge::DodgeStart()
 {
-	UE_LOG(LogTemp, Log, TEXT("55"));
-
-
 	//再生のタスク
 	UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
 	(this, NAME_None, DodgeMontage);
@@ -50,9 +46,6 @@ void UGAPlayerDodge::DodgeStart()
 	//タスクがあるなら
 	if (DodgeMontageTask)
 	{
-		UE_LOG(LogTemp, Log, TEXT("yyefsfsd"));
-
-
 		//アニメーション再生
 		DodgeMontageTask->ReadyForActivation();
 	}

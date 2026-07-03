@@ -3,7 +3,7 @@
 
 #include "AttackTask.h"
 #include "AIController.h"
-#include "OtogiAction/Enemy/BossEnemyCharacter.h"
+#include "../BossEnemyCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 UAttackTask::UAttackTask()
