@@ -3,6 +3,8 @@
 
 #include "AttackDecorator.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "OtogiAction/Enemy/BossEnemyCharacter.h"
+#include "AIController.h"
 
 UAttackDecorator::UAttackDecorator()
 {
@@ -14,14 +16,28 @@ UAttackDecorator::UAttackDecorator()
 
 bool UAttackDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	//const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	//if (!BlackboardComp) return false;
+	AAIController* AIController = OwnerComp.GetAIOwner();
+	if (!AIController) return false;
 
-	////PlayerActorキーからオブジェクトを取得
-	//UObject* TargetObject = BlackboardComp->GetValueAsObject(PlayerActor.SelectedKeyName);
-	//AActor* TargetActor = Cast<AActor>(TargetObject);
+	//敵の本体を取得
+	ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(AIController->GetPawn());
+	if (!EnemyCharacter) return false;
 
-	//return (TargetActor != nullptr);
+	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	if (!BlackboardComp) return false;
 
-	return false;
+	//BBKeys::PlayerActorからObjectを取得してキャスト
+	ACharacter* PlayerCharacter = Cast<ACharacter>(BlackboardComp->GetValueAsObject(FName("PlayerActor")));
+	if (!PlayerCharacter) return false;
+
+	//PlayerActorキーからオブジェクトを取得
+	UObject* TargetObject = BlackboardComp->GetValueAsObject(FName("PlayerActor"));
+	AActor* TargetActor = Cast<AActor>(TargetObject);
+
+	float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
+
+	bool bInAttackRange = (Distance <= EnemyCharacter->AttackRange);
+
+	return bInAttackRange;
+
 }
