@@ -19,14 +19,15 @@ public:
 	// Sets default values for this component's properties
 	UPlayerDodgeComponent();
 
-	APlayerCharacter* PlayerActor;
+	
 
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
+	UPROPERTY(Transient)
+	APlayerCharacter* PlayerActor;
 
 	//Abilityシステムコンポーネントクラス変数
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge.Ability")

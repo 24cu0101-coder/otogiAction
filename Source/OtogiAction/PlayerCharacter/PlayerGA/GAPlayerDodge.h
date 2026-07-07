@@ -29,14 +29,17 @@ public:
 		const FGameplayEventData* DodgeTriggerEvent
 	) override;
 
-	//プレイヤーの情報
-	APlayerCharacter* PlayerActor;
+
 
 protected:
 
 	//回避のアニメーションモンタージュ
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
 	UAnimMontage* DodgeMontage;
+
+	//プレイヤーの情報
+	UPROPERTY(Transient)
+	APlayerCharacter* PlayerActor;
 
 	//-------------------
 	//関数
@@ -71,6 +74,11 @@ protected:
 	//回避実行中のタグ
 	FGameplayTag IsDodgeTag;
 
+	//アビリティシステム
+	UPROPERTY(BlueprintReadOnly, Category = "GAS")
+	UAbilitySystemComponent* ASC;
+
+
 private:
 
 	//回避の数値
@@ -90,7 +98,5 @@ private:
 
 
 
-	//アビリティシステム
-	UAbilitySystemComponent* ASC;
 	
 };

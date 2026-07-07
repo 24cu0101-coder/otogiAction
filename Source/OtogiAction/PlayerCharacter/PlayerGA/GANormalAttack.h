@@ -76,6 +76,10 @@ protected:
 	//再生するモンタージュの配列番号
 	int32 NAttackIndex;
 
+	//アビリティシステム
+	UPROPERTY(BlueprintReadOnly, Category = "GAS")
+	UAbilitySystemComponent* NAttackASC;
+
 
 
 	//-------------------
@@ -87,8 +91,6 @@ protected:
 
 private:
 
-	//アビリティシステム
-	UAbilitySystemComponent* NAttackASC;
 
 
 };

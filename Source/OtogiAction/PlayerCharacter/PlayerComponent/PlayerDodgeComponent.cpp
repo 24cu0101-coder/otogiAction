@@ -15,10 +15,8 @@ UPlayerDodgeComponent::UPlayerDodgeComponent()
 
 	PrimaryComponentTick.bCanEverTick = true;
 
-<<<<<<< HEAD
 		//CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("DodgeComponentASC"));
 	
-=======
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 
 	//アビリティシステムコンポーネントがあるなら
@@ -31,7 +29,6 @@ UPlayerDodgeComponent::UPlayerDodgeComponent()
 		}
 
 	}
->>>>>>> origin/master
 }
 
 
@@ -40,7 +37,6 @@ void UPlayerDodgeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-<<<<<<< HEAD
 	AActor* OwnerActor = GetOwner();
 	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
 
@@ -56,9 +52,7 @@ void UPlayerDodgeComponent::BeginPlay()
 			DodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
 		}
 	}
-=======
 	
->>>>>>> origin/master
 	
 }
 
@@ -91,8 +85,6 @@ void UPlayerDodgeComponent::ExecuteAbility()
 {
 	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
 
-<<<<<<< HEAD
-=======
 	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
 
 	//アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
@@ -110,6 +102,5 @@ void UPlayerDodgeComponent::ExecuteAbility()
 			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
 		}
 	}
->>>>>>> origin/master
 }
 
