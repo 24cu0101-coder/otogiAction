@@ -3,8 +3,7 @@
 
 #include "AttackTask.h"
 #include "AIController.h"
-#include "OtogiAction/Enemy/BossEnemyCharacter.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "../EnemyAttackBaseComponent.h"
 
 UAttackTask::UAttackTask()
 {
@@ -17,41 +16,47 @@ UAttackTask::UAttackTask()
 //タスク開始
 EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	AAIController* AIController = OwnerComp.GetAIOwner();
-	if (!AIController) return EBTNodeResult::Failed;
+	if (!AttackClass) return EBTNodeResult::Failed;
 
-	ABossEnemyCharacter* EnemyChar = Cast<ABossEnemyCharacter>(AIController->GetPawn());
-	if (!EnemyChar) return EBTNodeResult::Failed;
+	AAIController* EnemyController = OwnerComp.GetAIOwner();
+	APawn* EnemyPawn = EnemyController ? EnemyController->GetPawn() : nullptr;
+	if (!EnemyPawn) return EBTNodeResult::Failed;
 
-	//攻撃中は注視を解除
-	AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	//AIControllerからBlackboardコンポーネントを取得
+	BBComp = EnemyController->GetBlackboardComponent();
+	if (!BBComp) return EBTNodeResult::Failed;
 
-	//タスクが実行中であることを返す
-	return EBTNodeResult::InProgress;
+	CachedOwnerComp = &OwnerComp;
+
+	//コンポーネントを動的に生成して、Pawnにアタッチする
+	UEnemyAttackBaseComponent* NewAttack = NewObject<UEnemyAttackBaseComponent>(EnemyPawn, AttackClass);
+	if (NewAttack)
+	{
+		NewAttack->RegisterComponent();
+
+		//終了イベントをバインド
+		NewAttack->OnAttackFinished.AddDynamic(this, &UAttackTask::OnAttackCompleted);
+
+		BBComp->SetValueAsBool(TEXT("CanAttack"), true);
+
+		//攻撃を実行
+		NewAttack->ExecuteAttack();
+
+		//攻撃が終わるまでここで待機させる
+		return EBTNodeResult::InProgress;
+	}
+
+
+    return EBTNodeResult::Failed;
 }
 
-//タスク終了
-void UAttackTask::OnAttackAnimationFinished(TWeakObjectPtr<UBehaviorTreeComponent> OwnerCompPtr)
+//攻撃終了時
+void UAttackTask::OnAttackCompleted(bool bSuccess)
 {
-	if (OwnerCompPtr.IsValid())
-	{
-		UBehaviorTreeComponent* BTComp = OwnerCompPtr.Get();
-		AAIController* AIController = BTComp->GetAIOwner();
+	//BTにタスクが完了したことを通知
+	EBTNodeResult::Type Result = bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
+	FinishLatentTask(*CachedOwnerComp, Result);
 
-		if (AIController)
-		{
-			UBlackboardComponent* BBComp = BTComp->GetBlackboardComponent();
-			if (BBComp)
-			{
-				AActor* PlayerActor = Cast<AActor>(BBComp->GetValueAsObject(FName("PlayerActor")));
-				if (PlayerActor)
-				{
-					AIController->SetFocus(PlayerActor);
-				}
-			}
-		}
+	BBComp->SetValueAsBool(TEXT("CanAttack"), false);
 
-		//Behavior Treeに終了したと通知する
-		FinishLatentTask(*OwnerCompPtr.Get(), EBTNodeResult::Succeeded);
-	}
 }
