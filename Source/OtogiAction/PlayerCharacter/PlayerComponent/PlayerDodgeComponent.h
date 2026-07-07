@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "PlayerDodgeComponent.generated.h"
 
 
@@ -17,6 +18,9 @@ class OTOGIACTION_API UPlayerDodgeComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UPlayerDodgeComponent();
+
+	APlayerCharacter* PlayerActor;
+
 
 protected:
 	// Called when the game starts

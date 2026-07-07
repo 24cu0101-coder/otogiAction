@@ -4,15 +4,18 @@
 //-----------------------------------------------------------------------------------------------------
 #include "PlayerDodgeComponent.h"
 #include "GameplayTagContainer.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+
 
 
 
 UPlayerDodgeComponent::UPlayerDodgeComponent()
 {
 	
+
 	PrimaryComponentTick.bCanEverTick = true;
 
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("DodgeComponentASC"));
+		//CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("DodgeComponentASC"));
 	
 }
 
@@ -21,6 +24,13 @@ UPlayerDodgeComponent::UPlayerDodgeComponent()
 void UPlayerDodgeComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AActor* OwnerActor = GetOwner();
+	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+
+
+	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
+
 
 	AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
 	{
