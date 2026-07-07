@@ -3,12 +3,9 @@
 
 #include "AttackTask.h"
 #include "AIController.h"
-<<<<<<< HEAD
 #include "../EnemyAttackBaseComponent.h"
-=======
 #include "../BossEnemyCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
->>>>>>> 44506125084014e951e002c54ada773bde9668da
 
 UAttackTask::UAttackTask()
 {
