@@ -1,12 +1,37 @@
+
+//--------------------------------------------------------------------------------------------------------
+//回避コンポーネント
+//-----------------------------------------------------------------------------------------------------
 #include "PlayerDodgeComponent.h"
+#include "GameplayTagContainer.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+
+
+
 
 UPlayerDodgeComponent::UPlayerDodgeComponent()
 {
 	
+
 	PrimaryComponentTick.bCanEverTick = true;
 
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("DodgeComponentASC"));
+<<<<<<< HEAD
+		//CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("DodgeComponentASC"));
 	
+=======
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+
+	//アビリティシステムコンポーネントがあるなら
+	if (AbilitySystemComponent)
+	{
+		//回避アビリティがあるなら
+		if (DodgeAbility)
+		{
+
+		}
+
+	}
+>>>>>>> origin/master
 }
 
 
@@ -14,6 +39,14 @@ UPlayerDodgeComponent::UPlayerDodgeComponent()
 void UPlayerDodgeComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+<<<<<<< HEAD
+	AActor* OwnerActor = GetOwner();
+	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+
+
+	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
+
 
 	AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
 	{
@@ -23,6 +56,9 @@ void UPlayerDodgeComponent::BeginPlay()
 			DodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
 		}
 	}
+=======
+	
+>>>>>>> origin/master
 	
 }
 
@@ -35,31 +71,45 @@ void UPlayerDodgeComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// ...
 }
 
+//
+void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
+{
+	//ヌルチェック
+	if (!DodgeASC || !DodgeAbility)
+	{
+		return;
+	}
 
+	if (GetOwner()->HasAuthority())
+	{
+		//プレイヤーにDodgeAbilityを付与する
+		DodgeHandle = DodgeASC->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
+	}
+}
 
 void UPlayerDodgeComponent::ExecuteAbility()
 {
+	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
 
-	
-	UE_LOG(LogTemp, Log, TEXT("oo"));
+<<<<<<< HEAD
+=======
+	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
 
-	//アビリティシステムコンポーネントがあるなら
-	if (AbilitySystemComponent)
+	//アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
+	if (!AbilitySystemComponent)
 	{
-		UE_LOG(LogTemp, Log, TEXT("yy"));
+		return;
+	}
 
+	if (!AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) && !AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
+	{
 		//回避アビリティがあるなら
 		if (DodgeAbility)
 		{
+			//アビリティ実行
 			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
 		}
 	}
-
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("jj"));
-
-	}
-
+>>>>>>> origin/master
 }
 

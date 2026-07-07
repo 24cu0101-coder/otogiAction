@@ -3,7 +3,7 @@
 
 #include "ChaseDecorator.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "OtogiAction/Enemy/BossEnemyCharacter.h"
+#include "../BossEnemyCharacter.h"
 #include "AIController.h"
 
 UChaseDecorator::UChaseDecorator()

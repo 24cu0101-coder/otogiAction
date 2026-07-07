@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "PlayerDodgeComponent.generated.h"
 
 
@@ -17,6 +18,9 @@ class OTOGIACTION_API UPlayerDodgeComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UPlayerDodgeComponent();
+
+	APlayerCharacter* PlayerActor;
+
 
 protected:
 	// Called when the game starts
@@ -40,7 +44,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	
+
+	//初期化時に呼ばれるabilityを付与する関数
+	void DodgeAbilitySet(UAbilitySystemComponent* DodgeASC);
+
 	//アビリティを呼び出す関数
 	void ExecuteAbility();
 
