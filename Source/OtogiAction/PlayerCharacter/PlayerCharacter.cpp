@@ -60,6 +60,8 @@ APlayerCharacter::APlayerCharacter()
 
 	//カメラ操作コンポーネント生成
 	MovementCameraComp = CreateDefaultSubobject<UMoveCameraComponent>(TEXT("CameraComp"));
+<<<<<<< HEAD
+=======
 
 	//回避コンポーネント生成
 	PlayerDodgeComp = CreateDefaultSubobject<UPlayerDodgeComponent>(TEXT("DodgeComp"));
@@ -73,6 +75,7 @@ APlayerCharacter::APlayerCharacter()
 	//スキルコンポーネントの生成
 	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
 
+>>>>>>> origin/master
 }
 
 //ゲームが始まったときに生成
@@ -114,6 +117,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		//キャラとカメラの移動
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCharacterMovement);
+<<<<<<< HEAD
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnCameraMovement);
+=======
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
 		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
 		//回避
@@ -125,6 +132,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(ExcuteSkill2, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill2Pressed);
 		EnhancedInputComponent->BindAction(ExcuteSkill3, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill3Pressed);
 		EnhancedInputComponent->BindAction(ExcuteSkill4, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill4Pressed);
+>>>>>>> origin/master
 
 	}
 
@@ -171,11 +179,18 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 //回避(髙山)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
+<<<<<<< HEAD
+	//componentがあったら
+	if (DodgeComponent)
+	{
+
+=======
 	//回避コンポーネントがあったら
 	if (PlayerDodgeComp)
 	{
 		//コンポーネントの処理実行
 		PlayerDodgeComp->ExecuteAbility();
+>>>>>>> origin/master
 	}
 }
 

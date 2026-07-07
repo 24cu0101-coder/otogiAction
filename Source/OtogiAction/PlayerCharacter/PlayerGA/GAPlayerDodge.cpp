@@ -29,7 +29,11 @@ void UGAPlayerDodge::ActivateAbility(
 	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
 
 	//クラッシュ、バグ回避のためのチェック
+<<<<<<< HEAD:Source/OtogiAction/PlayerCharacter/GAPlayerDodge.cpp
+	if (!PlayerActor || !DodgeMontage)
+=======
 	if (!PlayerActor || !DodgeMontage )
+>>>>>>> origin/master:Source/OtogiAction/PlayerCharacter/PlayerGA/GAPlayerDodge.cpp
 	{
 		//リターン
 		return;
@@ -58,6 +62,8 @@ void UGAPlayerDodge::ActivateAbility(
 //回避開始の処理
 void UGAPlayerDodge::DodgeStart()
 {
+<<<<<<< HEAD:Source/OtogiAction/PlayerCharacter/GAPlayerDodge.cpp
+=======
 	//世界からtimerをもらう
 	//回避処理開始
 	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, this, &UGAPlayerDodge::IsDodge, 0.001f, true);
@@ -74,6 +80,7 @@ void UGAPlayerDodge::DodgeStart()
 void UGAPlayerDodge::IsDodge()
 {
 
+>>>>>>> origin/master:Source/OtogiAction/PlayerCharacter/PlayerGA/GAPlayerDodge.cpp
 	//再生のタスク
 	UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
 	(this, NAME_None, DodgeMontage);

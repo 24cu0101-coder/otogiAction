@@ -70,6 +70,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UMoveCameraComponent* MovementCameraComp;
 
+<<<<<<< HEAD
+=======
 	//キャラ回避コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
 	UPlayerDodgeComponent* PlayerDodgeComp;
@@ -82,6 +84,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	USkillComponent* SkillComp;
 
+>>>>>>> origin/master
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -125,9 +128,15 @@ protected:
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
 	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
 
+<<<<<<< HEAD
+	//回避のcomponentを登録(髙山記述)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
+	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
+=======
 	void OnSwitchSkillGroup(const FInputActionValue& Value);
 	void OnSkill1Pressed();
 	void OnSkill2Pressed();
 	void OnSkill3Pressed();
 	void OnSkill4Pressed();
+>>>>>>> origin/master
 };
