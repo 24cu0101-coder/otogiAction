@@ -6,8 +6,6 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "ChaseTask.generated.h"
 
-class ABossEnemyCharacter;
-
 /**
  * 
  */
