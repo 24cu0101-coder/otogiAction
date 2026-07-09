@@ -4,12 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "GameplayTagContainer.h"
 #include "AttackTask.generated.h"
 
-class UGameplayAbility;
-class UEnemyAttackBaseComponent;
-class UBlackboardComponent;
 /**
  * 
  */
@@ -23,29 +19,8 @@ public:
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	//virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	// 実行したい攻撃コンポーネントのクラスをBT上で指定
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<UEnemyAttackBaseComponent> AttackClass;
+	//アニメーション終了にタイマーから呼び出される関数
+	void OnAttackAnimationFinished(TWeakObjectPtr<UBehaviorTreeComponent> OwnerCompPtr);
 
-private:
-	// 攻撃終了時に呼ばれるコールバック関数
-	UFUNCTION()
-	void OnAttackCompleted(bool bSuccess);
-
-	// 現在実行中のタスクコンポーネントを保持
-	UPROPERTY()
-	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
-
-	UBlackboardComponent* BBComp;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector TargetActorKey;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector CanChaseKey;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector CanAttackKey;
 };

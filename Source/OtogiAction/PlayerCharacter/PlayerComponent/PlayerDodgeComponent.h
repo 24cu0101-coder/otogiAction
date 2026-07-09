@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
-#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "PlayerDodgeComponent.generated.h"
 
 
@@ -19,15 +18,11 @@ public:
 	// Sets default values for this component's properties
 	UPlayerDodgeComponent();
 
-	
-
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(Transient)
-	APlayerCharacter* PlayerActor;
+
 
 	//Abilityシステムコンポーネントクラス変数
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge.Ability")

@@ -8,7 +8,7 @@
 
 UChaseDecorator::UChaseDecorator()
 {
-	NodeName = TEXT("Is Player In SightRange Decorator");
+	NodeName = TEXT("C++ Can Attack Decorator");
 
 	//デコレーターがBlackboardの値を監視して自動で中断（Abort）を実行できるようにする設定
 	bAllowAbortNone = true;
@@ -35,11 +35,10 @@ bool UChaseDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerCo
 
 	float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
 
-	bool bInSightRange = (Distance <= EnemyCharacter->SightRange);
+	bool bInAttackRange = (Distance <= EnemyCharacter->AttackRange);
 
 	//指定されたkeySelectorから現在のBool値を取得
-	BlackboardComp->SetValueAsBool(FName("CanChase"), bInSightRange);
-
+	BlackboardComp->SetValueAsBool(FName("CanAttack"), bInAttackRange);
 	//Trueならこの先のシーケンスを実行、Falseなら実行しない
-	return bInSightRange;
+	return bInAttackRange;
 }

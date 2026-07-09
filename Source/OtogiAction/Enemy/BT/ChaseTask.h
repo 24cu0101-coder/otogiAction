@@ -6,8 +6,6 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "ChaseTask.generated.h"
 
-class ABossEnemyCharacter;
-
 /**
  * 
  */
@@ -31,13 +29,6 @@ protected:
 	// Blackboardのキーを指定するためのプロパティ
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PlayerActorKey;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector CanChaseKey;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector CanAttackKey;
-
 
 	// 追跡を完了（成功）とする接近距離
 	UPROPERTY(EditAnywhere, Category = "AI")

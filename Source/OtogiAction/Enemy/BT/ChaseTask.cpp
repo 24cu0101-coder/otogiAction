@@ -5,12 +5,11 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "../BossEnemyCharacter.h"
+
 UChaseTask::UChaseTask()
 {
     NodeName = TEXT("Chase Player");
 
-    bNotifyTick = true;
 }
 
 EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -30,12 +29,9 @@ EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
         return EBTNodeResult::Failed;
     }
 
-    //BlackboardのCanChaseをtrueに、CanAttackをfalseに設定
-    BlackboardComp->SetValueAsBool(CanChaseKey.SelectedKeyName, true);
-    BlackboardComp->SetValueAsBool(CanAttackKey.SelectedKeyName, false);
-
-
     // AIをプレイヤーに向けて移動させる
+    // ※注意: MoveToActorは非同期処理なので、即座に移動完了はしません。
+    // 完全に追跡し続ける場合はTickTaskを使うか、BehaviorTreeの別ノード（MoveTo）と組み合わせるのが一般的です。
     AIController->MoveToActor(PlayerActor, 100.0f);
 
     // 今回は「移動命令を出した」時点で一旦タスク成功（Succeeded）として返します
@@ -65,15 +61,11 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
         return;
     }
 
-    //敵の本体を取得
-    ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(AIController->GetPawn());
-    if (!EnemyCharacter) return;
-
     // プレイヤーとの距離を計算
     float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), PlayerActor->GetActorLocation());
 
-    //攻撃範囲より近づいたら追跡完了とする
-    if (Distance <= EnemyCharacter->AttackRange)
+    // 設定した距離（AcceptanceRadius）より近づいたら追跡完了とする
+    if (Distance <= AcceptanceRadius)
     {
         // 移動を停止させて、タスクを「成功」で終了する
         AIController->StopMovement();
