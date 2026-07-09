@@ -9,6 +9,7 @@
 
 
 class UAbilitySystemComponent;
+class UAttackCollisionComponent;
 
 UCLASS()
 class OTOGIACTION_API ABossEnemyCharacter : public ACharacter
@@ -69,9 +70,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float SightDegrees;
 
-	//GASÇégÇ§ÇΩÇﬂÇÃïœêî
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
-	UAbilitySystemComponent* AbilitySystemComponent;
+
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")

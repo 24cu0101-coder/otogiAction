@@ -39,7 +39,16 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 		//終了イベントをバインド
 		NewAttack->OnAttackFinished.AddDynamic(this, &UAttackTask::OnAttackCompleted);
 
-		BBComp->SetValueAsBool(TEXT("CanAttack"), true);
+		//BlackboardのCanChaseをfalseに、CanAttackをtrueに設定
+		BBComp->SetValueAsBool(CanChaseKey.SelectedKeyName, false);
+		BBComp->SetValueAsBool(CanAttackKey.SelectedKeyName, true);
+
+		AActor* TargetActor = Cast<AActor>(BBComp->GetValueAsObject(TargetActorKey.SelectedKeyName));
+		if (TargetActor)
+		{
+			//プレイヤーの方を向く
+			EnemyController->SetFocus(TargetActor);
+		}
 
 		//攻撃を実行
 		NewAttack->ExecuteAttack();
@@ -55,10 +64,11 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 //攻撃終了時
 void UAttackTask::OnAttackCompleted(bool bSuccess)
 {
+	//Blackboardの値をセット
+	BBComp->SetValueAsBool(CanAttackKey.SelectedKeyName, false);
+
 	//BTにタスクが完了したことを通知
 	EBTNodeResult::Type Result = bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	FinishLatentTask(*CachedOwnerComp, Result);
-
-	BBComp->SetValueAsBool(TEXT("CanAttack"), false);
 
 }

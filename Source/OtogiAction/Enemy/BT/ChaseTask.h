@@ -32,6 +32,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PlayerActorKey;
 
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector CanChaseKey;
+
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector CanAttackKey;
+
+
 	// 追跡を完了（成功）とする接近距離
 	UPROPERTY(EditAnywhere, Category = "AI")
 	float AcceptanceRadius = 100.0f;
