@@ -11,24 +11,7 @@
 
 UPlayerDodgeComponent::UPlayerDodgeComponent()
 {
-	
-
-	PrimaryComponentTick.bCanEverTick = true;
-
-		//CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("DodgeComponentASC"));
-	
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
-
-	//アビリティシステムコンポーネントがあるなら
-	if (AbilitySystemComponent)
-	{
-		//回避アビリティがあるなら
-		if (DodgeAbility)
-		{
-
-		}
-
-	}
+	PrimaryComponentTick.bCanEverTick = true;	
 }
 
 
@@ -37,14 +20,13 @@ void UPlayerDodgeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//
 	AActor* OwnerActor = GetOwner();
 	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
-
-
 	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
 
 
-	AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
+	//AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
 	{
 		if (GetOwner()->HasAuthority() && DodgeAbility)
 		{
@@ -68,17 +50,16 @@ void UPlayerDodgeComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 //
 void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
 {
-	//ヌルチェック
-	if (!DodgeASC || !DodgeAbility)
-	{
-		return;
-	}
-
-	if (GetOwner()->HasAuthority())
-	{
-		//プレイヤーにDodgeAbilityを付与する
-		DodgeHandle = DodgeASC->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
-	}
+	////ヌルチェック
+	//if (!DodgeASC || !DodgeAbility)
+	//{
+	//	return;
+	//}
+	//if (GetOwner()->HasAuthority())
+	//{
+	//	//プレイヤーにDodgeAbilityを付与する
+	//	DodgeHandle = DodgeASC->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
+	//}
 }
 
 void UPlayerDodgeComponent::ExecuteAbility()
@@ -88,16 +69,18 @@ void UPlayerDodgeComponent::ExecuteAbility()
 	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
 
 	//アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
-	if (!AbilitySystemComponent)
+	if (AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) || AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
 	{
 		return;
 	}
 
-	if (!AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) && !AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
+	else 
 	{
 		//回避アビリティがあるなら
 		if (DodgeAbility)
 		{
+			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
+
 			//アビリティ実行
 			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
 		}

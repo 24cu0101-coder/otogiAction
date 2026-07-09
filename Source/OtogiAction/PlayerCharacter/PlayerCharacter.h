@@ -20,7 +20,6 @@ class UInputAction;
 class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
 class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
 
-class UPlayerDodgeComponent;		//回避を実行するクラス
 class USkillComponent;
 
 UCLASS()
@@ -125,8 +124,6 @@ protected:
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
 	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
 
-	//回避のcomponentを登録(髙山記述)
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "DodgeComponent")
 	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
 	void OnSwitchSkillGroup(const FInputActionValue& Value);
 	void OnSkill1Pressed();

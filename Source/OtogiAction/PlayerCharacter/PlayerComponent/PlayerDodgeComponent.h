@@ -26,6 +26,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	//プレイヤーのアクター
 	UPROPERTY(Transient)
 	APlayerCharacter* PlayerActor;
 
