@@ -16,10 +16,11 @@ class UMoveComponent;
 class UMoveCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+
 class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
 class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
+
 class USkillComponent;
-class UPlayerTargetComponent;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -80,10 +81,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	USkillComponent* SkillComp;
 
-	//ターゲットロックオンコンポネント
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
-	UPlayerTargetComponent* TargeComp;
-
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -101,10 +98,6 @@ private:
 	//通常攻撃のインプットアクション(髙山)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* NormalAttackAction;
-
-	//インプットアクション
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction* TargetLockOn;
 
 	//スキル選択
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -130,22 +123,11 @@ protected:
 	void OnCameraMovement(const FInputActionValue& Value);
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
 	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
-	void OnTargetLockOn();
+
+	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
 	void OnSwitchSkillGroup(const FInputActionValue& Value);
 	void OnSkill1Pressed();
 	void OnSkill2Pressed();
 	void OnSkill3Pressed();
 	void OnSkill4Pressed();
-
-	//死亡時のハンドル関数
-	UFUNCTION()
-	void HandlePlayerDead();
-
-	//死亡時のアニメーションモンタージュ
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death")
-	UAnimMontage* DeadMontage;
-
-	private:
-		//二重に死亡処理が走るのを防ぐためのフラグ
-		bool bIsDead = false;
 };
