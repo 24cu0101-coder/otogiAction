@@ -5,11 +5,12 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
-
+#include "../BossEnemyCharacter.h"
 UChaseTask::UChaseTask()
 {
     NodeName = TEXT("Chase Player");
 
+    bNotifyTick = true;
 }
 
 EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -61,11 +62,15 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
         return;
     }
 
+    //敵の本体を取得
+    ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(AIController->GetPawn());
+    if (!EnemyCharacter) return;
+
     // プレイヤーとの距離を計算
     float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), PlayerActor->GetActorLocation());
 
-    // 設定した距離（AcceptanceRadius）より近づいたら追跡完了とする
-    if (Distance <= AcceptanceRadius)
+    //攻撃範囲より近づいたら追跡完了とする
+    if (Distance <= EnemyCharacter->AttackRange)
     {
         // 移動を停止させて、タスクを「成功」で終了する
         AIController->StopMovement();

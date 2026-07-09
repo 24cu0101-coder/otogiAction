@@ -2,8 +2,6 @@
 #include "minionsAttackComponent.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "Ability/GA_minionsAttack_Normal.h"
-#include "Ability/GA_minionsAttack_Middle.h"
-#include "Ability/GA_minionsAttack_Strong.h"
 
 AMinionsCharacter::AMinionsCharacter()
 {
@@ -39,8 +37,6 @@ void AMinionsCharacter::BeginPlay()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	GiveDefaultAbilities();
-
-	AttackComponent->Attack();
 }
 
 void AMinionsCharacter::GiveDefaultAbilities()
@@ -54,18 +50,8 @@ void AMinionsCharacter::GiveDefaultAbilities()
 	AbilitySystemComponent->GiveAbility(
 		FGameplayAbilitySpec(UGA_minionsAttack_Normal::StaticClass(), 1, 0)
 	);
-	// 中距離攻撃を付与
-	AbilitySystemComponent->GiveAbility(
-		FGameplayAbilitySpec(UGA_minionsAttack_Middle::StaticClass(), 1, 1)
-	);
-	// 強攻撃を付与
-	AbilitySystemComponent->GiveAbility(
-		FGameplayAbilitySpec(UGA_minionsAttack_Strong::StaticClass(), 1, 2)
-	);
 
-	UE_LOG(LogTemp, Warning, TEXT("Normal Granted"));
-	UE_LOG(LogTemp, Warning, TEXT("Middle Granted"));
-	UE_LOG(LogTemp, Warning, TEXT("Strong Granted"));
+	UE_LOG(LogTemp, Warning, TEXT("GAS Ability Granted"));
 }
 
 void AMinionsCharacter::Tick(float DeltaTime)

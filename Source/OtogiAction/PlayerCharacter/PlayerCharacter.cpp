@@ -12,6 +12,11 @@
 #include "PlayerComponent/PlayerDodgeComponent.h"
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
+#include "PlayerComponent/PlayerTargetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "../Component/Status/StatusComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -69,7 +74,8 @@ APlayerCharacter::APlayerCharacter()
 	//通常攻撃コンポーネント生成
 	NormalAttackComp = CreateDefaultSubobject<UNormalAttackComponent>(TEXT("NormalAtComp"));
 
-
+	//ターゲットコンポーネントの生成
+	TargeComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
 
 	//スキルコンポーネントの生成
 	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
@@ -96,6 +102,19 @@ void APlayerCharacter::BeginPlay()
 		SkillComp->RegisterAbilities(GetAbilitySystemComponent());
 	}
 
+	if (MovementCharaComp && TargeComp)
+	{
+		//カメラコンポーネントにターゲットの参照を渡す
+		MovementCameraComp->SetTargetComponent(TargeComp);
+	}
+
+	//ステータスコンポーネントから死亡をバインド
+	UStatusComponent* StatusComp = FindComponentByClass<UStatusComponent>();
+	if (StatusComp)
+	{
+		StatusComp->OnDead.AddDynamic(this, &APlayerCharacter::HandlePlayerDead);
+	}
+
 }
 
 //毎フレーム処理
@@ -118,6 +137,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);;
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
 		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
+		//回避
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
+
+		//ターゲットの入力
+		EnhancedInputComponent->BindAction(TargetLockOn, ETriggerEvent::Started, this, &APlayerCharacter::OnTargetLockOn);
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
@@ -138,6 +162,8 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 //キャラクター移動
 void APlayerCharacter::OnCharacterMovement(const FInputActionValue& Value)
 {
+	if (bIsDead) return;
+
 	//スティックの傾きの軸を取得
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -158,6 +184,8 @@ void APlayerCharacter::OnCharacterMovement(const FInputActionValue& Value)
 //カメラ操作
 void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 {
+	if (bIsDead) return;
+
 	//スティックの傾きの軸を取得
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
@@ -171,6 +199,7 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 //回避(髙山)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
+	if (bIsDead) return;
 	
 	//回避コンポーネントがあったら
 	if (PlayerDodgeComp)
@@ -178,23 +207,38 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 		//コンポーネントの処理実行
 		PlayerDodgeComp->ExecuteAbility();
 	}
-
 }       
 
 //
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
+	if (bIsDead) return;
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp)
 	{
+		if (MovementCharaComp)
+		{
+			MovementCharaComp->StartWarping(600.f);
+		}
 		//コンポーネントの処理実行
 		NormalAttackComp->ExecuteNormalAttackAbility();
 
 	}
 }
+//ターゲットのロックオン
+void APlayerCharacter::OnTargetLockOn()
+{
+	if (bIsDead) return;
+	//コンポーネントがあるか確認
+	if (TargeComp)
+	{
+		TargeComp->ToggleTargetLock();
+	}
+}
 //スキル群の切り替え
 void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 {
+	if (bIsDead) return;
 	if (SkillComp)
 	{
 		//スキルの切り替え
@@ -207,6 +251,7 @@ void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 //スキルの発動
 void APlayerCharacter::OnSkill1Pressed()
 {
+	if (bIsDead) return;
 	if (SkillComp)
 	{
 		SkillComp->RequestSkillTrigger(0);
@@ -214,6 +259,7 @@ void APlayerCharacter::OnSkill1Pressed()
 }
 void APlayerCharacter::OnSkill2Pressed()
 {
+	if (bIsDead) return;
 	if (SkillComp)
 	{
 		SkillComp->RequestSkillTrigger(1);
@@ -221,6 +267,7 @@ void APlayerCharacter::OnSkill2Pressed()
 }
 void APlayerCharacter::OnSkill3Pressed()
 {
+	if (bIsDead) return;
 	if (SkillComp)
 	{
 		SkillComp->RequestSkillTrigger(2);
@@ -228,9 +275,50 @@ void APlayerCharacter::OnSkill3Pressed()
 }
 void APlayerCharacter::OnSkill4Pressed()
 {
+	if (bIsDead) return;
 	if (SkillComp)
 	{
 		SkillComp->RequestSkillTrigger(3);
+	}
+}
+
+//プレイヤーの死亡処理
+void APlayerCharacter::HandlePlayerDead()
+{
+	//すでに死亡中なら返す
+	if (bIsDead) return;
+	bIsDead = true;
+
+	UE_LOG(LogTemp, Warning, TEXT("[Player] Death Sequence Started."));
+
+	// コントローラーからの入力を完全に遮断する
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+	}
+
+	// 移動コンポーネントを完全に停止・無効化（慣性での滑りも止める）
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->StopMovementImmediately();
+		MoveComp->DisableMovement();
+	}
+
+	//敵の攻撃や移動がすり抜けるように、カプセルコンポーネントの当たり判定を消す
+	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+	{
+		CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+
+	//プレイヤー専用の死亡モンタージュを再生
+	if (DeadMontage)
+	{
+		PlayAnimMontage(DeadMontage);
+	}
+	else
+	{
+		// もしモンタージュが設定されていなければ、安全のためにログを出す
+		UE_LOG(LogTemp, Error, TEXT("[Player] DeathMontage is NOT set in Blueprint!"));
 	}
 }
 

@@ -23,5 +23,5 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack")
-	float Damage = 10.f;
+	float Damage = 20.f;
 };

@@ -47,7 +47,7 @@ public:
 	
 	// 攻撃距離
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	float AttackRange = 800.f;
+	float AttackRange = 200.f;
 
 	// 攻撃可能か
 	UFUNCTION(BlueprintCallable)

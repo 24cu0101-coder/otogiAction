@@ -44,34 +44,22 @@ void UGANormalAttack::PlayNAttackMontage()
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
 			(this, NAME_None, NAttackMontages);
 
+		//アニメーション再生
+		NAttackMontageTask->ReadyForActivation();
+
 		//タスクがあれば
 		if (NAttackMontageTask)
 		{
 			//終了時に自動で呼ぶ
-			if (!NAttackMontageTask->OnCancelled.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
-			{
-				NAttackMontageTask->OnCancelled.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
-			}
-			if (!NAttackMontageTask->OnCompleted.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
-			{
-				NAttackMontageTask->OnCompleted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
-			}
-			if (!NAttackMontageTask->OnInterrupted.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
-			{
-				NAttackMontageTask->OnInterrupted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
-			}
+			NAttackMontageTask->OnCancelled.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+			NAttackMontageTask->OnCompleted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
 		}
-
-		//アニメーション再生
-		NAttackMontageTask->ReadyForActivation();
-
 	}
 }
 
 //モンタージュ終了時に呼び出す
 void UGANormalAttack::NAttackMontageEnd()
 {
-
 	NAttackAbilityEnd();
 }
 

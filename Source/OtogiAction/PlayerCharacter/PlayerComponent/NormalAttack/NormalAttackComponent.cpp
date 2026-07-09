@@ -4,7 +4,6 @@
 //-----------------------------------------------------------------------------------------------------
 #include "NormalAttackComponent.h"
 #include "GameplayTagContainer.h"
-#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
 
 UNormalAttackComponent::UNormalAttackComponent()
@@ -12,7 +11,7 @@ UNormalAttackComponent::UNormalAttackComponent()
 
 	PrimaryComponentTick.bCanEverTick = true;
 
-	//AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("NAttackComponentASC"));
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("NAttackComponentASC"));
 
 }
 
@@ -21,13 +20,7 @@ UNormalAttackComponent::UNormalAttackComponent()
 void UNormalAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	AActor* OwnerActor = GetOwner();
-	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
-	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
-
-	//AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
+	AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
 	{
 		if (GetOwner()->HasAuthority() && NAttackAbility1)
 		{

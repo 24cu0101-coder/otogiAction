@@ -6,8 +6,6 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "Ability/GA_minionsAttack_Normal.h"
-#include "Ability/GA_minionsAttack_Middle.h"
-#include "Ability/GA_minionsAttack_Strong.h"
 
 UminionsAttackComponent::UminionsAttackComponent()
 {
@@ -100,90 +98,37 @@ bool UminionsAttackComponent::CanAttack() const
 			GetOwner()->GetActorLocation(),
 			Player->GetActorLocation());
 
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("Distance = %.1f  AttackRange = %.1f"),
-		Distance,
-		AttackRange);
-
 	return Distance <= AttackRange;
 }
 
 void UminionsAttackComponent::Attack()
 {
-	APlayerCharacter* Player = GetPlayer();
-
-	if (!Player)
-	{
-		return;
-	}
-
-	float Distance = FVector::Distance(
-		GetOwner()->GetActorLocation(),
-		Player->GetActorLocation());
-
-	/* 距離で攻撃を決定
-	if (Distance <= 200.f)
-	{
-		AttackType = EMinionsAttackType::Normal;
-	}
-	else if (Distance <= 500.f)
-	{
-		AttackType = EMinionsAttackType::middle;
-	}
-	else if (Distance<=800)
-	{
-		AttackType = EMinionsAttackType::Strong;
-	}*/
-
-	int32 RandomAttack = FMath::RandRange(0, 99);
-
-	if (RandomAttack < 60)
-	{
-		AttackType = EMinionsAttackType::Normal;
-	}
-	else if (RandomAttack < 90)
-	{
-		AttackType = EMinionsAttackType::middle;
-	}
-	else
-	{
-		AttackType = EMinionsAttackType::Strong;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Attack() Called"));
-
 	if (!CanAttack())
 	{
-		UE_LOG(LogTemp, Error, TEXT("CanAttack = FALSE"));
 		return;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("CanAttack = TRUE"));
 
 	UAbilitySystemComponent* ASC = GetASC();
 
 	if (!ASC)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ASC is NULL"));
 		return;
 	}
 
 	switch (AttackType)
 	{
 	case EMinionsAttackType::Normal:
-		UE_LOG(LogTemp, Warning, TEXT("Normal Attack"));
 		ASC->TryActivateAbilityByClass(UGA_minionsAttack_Normal::StaticClass());
 		break;
 
 	case EMinionsAttackType::middle:
-		UE_LOG(LogTemp, Warning, TEXT("Middle Attack"));
-		ASC->TryActivateAbilityByClass(UGA_minionsAttack_Middle::StaticClass());
+		// 後で追加
 		break;
 
 	case EMinionsAttackType::Strong:
-		UE_LOG(LogTemp, Warning, TEXT("Strong Attack"));
-		ASC->TryActivateAbilityByClass(UGA_minionsAttack_Strong::StaticClass());
+		// 後で追加
 		break;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Minions Attack Triggered"));
 }
