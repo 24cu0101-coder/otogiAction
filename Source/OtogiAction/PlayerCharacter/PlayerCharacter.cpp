@@ -12,6 +12,7 @@
 #include "PlayerComponent/PlayerDodgeComponent.h"
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
+#include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -69,7 +70,8 @@ APlayerCharacter::APlayerCharacter()
 	//通常攻撃コンポーネント生成
 	NormalAttackComp = CreateDefaultSubobject<UNormalAttackComponent>(TEXT("NormalAtComp"));
 
-
+	//ターゲットコンポーネント
+	TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
 
 	//スキルコンポーネントの生成
 	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
@@ -184,6 +186,7 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 //
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
+	MovementCharaComp->StartWarping(600.f);
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp)
 	{

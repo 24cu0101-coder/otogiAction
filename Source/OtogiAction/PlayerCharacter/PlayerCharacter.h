@@ -19,7 +19,7 @@ class UInputAction;
 
 class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
 class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
-
+class UPlayerTargetComponent;
 class USkillComponent;
 
 UCLASS()
@@ -80,6 +80,10 @@ private:
 	//スキルコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	USkillComponent* SkillComp;
+
+	//ターゲットコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
+	UPlayerTargetComponent* TargetComp;
 
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))

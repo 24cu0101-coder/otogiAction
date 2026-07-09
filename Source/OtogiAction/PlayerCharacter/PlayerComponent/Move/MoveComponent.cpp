@@ -12,7 +12,7 @@
 UMoveComponent::UMoveComponent()
 {
 	//Tick処理をオフにする
-	PrimaryComponentTick.bCanEverTick = true;;
+	PrimaryComponentTick.bCanEverTick = true;
 
 }
 
@@ -59,31 +59,31 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		FVector MyLocation = OwnerCharacter->GetActorLocation();
 		FVector TargetLoc = WarpTargetActor->GetActorLocation();
 
-		// 敵への水平方向のベクトルを計算
 		FVector Direction = (TargetLoc - MyLocation).GetSafeNormal2D();
-
-		// 敵のピッタリゼロの位置に行くとめり込むので、手前（150ユニット）をゴールにする
 		FVector GoalLoc = TargetLoc - (Direction * 150.0f);
-		GoalLoc.Z = MyLocation.Z; // 地面に埋まったり浮いたりしないようにZは固定
+		GoalLoc.Z = MyLocation.Z;
 
-		// 現在の距離を測る
 		float CurrentDist = FVector::Dist(MyLocation, GoalLoc);
 
-		// ゴールに超近づいた（残り15ユニット以下）か、あるいは通り過ぎたら吸い寄せを終了
 		if (CurrentDist <= 15.0f)
 		{
 			bIsWarping = false;
 			WarpTargetActor = nullptr;
-			//移動の自動向き直りをONに戻してあげる
 			SetOrientRotationToMovement(true);
 			return;
 		}
 
-		//
+		//位置を滑らかに補間
 		FVector SmoothLoc = FMath::VInterpTo(MyLocation, GoalLoc, DeltaTime, 15.0f);
-
-		// プレイヤーの位置を上書き（スイープをtrueにして壁抜け防止）
 		OwnerCharacter->SetActorLocation(SmoothLoc, true);
+
+		//向きも毎フレーム滑らかに敵の方へ旋回
+		FRotator CurrentRot = OwnerCharacter->GetActorRotation();
+		FRotator TargetRot = Direction.Rotation(); // 敵への方向の角度
+
+		
+		FRotator SmoothRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, 15.0f);
+		OwnerCharacter->SetActorRotation(SmoothRot);
 	}
 }
 
@@ -102,9 +102,7 @@ void UMoveComponent::UpdateMovementSpeed(float InputRatio)
 //ワーピング
 void UMoveComponent::StartWarping(float SoftLockRadius)
 {
-	if (!OwnerCharacter)return;
-
-	//プレイヤーが持っているターゲットコンポーネントを探す
+	if (!OwnerCharacter) return;
 	PlayerTargetComp = OwnerCharacter->FindComponentByClass<UPlayerTargetComponent>();
 	if (PlayerTargetComp)
 	{
@@ -112,6 +110,8 @@ void UMoveComponent::StartWarping(float SoftLockRadius)
 		if (WarpTargetActor)
 		{
 			bIsWarping = true;
+
+			//敵を向く関数
 			RotateActorToVector(WarpTargetActor->GetActorLocation());
 		}
 	}

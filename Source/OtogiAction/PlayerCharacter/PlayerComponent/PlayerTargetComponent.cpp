@@ -68,6 +68,8 @@ AActor* UPlayerTargetComponent::GetSoftLockTarget(float SoftLockRadius)
 		}
 	}
 	return nullptr;
+
+	
 }
 
 AActor* UPlayerTargetComponent::GetCloseEnemyInRadius(float Radius)
