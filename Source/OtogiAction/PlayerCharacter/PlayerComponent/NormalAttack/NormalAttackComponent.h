@@ -9,6 +9,8 @@
 #include "GameplayTagContainer.h"
 #include "NormalAttackComponent.generated.h"
 
+//‘O•ûéŒ¾
+class APlayerCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UNormalAttackComponent : public UActorComponent

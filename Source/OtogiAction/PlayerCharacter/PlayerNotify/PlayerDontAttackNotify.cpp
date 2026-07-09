@@ -6,6 +6,7 @@
 #include "PlayerDontAttackNotify.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayTagContainer.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/NormalAttack/NormalAttackComponent.h"
 void UPlayerDontAttackNotify::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
