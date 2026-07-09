@@ -9,6 +9,7 @@
 
 //前方宣言
 class ACharacter;
+class UPlayerTargetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UMoveComponent : public UActorComponent
@@ -42,6 +43,9 @@ public:
 	// 入力量で速度を変更する関数
 	void UpdateMovementSpeed(float InputRatio);
 
+	//攻撃時に呼び出して敵に向かって吸い寄せを開始する関数
+	void StartWarping(float FoftLockRadius);
+
 protected:
 	//歩きスピード
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Speed")
@@ -55,10 +59,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Speed")
 	float DashThreshold = 0.7f;
 
+	UPROPERTY()
+	UPlayerTargetComponent* PlayerTargetComp;
+
 private:
 
 	//このコンポーネントの持ち主
 	UPROPERTY()
 	ACharacter* OwnerCharacter;
+
+	//吸い寄せ制御の変数
+	bool bIsWarping = false;
+
+	UPROPERTY()
+	AActor* WarpTargetActor = nullptr;
 
 };

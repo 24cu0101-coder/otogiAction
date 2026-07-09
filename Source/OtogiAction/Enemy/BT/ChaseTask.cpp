@@ -30,12 +30,9 @@ EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
         return EBTNodeResult::Failed;
     }
 
-    //BlackboardのCanChaseをtrueに、CanAttackをfalseに設定
-    BlackboardComp->SetValueAsBool(CanChaseKey.SelectedKeyName, true);
-    BlackboardComp->SetValueAsBool(CanAttackKey.SelectedKeyName, false);
-
-
     // AIをプレイヤーに向けて移動させる
+    // ※注意: MoveToActorは非同期処理なので、即座に移動完了はしません。
+    // 完全に追跡し続ける場合はTickTaskを使うか、BehaviorTreeの別ノード（MoveTo）と組み合わせるのが一般的です。
     AIController->MoveToActor(PlayerActor, 100.0f);
 
     // 今回は「移動命令を出した」時点で一旦タスク成功（Succeeded）として返します

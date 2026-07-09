@@ -6,12 +6,13 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "../PlayerTargetComponent.h"
 
 //コンストラクタ
 UMoveComponent::UMoveComponent()
 {
 	//Tick処理をオフにする
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;;
 
 }
 
@@ -51,6 +52,39 @@ void UMoveComponent::BeginPlay()
 void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	//吸い寄せフラグがオンの時に吸い寄せ
+	if (bIsWarping && WarpTargetActor && OwnerCharacter)
+	{
+		FVector MyLocation = OwnerCharacter->GetActorLocation();
+		FVector TargetLoc = WarpTargetActor->GetActorLocation();
+
+		// 敵への水平方向のベクトルを計算
+		FVector Direction = (TargetLoc - MyLocation).GetSafeNormal2D();
+
+		// 敵のピッタリゼロの位置に行くとめり込むので、手前（150ユニット）をゴールにする
+		FVector GoalLoc = TargetLoc - (Direction * 150.0f);
+		GoalLoc.Z = MyLocation.Z; // 地面に埋まったり浮いたりしないようにZは固定
+
+		// 現在の距離を測る
+		float CurrentDist = FVector::Dist(MyLocation, GoalLoc);
+
+		// ゴールに超近づいた（残り15ユニット以下）か、あるいは通り過ぎたら吸い寄せを終了
+		if (CurrentDist <= 15.0f)
+		{
+			bIsWarping = false;
+			WarpTargetActor = nullptr;
+			//移動の自動向き直りをONに戻してあげる
+			SetOrientRotationToMovement(true);
+			return;
+		}
+
+		//
+		FVector SmoothLoc = FMath::VInterpTo(MyLocation, GoalLoc, DeltaTime, 15.0f);
+
+		// プレイヤーの位置を上書き（スイープをtrueにして壁抜け防止）
+		OwnerCharacter->SetActorLocation(SmoothLoc, true);
+	}
 }
 
 // 入力量で速度を変更する関数
@@ -65,6 +99,23 @@ void UMoveComponent::UpdateMovementSpeed(float InputRatio)
 	OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
 }
 
+//ワーピング
+void UMoveComponent::StartWarping(float SoftLockRadius)
+{
+	if (!OwnerCharacter)return;
+
+	//プレイヤーが持っているターゲットコンポーネントを探す
+	PlayerTargetComp = OwnerCharacter->FindComponentByClass<UPlayerTargetComponent>();
+	if (PlayerTargetComp)
+	{
+		WarpTargetActor = PlayerTargetComp->GetSoftLockTarget(SoftLockRadius);
+		if (WarpTargetActor)
+		{
+			bIsWarping = true;
+			RotateActorToVector(WarpTargetActor->GetActorLocation());
+		}
+	}
+}
 
 //キャラクターの前後移動
 void UMoveComponent::MoveForword(float Value)

@@ -39,13 +39,4 @@ private:
 	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
 
 	UBlackboardComponent* BBComp;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector TargetActorKey;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector CanChaseKey;
-
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector CanAttackKey;
 };

@@ -6,7 +6,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "AbilitySystemComponent.h"
-#include "../Component/Collision/AttackCollisionComponent.h"
 
 // Sets default values
 ABossEnemyCharacter::ABossEnemyCharacter()
@@ -22,6 +21,8 @@ ABossEnemyCharacter::ABossEnemyCharacter()
 		GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);	//旋回速度（度/秒）
 	}
 
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
 
 }
 
