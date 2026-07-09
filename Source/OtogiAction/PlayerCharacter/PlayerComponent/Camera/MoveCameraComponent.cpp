@@ -5,12 +5,14 @@
 #include "MoveCameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "../PlayerTargetComponent.h"
 
 //コンストラクタ
 UMoveCameraComponent::UMoveCameraComponent()
 {
-	//Tickはオフ
-	PrimaryComponentTick.bCanEverTick = false;
+	//Tick有効
+	PrimaryComponentTick.bCanEverTick = true;
+	PlayerTargetComp = nullptr;
 
 }
 
@@ -55,10 +57,40 @@ void UMoveCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	//ターゲットコンポーネントが存在し、かつロックオン中ならカメラを強制移動
+	if (PlayerTargetComp && PlayerTargetComp->IsTargeting())
+	{
+		AActor* TargetActor = PlayerTargetComp->GetCurrentTargetActor();
+		if (TargetActor && SpringArmComp)
+		{
+			// スプリングアームの現在の位置と、敵の位置を取得
+			FVector CameraLoc = SpringArmComp->GetComponentLocation();
+			FVector TargetLoc = TargetActor->GetActorLocation();
+
+			// カメラから敵への回転角度を計算
+			FRotator LookAtRot = FRotationMatrix::MakeFromX(TargetLoc - CameraLoc).Rotator();
+
+			// 現在のカメラのワールド回転を取得
+			FRotator CurrentRot = SpringArmComp->GetComponentRotation();
+
+			// 補間
+			FRotator SmoothRot = FMath::RInterpTo(CurrentRot, LookAtRot, DeltaTime, 5.0f);
+
+			// ピッチの制限
+			SmoothRot.Pitch = FMath::Clamp(SmoothRot.Pitch, -60.0f, 60.0f);
+			SmoothRot.Roll = 0.0f; // ロールは傾かないように0固定
+
+			// プリングアームの回転を直接上書き！
+			SpringArmComp->SetWorldRotation(SmoothRot);
+		}
+	}
 }
 
 void UMoveCameraComponent::CameraMove(FVector2D InputValue)
 {
+	//ロックオン中は右スティックでの手動カメラ操作を無効化する
+	if (PlayerTargetComp && PlayerTargetComp->IsTargeting()) return;
+
 	if (!OwnerCharacter || !OwnerCharacter->GetController()) return;
 
 	if (SpringArmComp)

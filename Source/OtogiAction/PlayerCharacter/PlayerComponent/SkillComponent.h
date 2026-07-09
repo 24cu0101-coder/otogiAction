@@ -8,7 +8,7 @@
 #include "SkillComponent.generated.h"
 
 //前方宣言
-class UAbilitySysytemcomponent;
+class UAbilitySystemComponent;
 
 //スキル群の内容をセットする構造体
 USTRUCT(BlueprintType)
@@ -60,8 +60,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//ゲームが始まったときに呼ばれるキャラクターとGASの紐づけ
 	void RegisterAbilities(UAbilitySystemComponent* ASC);

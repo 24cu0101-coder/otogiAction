@@ -11,6 +11,7 @@
 //前方宣言
 class ACharacter;
 class USpringArmComponent;
+class UPlayerTargetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UMoveCameraComponent : public UActorComponent
@@ -20,6 +21,9 @@ class OTOGIACTION_API UMoveCameraComponent : public UActorComponent
 public:	
 	//コンストラクタ
 	UMoveCameraComponent();
+
+	//プレイヤーのターゲットコンポーネントを外からセットしてあげるための関数
+	void SetTargetComponent(class UPlayerTargetComponent* TargetComp) { PlayerTargetComp = TargetComp; }
 
 protected:
 	//ゲーム始まったときによばれる
@@ -42,4 +46,8 @@ private:
 	//キャラクターが所持するスプイングアームを参照
 	UPROPERTY()
 	USpringArmComponent* SpringArmComp;
+
+	//ターゲットコンポーネント
+	UPROPERTY()
+	UPlayerTargetComponent* PlayerTargetComp;
 };

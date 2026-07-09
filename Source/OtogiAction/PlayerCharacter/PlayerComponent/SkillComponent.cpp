@@ -7,8 +7,6 @@
 // Sets default values for this component's properties
 USkillComponent::USkillComponent()
 {
-	//Tick‚Í‚¨‚Ó
-	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void USkillComponent::BeginPlay()
@@ -17,11 +15,6 @@ void USkillComponent::BeginPlay()
 
 	// ...
 	
-}
-
-void USkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 //ƒXƒLƒ‹ŒQ‚É“ü‚Á‚Ä‚¢‚éGAS‚Ì“o˜^

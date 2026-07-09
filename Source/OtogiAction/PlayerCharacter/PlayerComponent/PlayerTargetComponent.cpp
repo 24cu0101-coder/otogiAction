@@ -105,6 +105,10 @@ AActor* UPlayerTargetComponent::GetCloseEnemyInRadius(float Radius)
 			AActor* HitActor = Hit.GetActor();
 			if (HitActor && HitActor != Owner)
 			{
+				//Pawnクラス以外をはじく
+				APawn* TargetPawn = Cast<APawn>(HitActor);
+				if (!TargetPawn) continue;
+
 				float Dist = FVector::Dist(SearchOrigin, HitActor->GetActorLocation());
 				if (Dist < ClosestDistance)
 				{
@@ -124,14 +128,27 @@ AActor* UPlayerTargetComponent::FindBestTargetForward()
 	AActor* Owner = GetOwner();
 	if (!Owner) return nullptr;
 
-	FVector StartLoc = Owner->GetActorLocation();
-	FVector EndLoc = StartLoc + (Owner->GetActorForwardVector() * TargetRange);
+	//カメラ正面の敵を索敵
+	APlayerController* PlayerCon = Cast<APlayerController>(Owner->GetNetOwningPlayer()->GetPlayerController(GetWorld()));
+	if (!PlayerCon) return nullptr;
+
+	//カメラの位置と角度
+	FVector CameraLocation;
+	FRotator CameraRotation;
+
+	//カメラの位置と角度を取得
+	PlayerCon->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+	// カメラの正面ベクトルを使って、スキャンの開始位置と終了位置を計算
+	FVector StartLoc = CameraLocation;
+	FVector EndLoc = StartLoc + (CameraRotation.Vector() * TargetRange);
 
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Owner);
 
 	TArray<FHitResult> HitResults;
 
+	//敵をスキャン
 	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
 		GetWorld(),
 		StartLoc,
@@ -140,9 +157,12 @@ AActor* UPlayerTargetComponent::FindBestTargetForward()
 		UEngineTypes::ConvertToTraceType(ECC_Pawn),
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::ForDuration, 
 		HitResults,
-		true
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5.f
 	);
 
 	AActor* BestTarget = nullptr;
@@ -155,6 +175,10 @@ AActor* UPlayerTargetComponent::FindBestTargetForward()
 			AActor* HitActor = Hit.GetActor();
 			if (HitActor && HitActor != Owner)
 			{
+				// 当たったアクターがPawnクラスかチェックする
+				APawn* TargetPawn = Cast<APawn>(HitActor);
+				if (!TargetPawn) continue;
+
 				float Dist = FVector::Dist(StartLoc, HitActor->GetActorLocation());
 				if (Dist < ClosestDistance)
 				{
@@ -164,7 +188,6 @@ AActor* UPlayerTargetComponent::FindBestTargetForward()
 			}
 		}
 	}
-
 	return BestTarget;
 }
 
