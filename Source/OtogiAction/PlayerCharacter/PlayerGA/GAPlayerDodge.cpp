@@ -28,14 +28,12 @@ void UGAPlayerDodge::ActivateAbility(
 	//プレイヤーの情報を取得
 	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	//クラッシュ、バグ回避のためのチェック
-	if (!PlayerActor || !DodgeMontage)
+	
 	if (!PlayerActor || !DodgeMontage )
 	{
 		//リターン
 		return;
 	}
-
 
 	//タグ登録
 	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));	
@@ -101,6 +99,14 @@ void UGAPlayerDodge::IsDodge()
 		//プレイヤーを移動
 		PlayerActor->SetActorLocation(DodgeLocation, true);
 	}
+
+	//タスクがあれば
+	if (DodgeMontageTask)
+	{
+		//終了時に自動で呼ぶ
+		DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+	}
 }
 
 
@@ -108,6 +114,8 @@ void UGAPlayerDodge::IsDodge()
 //回避終了時の処理
 void UGAPlayerDodge::DodgeEnd()
 {
+
+
 	//timer破棄
 	GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
 

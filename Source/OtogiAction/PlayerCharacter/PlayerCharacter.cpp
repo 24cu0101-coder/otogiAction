@@ -11,6 +11,7 @@
 #include "PlayerComponent/Camera/MoveCameraComponent.h"
 #include "PlayerComponent/PlayerDodgeComponent.h"
 #include "PlayerComponent/SkillComponent.h"
+#include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -117,8 +118,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);;
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
 		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
-		//回避
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
@@ -172,17 +171,14 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 //回避(髙山)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
-	//componentがあったら
-	if (DodgeComponent)
-	{
-
-	}
+	
 	//回避コンポーネントがあったら
 	if (PlayerDodgeComp)
 	{
 		//コンポーネントの処理実行
 		PlayerDodgeComp->ExecuteAbility();
 	}
+
 }       
 
 //

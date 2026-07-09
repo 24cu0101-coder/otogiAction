@@ -22,6 +22,11 @@ public:
 	//FGameplayTag 
 
 protected:
+	//プレイヤーのアクター
+	UPROPERTY(Transient)
+	APlayerCharacter* PlayerActor;
+
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
