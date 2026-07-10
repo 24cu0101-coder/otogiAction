@@ -4,13 +4,18 @@
 //-----------------------------------------------------------------------------------------------------
 #include "NormalAttackComponent.h"
 #include "GameplayTagContainer.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "../Move/MoveComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
-
+//コンストラクタ
 UNormalAttackComponent::UNormalAttackComponent()
 {
 
 	PrimaryComponentTick.bCanEverTick = true;
+
+	//キャラクター移動コンポーネント生成
+	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("MC"));
 
 	//AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("NAttackComponentASC"));
 
@@ -76,7 +81,7 @@ void UNormalAttackComponent::ExecuteNormalAttackAbility()
 		//アビリティがあるなら
 		if (NAttackAbility3)
 		{
-			//アビリティ実行
+			//アビリティ実行as
 			AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility3);
 			AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
 		}
@@ -97,6 +102,9 @@ void UNormalAttackComponent::ExecuteNormalAttackAbility()
 	//入力が可能だったら
 	else if(!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
 	{
+		MCC->StartWarping(600.f);
+
+
 		AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility1);
 	}
 
