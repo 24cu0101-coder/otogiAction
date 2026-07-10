@@ -76,9 +76,6 @@ APlayerCharacter::APlayerCharacter()
 	//スキルコンポーネントの生成
 	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
 
-	//コリジョンコンポーネントの生成
-	CollComp = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("CollComp"));
-
 }
 
 //ゲームが始まったときに生成
@@ -126,10 +123,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
-		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Started, this, &APlayerCharacter::OnSkill1Pressed);
-		EnhancedInputComponent->BindAction(ExcuteSkill2, ETriggerEvent::Started, this, &APlayerCharacter::OnSkill2Pressed);
-		EnhancedInputComponent->BindAction(ExcuteSkill3, ETriggerEvent::Started, this, &APlayerCharacter::OnSkill3Pressed);
-		EnhancedInputComponent->BindAction(ExcuteSkill4, ETriggerEvent::Started, this, &APlayerCharacter::OnSkill4Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill1Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill2, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill2Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill3, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill3Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill4, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill4Pressed);
 
 	}
 
@@ -186,9 +183,10 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 
 }       
 
-//通常攻撃(髙山)
+//
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
+	MovementCharaComp->StartWarping(600.f);
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp)
 	{

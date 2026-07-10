@@ -1,19 +1,25 @@
-//攻撃用コリジョンのコンポーネント
+//攻撃用こりじょんのコンポーネント
 
 #include "AttackCollisionComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/OverlapResult.h"
-#include "Components/SphereComponent.h"
+
 //コンストラクタ
 UAttackCollisionComponent::UAttackCollisionComponent()
 {
 	//TickはOffに
 	PrimaryComponentTick.bCanEverTick = true;
 
-	SphereAttackCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	//目の前スポーン型コリジョンを作成
+	FrontSpawnHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FrontSpawnHitbox"));
+	// 武器トレース型コリジョンを作成
+	WeaponHitbox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("WeaponHitbox"));
+
+	//判定をOFF
+	FrontSpawnHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponHitbox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 
@@ -22,6 +28,23 @@ void UAttackCollisionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//ヒットした際のイベントを登録
+	FrontSpawnHitBox->OnComponentBeginOverlap.AddDynamic(this, &UAttackCollisionComponent::OnHitOverlap);
+	WeaponHitbox->OnComponentBeginOverlap.AddDynamic(this, &UAttackCollisionComponent::OnHitOverlap);
+
+	//コンポーネントの持ち主にアタッチ
+	ACharacter* OwnerChara = Cast<ACharacter>(GetOwner());
+	if (OwnerChara && OwnerChara->GetMesh())
+	{
+		//目の前スポーン型の設定
+		FrontSpawnHitBox->SetupAttachment(OwnerChara->GetRootComponent());
+		FrontSpawnHitBox->SetRelativeLocation(FVector(150.f, 0.f, 0.f));
+		
+		//武器トレース型の設定
+		WeaponHitbox->AttachToComponent(OwnerChara->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("hand_r"));
+		WeaponHitbox->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
+
+	}
 }
 
 
@@ -32,87 +55,55 @@ void UAttackCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 	// ...
 }
-
-void UAttackCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage)
+//コリジョン開始処理
+void UAttackCollisionComponent::AttackCollisionWindow(EAttackCollisionType Type, float DamageAmount)
 {
-    //コンポーネントの親クラスを取得
-    AActor* Owner = GetOwner();
-    if (!Owner) return;
+	// ダメージ量を記憶
+	CurrentAttackDamage = DamageAmount;
 
-    // 自身の現在位置
-    FVector Center = Owner->GetActorLocation();
-    //判定を前後左右に動かす
-    Center += Owner->GetActorForwardVector() * ForwardOffset;
-    Center += Owner->GetActorRightVector() * SideOffset;
+	// ヒットリストをリセット
+	HitActors.Empty();
 
-    switch (CollisionType)
-    {
-    case EAttackCollisionType::Box: // 変更
-        CustomCollisionShape = FCollisionShape::MakeBox(FVector(BoxWidth, BoxLength, BoxHeight));
-        DrawDebugBox(GetWorld(), Center, FVector(BoxWidth, BoxLength, BoxHeight), FQuat::Identity, FColor::Red, false, 1.0f);
-        break;
+	UPrimitiveComponent* TargetComp = (Type == EAttackCollisionType::FrontSpawn) ? Cast<UPrimitiveComponent>(FrontSpawnHitBox) : Cast<UPrimitiveComponent>(WeaponHitbox);
 
-    case EAttackCollisionType::Capsule: // 変更
-        CustomCollisionShape = FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHeight);
-        DrawDebugCapsule(GetWorld(), Center, CapsuleHeight, CapsuleRadius, FQuat::Identity, FColor::Red, false, 1.0f);
-        break;
+	if (TargetComp)
+	{
+		//持ち主への当たり判定を除外
+		TargetComp->IgnoreActorWhenMoving(GetOwner(), true);
 
-    case EAttackCollisionType::Sphere: // 変更
-    default:
-        CustomCollisionShape = FCollisionShape::MakeSphere(Radius > 0.f ? Radius : SphereRadius);
-        DrawDebugSphere(GetWorld(), Center, Radius > 0.f ? Radius : SphereRadius, 16, FColor::Red, false, 1.0f);
-        break;
-    }
+		//判定開始
+		TargetComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+}
+//コリジョン終了処理
+void UAttackCollisionComponent::AttackCollisionCloseWindow(EAttackCollisionType Type)
+{
+	UPrimitiveComponent* TargetComp = (Type == EAttackCollisionType::FrontSpawn) ? Cast<UPrimitiveComponent>(FrontSpawnHitBox) : Cast<UPrimitiveComponent>(WeaponHitbox);
+	if (TargetComp)
+	{
+		TargetComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
 
-    TArray<FOverlapResult> OverlapResults;
+void UAttackCollisionComponent::OnHitOverlap(
+	UPrimitiveComponent*OverlappedComp,
+	AActor*OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	if (!OtherActor || OtherActor == GetOwner()) return; 
+	if (HitActors.Contains(OtherActor)) return;   
 
+	// ヒットリストに登録
+	HitActors.Add(OtherActor);
 
-
-    // 検索対象のオブジェクトタイプ（PawnとWorldDynamic）
-    FCollisionObjectQueryParams ObjectQueryParams;
-    ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-    ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-
-    // クエリ設定（攻撃の実行者自身は無視する）
-    FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(Owner);
-
-    // 範囲内のオブジェクトをスキャン
-    bool bHasOverlap = GetWorld()->OverlapMultiByObjectType(
-        OverlapResults,     //当たったオブジェクト
-        Center,             //コリジョンの中心
-        FQuat::Identity,    //回転
-        ObjectQueryParams,  //検索対象のオブジェクト
-        CustomCollisionShape,    //判定をとる形
-        QueryParams         //無視するオブジェクト
-    );
-
-    if (bHasOverlap)
-    {
-        // 重複して同じアクターにダメージを与えないよう、すでにダメージを与えたアクターを記憶する配列
-        TArray<AActor*> DamagedActors;
-
-        for (const FOverlapResult& Result : OverlapResults)
-        {
-            AActor* OverlappedActor = Result.GetActor();
-
-            // アクターが存在し、指定のタグを持っており、まだダメージを与えていない場合
-            if (OverlappedActor && OverlappedActor->ActorHasTag(TargetTag) && !DamagedActors.Contains(OverlappedActor))
-            {
-                // UE5標準のダメージ適用処理
-                UGameplayStatics::ApplyDamage(
-                    OverlappedActor,
-                    Damage,
-                    Owner->GetInstigatorController(),
-                    Owner,
-                    UDamageType::StaticClass()
-                );
-                // 二重ヒット防止リストに追加
-                DamagedActors.Add(OverlappedActor);
-
-                UE_LOG(LogTemp, Warning, TEXT("[%s] Attacked [%s]; Damage: %f"), *Owner->GetName(), *OverlappedActor->GetName(), Damage);
-            }
-        }
-    }
+	//ダメージデリゲートを使ってダメージ追加
+	UGameplayStatics::ApplyDamage(
+		OtherActor,
+		CurrentAttackDamage,
+		GetOwner()->GetInstigatorController(),
+		GetOwner(),
+		UDamageType::StaticClass());
 }
 

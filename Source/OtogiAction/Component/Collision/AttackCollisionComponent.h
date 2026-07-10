@@ -3,22 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CollisionShape.h"
+#include "Components/ActorComponent.h"
 #include "AttackCollisionComponent.generated.h"
 
-class USphereComponent;
+//前方宣言
 class UBoxComponent;
 class UCapsuleComponent;
 
-struct FCollisionShape;
-
+//攻撃の判定の種類
 UENUM(BlueprintType)
 enum class EAttackCollisionType : uint8
 {
-	Sphere   UMETA(DisplayName = "Sphere"),
-	Box      UMETA(DisplayName = "Box"),
-	Capsule  UMETA(DisplayName = "Capsule")
+	FrontSpawn,
+	WeaponTrace
 };
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UAttackCollisionComponent : public UActorComponent
@@ -37,55 +36,35 @@ public:
 	//毎フレーム処理される
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void ExcuteAreaAttack(float Radius, FName TargetTag, float Damage);
+public:
+	//アニメーションノーティファイステートで使う開始処理
+	void AttackCollisionWindow(EAttackCollisionType Type, float DamageAmount);
 
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	USphereComponent* SphereAttackCollision;
+	//終了処理
+	void AttackCollisionCloseWindow(EAttackCollisionType Type);
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	//UBoxComponent* BoxAttackCollision;
+private:
+	//目の前に現れるコリジョン
+	UPROPERTY(VisibleAnywhere, Category = "Collision")
+	UBoxComponent* FrontSpawnHitBox;
+		
+	UPROPERTY(VisibleAnywhere, Category = "Collision")
+	UCapsuleComponent* WeaponHitbox;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	//UCapsuleComponent* CapsuleAttackCollision;
+	//現在の攻撃のダメージ量を保存する変数
+	float CurrentAttackDamage;
 
-	//BoxCollisionの幅
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "Collision|Param|Box")
-	float BoxWidth = 0.f;
-	//BoxCollisionの奥行
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param|Box")
-	float BoxLength = 0.f;
-	//BoxCollisionの高さ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param|Box")
-	float BoxHeight = 0.f;
+	//重複ヒット防止リスト
+	UPROPERTY()
+	TArray<AActor*> HitActors;
 
-	//SphereCollisionの半径
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param|Sphere")
-	float SphereRadius = 0.f;
-
-	//CapsuleCollisionの半径
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param|Capsule")
-	float CapsuleRadius = 0.f;
-	//CapsuleCollisionの高さ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param|Capsule")
-	float CapsuleHeight = 0.f;
-
-	//コリジョンをどれだけ前に出すか
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
-	float ForwardOffset = 0.f;
-
-	//コリジョンをどれだけ横に出すか
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
-	float SideOffset = 0.f;
-
-	//与えるダメージの変数
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
-	float GiveDamage = 0.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision")
-	EAttackCollisionType CollisionType;
-
-	// 実際のコリジョン計算用（UPROPERTYは付けない）
-	FCollisionShape CustomCollisionShape;
+	//ヒット時のイベント関数
+	UFUNCTION()
+	void OnHitOverlap(
+		UPrimitiveComponent* OverlappedComp, 
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
 };

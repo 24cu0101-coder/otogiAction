@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Animation/AnimMontage.h"
 #include "GA_minionsAttack_Strong.generated.h"
 
 UCLASS()
@@ -21,7 +22,10 @@ public:
 	) override;
 
 protected:
-
+	//Montageセット
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> AttackMontage;
+	//ダメージセット
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack")
 	float Damage = 30.f;
 };

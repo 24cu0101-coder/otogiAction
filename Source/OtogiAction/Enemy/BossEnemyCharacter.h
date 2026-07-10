@@ -45,19 +45,6 @@ public:
 	float AttackRange;
 
 
-	//敵の攻撃判定の大きさ(幅、高さ、奥行)
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
-	float BoxWidth;		//幅
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
-	float BoxHeight;	//高さ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
-	float BoxLength;	//奥行
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
-	float BoxOffSet;	//矩形をどれだけ前に出すか
-
-	//攻撃アニメーションから攻撃判定の出現までのディレイ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
-	float AttackDelay;
 
 	//視野の範囲
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
