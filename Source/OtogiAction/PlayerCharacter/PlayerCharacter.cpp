@@ -73,7 +73,7 @@ APlayerCharacter::APlayerCharacter()
 	//通常攻撃コンポーネント生成
 	NormalAttackComp = CreateDefaultSubobject<UNormalAttackComponent>(TEXT("NormalAtComp"));
 
-	//今日攻撃コンポーネント生成
+	//強攻撃コンポーネント生成
 	StrongAttackComp = CreateDefaultSubobject<UStrongAttackComponent>(TEXT("SAttackComp"));
 
 	//ターゲットコンポーネント
@@ -214,8 +214,9 @@ void APlayerCharacter::OnStrongAttack()
 	//強攻撃コンポーネントがあったら
 	if (StrongAttackComp)
 	{
-		StrongAttackComp->ExecuteNormalAttackAbility();
+		StrongAttackComp->ExecuteStrongAttackAbility();
 	}
+
 }
 
 //スキル群の切り替え

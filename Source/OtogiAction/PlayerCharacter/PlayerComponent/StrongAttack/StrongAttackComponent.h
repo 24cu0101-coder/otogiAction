@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "Components/ActorComponent.h"
 #include "StrongAttackComponent.generated.h"
 
@@ -20,11 +23,28 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	//プレイヤーのアクター
+	UPROPERTY(Transient)
+	APlayerCharacter* PlayerActor;
+
+
+	//Abilityシステムコンポーネントクラス変数
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SAttack.Ability")
+	UAbilitySystemComponent* SAttackASC;
+
+	//強攻撃アビリティ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SAttack.Gas")
+	TSubclassOf<UGameplayAbility> SAttackAbility;
+
+	//アビリティのハンドル
+	FGameplayAbilitySpecHandle DodgeHandle;
+
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//強攻撃
-	void ExecuteNormalAttackAbility();
+	void ExecuteStrongAttackAbility();
 		
 };
