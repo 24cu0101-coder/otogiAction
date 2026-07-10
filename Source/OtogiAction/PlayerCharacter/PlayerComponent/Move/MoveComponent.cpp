@@ -117,9 +117,21 @@ void UMoveComponent::StartWarping(float SoftLockRadius)
 	}
 }
 
+//動きをロックする関数
+void UMoveComponent::SetMovementLock(bool bLock)
+{
+	bIsMovementLocked = bLock;
+
+	if (bLock && OwnerCharacter && OwnerCharacter->GetCharacterMovement())
+	{
+		OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
+	}
+}
+
 //キャラクターの前後移動
 void UMoveComponent::MoveForword(float Value)
 {
+	if (IsMovementLocked()) return;
 	if (!OwnerCharacter || !OwnerCharacter->GetController() || Value == 0.0f) return;
 
 	
@@ -141,6 +153,7 @@ void UMoveComponent::MoveForword(float Value)
 //キャラクターの左右移動
 void UMoveComponent::MoveRight(float Value)
 {
+	if (IsMovementLocked()) return;
 	if (!OwnerCharacter || !OwnerCharacter->GetController() || Value == 0.0f) return;
 
 	if (UCameraComponent* PlayerCamera = OwnerCharacter->FindComponentByClass<UCameraComponent>())
