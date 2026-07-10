@@ -23,6 +23,7 @@ class UPlayerTargetComponent;
 class USkillComponent;
 class UAttackCollisionComponent;
 class UStatusComponent;
+class UStrongAttackComponent;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -79,6 +80,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NormalAttack", meta = (AllowPrivateAccess = "true"))
 	UNormalAttackComponent* NormalAttackComp;
 
+	//強攻撃コンポーネント(髙山)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StrongAttack", meta = (AllowPrivateAccess = "true"))
+	UStrongAttackComponent* StrongAttackComp;
+
 	//スキルコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	USkillComponent* SkillComp;
@@ -114,6 +119,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* NormalAttackAction;
 
+	//強攻撃のインプットアクション(髙山)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* SAttackAction;
+
+
 	//スキル選択
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SwitchSkillGroup;
@@ -138,6 +148,7 @@ protected:
 	void OnCameraMovement(const FInputActionValue& Value);
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
 	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
+	void OnStrongAttack();									//(髙山)
 
 	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
 	void OnSwitchSkillGroup(const FInputActionValue& Value);
