@@ -21,6 +21,7 @@ class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
 class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
 class UPlayerTargetComponent;
 class USkillComponent;
+class UAttackCollisionComponent;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -84,6 +85,10 @@ private:
 	//ターゲットコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	UPlayerTargetComponent* TargetComp;
+
+	//コリジョンコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
+	UAttackCollisionComponent* CollComp;
 
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))

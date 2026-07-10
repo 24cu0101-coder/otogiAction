@@ -45,8 +45,28 @@ void UAttackCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
     Center += Owner->GetActorForwardVector() * ForwardOffset;
     Center += Owner->GetActorRightVector() * SideOffset;
 
+    switch (CollisionType)
+    {
+    case EAttackCollisionType::Box: // 変更
+        CustomCollisionShape = FCollisionShape::MakeBox(FVector(BoxWidth, BoxLength, BoxHeight));
+        DrawDebugBox(GetWorld(), Center, FVector(BoxWidth, BoxLength, BoxHeight), FQuat::Identity, FColor::Red, false, 1.0f);
+        break;
+
+    case EAttackCollisionType::Capsule: // 変更
+        CustomCollisionShape = FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHeight);
+        DrawDebugCapsule(GetWorld(), Center, CapsuleHeight, CapsuleRadius, FQuat::Identity, FColor::Red, false, 1.0f);
+        break;
+
+    case EAttackCollisionType::Sphere: // 変更
+    default:
+        CustomCollisionShape = FCollisionShape::MakeSphere(Radius > 0.f ? Radius : SphereRadius);
+        DrawDebugSphere(GetWorld(), Center, Radius > 0.f ? Radius : SphereRadius, 16, FColor::Red, false, 1.0f);
+        break;
+    }
+
     TArray<FOverlapResult> OverlapResults;
-    FCollisionShape CollisionSphere = FCollisionShape::MakeSphere(Radius);
+
+
 
     // 検索対象のオブジェクトタイプ（PawnとWorldDynamic）
     FCollisionObjectQueryParams ObjectQueryParams;
@@ -59,16 +79,13 @@ void UAttackCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 
     // 範囲内のオブジェクトをスキャン
     bool bHasOverlap = GetWorld()->OverlapMultiByObjectType(
-        OverlapResults,     //
-        Center,             //球の中心
-        FQuat::Identity,    //
+        OverlapResults,     //当たったオブジェクト
+        Center,             //コリジョンの中心
+        FQuat::Identity,    //回転
         ObjectQueryParams,  //検索対象のオブジェクト
-        CollisionSphere,    //判定をとる形
+        CustomCollisionShape,    //判定をとる形
         QueryParams         //無視するオブジェクト
     );
-
-    // デバッグ用の球体を表示（赤色で1秒間表示）
-    DrawDebugSphere(GetWorld(), Center, Radius, 16, FColor::Red, false, 1.0f);
 
     if (bHasOverlap)
     {
@@ -98,3 +115,4 @@ void UAttackCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
         }
     }
 }
+
