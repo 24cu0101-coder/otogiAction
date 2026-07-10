@@ -13,6 +13,7 @@
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
+#include "../Component/Collision/AttackCollisionComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -75,6 +76,9 @@ APlayerCharacter::APlayerCharacter()
 
 	//スキルコンポーネントの生成
 	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
+
+	//AttackCollisionComponentの生成
+	CollisionComp = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("CollisionComp"));
 
 }
 
