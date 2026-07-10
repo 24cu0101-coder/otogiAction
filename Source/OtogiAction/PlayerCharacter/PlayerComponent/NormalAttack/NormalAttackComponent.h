@@ -71,9 +71,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.MovementComp", meta = (AllowPrivateAccess = "true"))
 	UMoveComponent* MCC;
 
-	//攻撃判定のコンポーネント
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.Collision", meta = (AllowPrivateAccess = "true"))
-	UAttackCollisionComponent* NAttackCollision;
 
 
 	////コリジョンの半径

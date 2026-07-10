@@ -18,9 +18,6 @@ UNormalAttackComponent::UNormalAttackComponent()
 	//キャラクター移動コンポーネント生成
 	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("MC"));
 
-	//攻撃判定コンポーネント
-	NAttackCollision = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("NAttackCollision"));
-
 	//AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("NAttackComponentASC"));
 
 }
