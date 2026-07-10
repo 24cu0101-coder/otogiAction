@@ -22,6 +22,7 @@ class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
 class UPlayerTargetComponent;
 class USkillComponent;
 class UAttackCollisionComponent;
+class UStatusComponent;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -89,6 +90,10 @@ private:
 	//コリジョンコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	UAttackCollisionComponent* CollComp;
+
+	//ステータスコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
+	UStatusComponent* StatusComp;
 
 	//Enhanced Input 設定
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))

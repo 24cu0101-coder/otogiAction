@@ -13,6 +13,7 @@
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
+#include "../Component/Status/StatusComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -78,6 +79,9 @@ APlayerCharacter::APlayerCharacter()
 
 	//コリジョンコンポーネントの生成
 	CollComp = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("CollComp"));
+
+	//ステータスコンポーネント
+	StatusComp = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComp"));
 
 }
 
