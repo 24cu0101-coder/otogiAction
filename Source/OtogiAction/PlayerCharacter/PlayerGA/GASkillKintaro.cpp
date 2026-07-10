@@ -1,4 +1,4 @@
-ï»¿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GASkillKintaro.h"
@@ -6,39 +6,40 @@
 
 UGASkillKintaro::UGASkillKintaro()
 {
-	//tagã®è¿½åŠ 
+	//tag‚Ì’Ç‰Á
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Attacking.Skill")));
 
-	//æ–§ã‚¢ã‚¯ã‚¿ãƒ¼ã®åˆæœŸåŒ–
+
+	//•€ƒAƒNƒ^[‚Ì‰Šú‰»
 	SpawnAxActor = nullptr;
 }
 
-//abilityã®ç™ºå‹•
+//ability‚Ì”­“®
 void UGASkillKintaro::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	//ownerã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ãŒã„ã‚‹ã‹æ¤œç´¢
+	//ownerƒLƒƒƒ‰ƒNƒ^[‚ª‚¢‚é‚©ŒŸõ
 	ACharacter* OwnerChar = (CurrentActorInfo) ? Cast<ACharacter>(CurrentActorInfo->AvatarActor.Get()) : nullptr;
 
-	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®æ­£é¢ç©ºé–“ã«ç‹¬ç«‹ã—ã¦ã‚¹ãƒãƒ¼ãƒ³ã•ã›ã‚‹å‡¦ç†
+	//ƒLƒƒƒ‰ƒNƒ^[‚Ì³–Ê‹óŠÔ‚É“Æ—§‚µ‚ÄƒXƒ|[ƒ“‚³‚¹‚éˆ—
 	if (OwnerChar && AxActorClass && !SpawnAxActor)
 	{
-		//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ç¾åœ¨ä½ç½®ã€å‘ã„ã¦ã„ã‚‹æ–¹å‘ï¼ˆå›è»¢ï¼‰ã‚’å–å¾—
+		//ƒLƒƒƒ‰ƒNƒ^[‚ÌŒ»İˆÊ’uAŒü‚¢‚Ä‚¢‚é•ûŒüi‰ñ“]j‚ğæ“¾
 		FVector CharLocation = OwnerChar->GetActorLocation();
 		FRotator CharRotation = OwnerChar->GetActorRotation();
 
-		//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®æ­£é¢æ–¹å‘åŸºæº–ã§ã€Offsetã®åˆ†ã ã‘ä½ç½®ã‚’ãšã‚‰ã™
+		//ƒLƒƒƒ‰ƒNƒ^[‚Ì³–Ê•ûŒüŠî€‚ÅAOffset‚Ì•ª‚¾‚¯ˆÊ’u‚ğ‚¸‚ç‚·
 			FVector SpawnLocation = CharLocation
-			+ (OwnerChar->GetActorForwardVector() * SpawnOffset.X) // å‰æ–¹ã¸ã®è·é›¢
-			+ (OwnerChar->GetActorRightVector() * SpawnOffset.Y)   // å·¦å³ã¸ã®ã‚ºãƒ¬ï¼ˆåŸºæœ¬0ï¼‰
-			+ (FVector::UpVector * SpawnOffset.Z);                // é«˜ã•ã®èª¿æ•´
+			+ (OwnerChar->GetActorForwardVector() * SpawnOffset.X) // ‘O•û‚Ö‚Ì‹——£
+			+ (OwnerChar->GetActorRightVector() * SpawnOffset.Y)   // ¶‰E‚Ö‚ÌƒYƒŒiŠî–{0j
+			+ (FVector::UpVector * SpawnOffset.Z);                // ‚‚³‚Ì’²®
 
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = OwnerChar;
 		SpawnParams.Instigator = OwnerChar;
 
-		// è¨ˆç®—ã—ãŸä½ç½®ã¨å‘ãã§ã€å®Œå…¨ã«å˜ç‹¬ï¼ˆç‹¬ç«‹ï¼‰ã—ãŸã‚¢ã‚¯ã‚¿ãƒ¼ã¨ã—ã¦ã‚¹ãƒãƒ¼ãƒ³ï¼
+		// ŒvZ‚µ‚½ˆÊ’u‚ÆŒü‚«‚ÅAŠ®‘S‚É’P“Æi“Æ—§j‚µ‚½ƒAƒNƒ^[‚Æ‚µ‚ÄƒXƒ|[ƒ“I
 		SpawnAxActor = GetWorld()->SpawnActor<AActor>(AxActorClass, SpawnLocation, CharRotation, SpawnParams);
 	}
 
@@ -52,19 +53,25 @@ void UGASkillKintaro::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 	
 	if (MontageTask)
 	{
-		// animationãŒçµ‚äº†ã—ãŸã¨ãã¨EndAbilityã«ç§»è¡Œ
+		// animation‚ªI—¹‚µ‚½‚Æ‚«‚ÆEndAbility‚ÉˆÚs
 		MontageTask->OnCompleted.AddDynamic(this, &UGASkillKintaro::AbilityFinished);
 		MontageTask->OnBlendOut.AddDynamic(this, &UGASkillKintaro::AbilityFinished);
 		MontageTask->OnInterrupted.AddDynamic(this, &UGASkillKintaro::AbilityFinished);
 		MontageTask->OnCancelled.AddDynamic(this, &UGASkillKintaro::AbilityFinished);
 
-		// ã‚¿ã‚¹ã‚¯ã‚’èµ·å‹•ï¼ˆã“ã‚Œã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒå†ç”Ÿã•ã‚Œã¾ã™ï¼‰
+		// ƒ^ƒXƒN‚ğ‹N“®i‚±‚ê‚ÅƒAƒjƒ[ƒVƒ‡ƒ“‚ªÄ¶‚³‚ê‚Ü‚·j
 		MontageTask->ReadyForActivation();
 	}
 }
 
 void UGASkillKintaro::AbilityFinished()
 {
+	if (SpawnAxActor)
+	{
+		SpawnAxActor->Destroy();
+		SpawnAxActor = nullptr; // ƒƒ‚ƒŠ‚ğãY—í‚É‚·‚é
+	}
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
