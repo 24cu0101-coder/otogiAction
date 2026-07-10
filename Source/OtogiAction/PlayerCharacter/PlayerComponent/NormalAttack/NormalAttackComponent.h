@@ -76,17 +76,17 @@ private:
 	UAttackCollisionComponent* NAttackCollision;
 
 
-	//コリジョンの半径
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NAttack.Radius", meta = (AllowPrivateAccess = "true"))
-	float CollisionRadius;
+	////コリジョンの半径
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NAttack.Radius", meta = (AllowPrivateAccess = "true"))
+	//float CollisionRadius;
 
-	//コリジョンのターゲット
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NAttack.target", meta = (AllowPrivateAccess = "true"))
-	FName TargetTag;
+	////コリジョンのターゲット
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NAttack.target", meta = (AllowPrivateAccess = "true"))
+	//FName TargetTag;
 
-	//攻撃のダメージ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NAttack.Damage", meta = (AllowPrivateAccess = "true"))
-	float NAttackDamage;
+	////攻撃のダメージ
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NAttack.Damage", meta = (AllowPrivateAccess = "true"))
+	//float NAttackDamage;
 
 
 };
