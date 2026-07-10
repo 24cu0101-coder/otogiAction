@@ -23,6 +23,6 @@ void UPlayerCollisionNotifyState::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("[Notify] プレイヤーに AttackCollisionComponent が付いていません！"));
+		UE_LOG(LogTemp, Error, TEXT("[Notify]  AttackCollisionComponent "));
 	}
 }
