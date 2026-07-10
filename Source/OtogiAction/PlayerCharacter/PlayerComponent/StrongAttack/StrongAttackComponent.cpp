@@ -22,6 +22,7 @@ void UStrongAttackComponent::BeginPlay()
 	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
 	SAttackASC = PlayerActor->GetAbilitySystemComponent();
 
+	//強攻撃のアビリティがあれば
 	if(SAttackAbility)
 	{
 		if (GetOwner()->HasAuthority() && SAttackAbility)
@@ -33,6 +34,7 @@ void UStrongAttackComponent::BeginPlay()
 	}
 	else
 	{
+		//なければリターン
 		return;
 	}
 
@@ -63,7 +65,7 @@ void UStrongAttackComponent::ExecuteStrongAttackAbility()
 
 	else
 	{
-		//回避アビリティがあるなら
+		//強攻撃アビリティがあるなら
 		if (SAttackAbility)
 		{
 			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
