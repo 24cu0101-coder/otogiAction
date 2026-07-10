@@ -2,15 +2,14 @@
 
 
 #include "StrongAttackComponent.h"
+#include "GameplayTagContainer.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
-// Sets default values for this component's properties
+
 UStrongAttackComponent::UStrongAttackComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 }
 
 
@@ -19,8 +18,24 @@ void UStrongAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	AActor* OwnerActor = GetOwner();
+	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+	SAttackASC = PlayerActor->GetAbilitySystemComponent();
+
+	if(SAttackAbility)
+	{
+		if (GetOwner()->HasAuthority() && SAttackAbility)
+		{
+			//プレイヤーにSAttackAbilityを付与する
+			DodgeHandle = SAttackASC->GiveAbility(FGameplayAbilitySpec(SAttackAbility, 1));
+		}
 	
+	}
+	else
+	{
+		return;
+	}
+
 }
 
 
@@ -33,7 +48,29 @@ void UStrongAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 }
 
 //通常攻撃アビリティ起動関数
-void UStrongAttackComponent::ExecuteNormalAttackAbility()
+void UStrongAttackComponent::ExecuteStrongAttackAbility()
 {
+
+	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
+
+	FGameplayTag SAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
+
+	//アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
+	if (SAttackASC->HasMatchingGameplayTag(DodgeTag) || SAttackASC->HasMatchingGameplayTag(SAttackTag))
+	{
+		return;
+	}
+
+	else
+	{
+		//回避アビリティがあるなら
+		if (SAttackAbility)
+		{
+			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
+
+			//アビリティ実行
+			SAttackASC->TryActivateAbilityByClass(SAttackAbility);
+		}
+	}
 
 }

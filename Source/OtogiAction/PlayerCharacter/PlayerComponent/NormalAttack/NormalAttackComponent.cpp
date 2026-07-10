@@ -72,6 +72,8 @@ void UNormalAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UNormalAttackComponent::ExecuteNormalAttackAbility()
 {
+
+
 	//タグ
 	//入力が可能かどうかのタグ
 	FGameplayTag PossibleNAttack = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.CantAttack"));
