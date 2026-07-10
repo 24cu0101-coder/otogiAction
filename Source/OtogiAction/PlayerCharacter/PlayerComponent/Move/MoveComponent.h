@@ -28,6 +28,12 @@ public:
 	//毎フレーム処理される
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	//ロックされているか返す関数
+	FORCEINLINE bool IsMovementLocked() const { return bIsMovementLocked; }
+
+	//外部ロック用
+	void SetMovementLock(bool bLock);
+
 	//characterの前後移動用関数
 	void MoveForword(float Value);
 
@@ -70,6 +76,8 @@ private:
 
 	//吸い寄せ制御の変数
 	bool bIsWarping = false;
+
+	bool bIsMovementLocked = false;
 
 	UPROPERTY()
 	AActor* WarpTargetActor = nullptr;

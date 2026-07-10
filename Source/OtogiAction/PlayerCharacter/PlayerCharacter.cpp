@@ -14,6 +14,7 @@
 #include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 #include "../Component/Collision/AttackCollisionComponent.h"
+#include "../Component/Status/StatusComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -80,6 +81,8 @@ APlayerCharacter::APlayerCharacter()
 	//AttackCollisionComponentの生成
 	CollisionComp = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("CollisionComp"));
 
+	//Statusコンポーネント生成
+	StatusComp = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComp"));
 }
 
 //ゲームが始まったときに生成
