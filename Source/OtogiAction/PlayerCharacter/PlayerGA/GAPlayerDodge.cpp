@@ -9,8 +9,7 @@
 UGAPlayerDodge::UGAPlayerDodge()
 {
 
-	////実行中のタグを登録
-	//AbilityTags.AddTag(IsDodgeTag);
+
 }
 
 void UGAPlayerDodge::ActivateAbility(
@@ -28,7 +27,7 @@ void UGAPlayerDodge::ActivateAbility(
 	//プレイヤーの情報を取得
 	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	
+	//プレイヤーが
 	if (!PlayerActor || !DodgeMontage )
 	{
 		//リターン
@@ -114,8 +113,6 @@ void UGAPlayerDodge::IsDodge()
 //回避終了時の処理
 void UGAPlayerDodge::DodgeEnd()
 {
-
-
 	//timer破棄
 	GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
 

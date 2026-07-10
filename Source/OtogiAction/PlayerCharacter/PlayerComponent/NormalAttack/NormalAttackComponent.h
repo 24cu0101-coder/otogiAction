@@ -64,4 +64,10 @@ public:
 	UAbilitySystemComponent* GetNAttackACS()const {return AbilitySystemComponent; }
 
 		
+private:
+	//キャラ移動コンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.MovementComp", meta = (AllowPrivateAccess = "true"))
+	UMoveComponent* MCC;
+
+
 };
