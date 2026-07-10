@@ -40,6 +40,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UminionsAttackComponent* AttackComponent;
 
+	//ダメージを受け取る
+	UFUNCTION() void OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser);
+	 
+	
 	//死
 	UFUNCTION()
 	void Dead();

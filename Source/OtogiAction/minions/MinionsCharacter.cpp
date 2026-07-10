@@ -32,6 +32,9 @@ void AMinionsCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//ダメージを受けたらOnDamageを呼ぶ
+	OnTakeAnyDamage.AddDynamic(this, &AMinionsCharacter::OnDamage);
+
 	if (StatusComponent)
 	{
 		StatusComponent->OnDead.AddDynamic(this, &AMinionsCharacter::Dead);
@@ -76,6 +79,14 @@ void AMinionsCharacter::GiveDefaultAbilities()
 	}
 }
 
+void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if(StatusComponent)
+	{
+		StatusComponent->TakeDamage(Damage);
+	} 
+}
+
 //死
 void AMinionsCharacter::Dead()
 {
@@ -89,6 +100,10 @@ void AMinionsCharacter::Dead()
 
 	//コリジョン停止
 	SetActorEnableCollision(false);
+
+
+	//いったん仮でDestroy
+	Destroy();
 }
 
 
