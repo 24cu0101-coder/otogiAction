@@ -80,7 +80,7 @@ void UAttackCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
             AActor* OverlappedActor = Result.GetActor();
 
             // アクターが存在し、指定のタグを持っており、まだダメージを与えていない場合
-            if (OverlappedActor && OverlappedActor->ActorHasTag(TargetTag))
+            if (OverlappedActor && OverlappedActor->ActorHasTag(TargetTag) && !DamagedActors.Contains(OverlappedActor))
             {
                 // UE5標準のダメージ適用処理
                 UGameplayStatics::ApplyDamage(
