@@ -40,33 +40,38 @@ protected:
 	//UCapsuleComponent* CapsuleAttackCollision;
 
 	//BoxCollisionの幅
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "Param")
-	float BoxWidth;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "Collision|Param")
+	float BoxWidth = 0.f;
 	//BoxCollisionの奥行
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Param")
-	float BoxLength;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float BoxLength = 0.f;
 	//BoxCollisionの高さ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Param")
-	float BoxHeight;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float BoxHeight = 0.f;
 
 	//SphereCollisionの半径
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Param")
-	float SphereRadius;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float SphereRadius = 0.f;
 
 	//CapsuleCollisionの半径
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Param")
-	float CapsuleRadius;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float CapsuleRadius = 0.f;
 	//CapsuleCollisionの高さ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Param")
-	float CapsuleHeight;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float CapsuleHeight = 0.f;
+
+	//コリジョンをどれだけ前に出すか
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float ForwardOffset = 0.f;
+
+	//コリジョンをどれだけ横に出すか
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float SideOffset = 0.f;
 
 	//与えるダメージの変数
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Param")
-	float GiveDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision|Param")
+	float GiveDamage = 0.f;
 
 	//攻撃判定をとる対象
-
-	//範囲内のオブジェクトを検索する関数
-	void CheckOverlapObjects(FVector Center, float Radius, FName TargetTag);
 
 };
