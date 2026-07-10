@@ -4,22 +4,13 @@
 //-----------------------------------------------------------------------------------------------------
 #include "NormalAttackComponent.h"
 #include "GameplayTagContainer.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "../Move/MoveComponent.h"
-#include "OtogiAction/Component/Collision/AttackCollisionComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
-//コンストラクタ
+
 UNormalAttackComponent::UNormalAttackComponent()
 {
 
 	PrimaryComponentTick.bCanEverTick = true;
-
-	//キャラクター移動コンポーネント生成
-	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("MC"));
-
-	//攻撃判定コンポーネント
-	NAttackCollision = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("NAttackCollision"));
 
 	//AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("NAttackComponentASC"));
 
@@ -35,11 +26,6 @@ void UNormalAttackComponent::BeginPlay()
 	AActor* OwnerActor = GetOwner();
 	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
 	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
-
-	if (!AbilitySystemComponent)
-	{
-		return;
-	}
 
 	//AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
 	{
@@ -83,8 +69,6 @@ void UNormalAttackComponent::ExecuteNormalAttackAbility()
 	FGameplayTag NextTag1 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag1"));
 	FGameplayTag NextTag2 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag2"));
 
-	//
-	//NAttackCollision->ExcuteAreaAttack(CollisionRadius, TargetTag, NAttackDamage);
 
 	//現在のコンボ進行タグが2なら
 	if(AbilitySystemComponent->HasMatchingGameplayTag(NextTag2))
@@ -92,7 +76,7 @@ void UNormalAttackComponent::ExecuteNormalAttackAbility()
 		//アビリティがあるなら
 		if (NAttackAbility3)
 		{
-			//アビリティ実行as
+			//アビリティ実行
 			AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility3);
 			AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
 		}
@@ -113,9 +97,6 @@ void UNormalAttackComponent::ExecuteNormalAttackAbility()
 	//入力が可能だったら
 	else if(!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
 	{
-		MCC->StartWarping(600.f);
-
-
 		AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility1);
 	}
 

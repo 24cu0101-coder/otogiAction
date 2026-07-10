@@ -9,6 +9,8 @@
 #include "OtogiAction/Component/Status/StatusComponent.h"
 
 #include "DrawDebugHelpers.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+
 
 UGA_minionsAttack_Strong::UGA_minionsAttack_Strong()
 {
@@ -21,11 +23,18 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(
-		Handle,
-		ActorInfo,
-		ActivationInfo,
-		TriggerEventData);
+	Super::ActivateAbility(Handle,ActorInfo,ActivationInfo,TriggerEventData);
+
+	if (AttackMontage)
+	{
+		UAbilityTask_PlayMontageAndWait* MontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this,
+				NAME_None,
+				AttackMontage);
+
+		MontageTask->ReadyForActivation();
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("GA Strong START"));
 	APlayerCharacter* Player =
