@@ -183,9 +183,10 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 
 }       
 
-//通常攻撃(髙山)
+//
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
+	MovementCharaComp->StartWarping(600.f);
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp)
 	{

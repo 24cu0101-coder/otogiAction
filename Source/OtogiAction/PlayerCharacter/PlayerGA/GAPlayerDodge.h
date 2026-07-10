@@ -41,13 +41,6 @@ protected:
 	UPROPERTY(Transient)
 	APlayerCharacter* PlayerActor;
 
-	//回避実行中のタグ
-	FGameplayTag IsDodgeTag;
-
-	//アビリティシステム
-	UPROPERTY(BlueprintReadOnly, Category = "GAS")
-	UAbilitySystemComponent* ASC;
-
 	//-------------------
 	//関数
 	//-------------------
@@ -75,7 +68,15 @@ protected:
 
 
 	//-------------------
-	//-------------------	
+	//-------------------
+
+
+	//回避実行中のタグ
+	FGameplayTag IsDodgeTag;
+
+	//アビリティシステム
+	UPROPERTY(BlueprintReadOnly, Category = "GAS")
+	UAbilitySystemComponent* ASC;
 
 
 private:

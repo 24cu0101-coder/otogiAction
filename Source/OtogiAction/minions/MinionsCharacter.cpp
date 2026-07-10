@@ -2,6 +2,10 @@
 #include "minionsAttackComponent.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "Ability/GA_minionsAttack_Normal.h"
+#include "Ability/GA_minionsAttack_Middle.h"
+#include "Ability/GA_minionsAttack_Strong.h"
+#include "AIController.h"
+#include "BrainComponent.h"
 
 AMinionsCharacter::AMinionsCharacter()
 {
@@ -28,6 +32,11 @@ void AMinionsCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (StatusComponent)
+	{
+		StatusComponent->OnDead.AddDynamic(this, &AMinionsCharacter::Dead);
+	}
+
 	if (!AbilitySystemComponent)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ASC is NULL"));
@@ -37,6 +46,8 @@ void AMinionsCharacter::BeginPlay()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
 	GiveDefaultAbilities();
+
+	AttackComponent->Attack();
 }
 
 void AMinionsCharacter::GiveDefaultAbilities()
@@ -45,14 +56,41 @@ void AMinionsCharacter::GiveDefaultAbilities()
 	{
 		return;
 	}
+	if (HasAuthority())
+	{
+		int32 InputID = 0;
 
-	// 通常攻撃を付与
-	AbilitySystemComponent->GiveAbility(
-		FGameplayAbilitySpec(UGA_minionsAttack_Normal::StaticClass(), 1, 0)
-	);
+		// ブループリント側で設定されたアビリティをループで全て付与
+		for (TSubclassOf<UGameplayAbility>& AbilityClass : DefaultAbilities)
+		{
+			if (AbilityClass)
+			{
+				AbilitySystemComponent->GiveAbility(
+					FGameplayAbilitySpec(AbilityClass, 1, InputID)
+				);
 
-	UE_LOG(LogTemp, Warning, TEXT("GAS Ability Granted"));
+				UE_LOG(LogTemp, Warning, TEXT("Ability Granted: %s"), *AbilityClass->GetName());
+				InputID++;
+			}
+		}
+	}
 }
+
+//死
+void AMinionsCharacter::Dead()
+{
+	UE_LOG(LogTemp, Warning, TEXT("minions dead"));
+
+	//AI停止
+	if (AAIController* AI = Cast<AAIController>(GetController()))
+	{
+		AI->BrainComponent->StopLogic(TEXT("Dead"));
+	}
+
+	//コリジョン停止
+	SetActorEnableCollision(false);
+}
+
 
 void AMinionsCharacter::Tick(float DeltaTime)
 {
