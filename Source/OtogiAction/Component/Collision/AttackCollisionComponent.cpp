@@ -47,17 +47,17 @@ void UAttackCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 
     switch (CollisionType)
     {
-    case EAttackCollisionType::Box: // •ÏX
+    case EAttackCollisionType::Box:
         CustomCollisionShape = FCollisionShape::MakeBox(FVector(BoxWidth, BoxLength, BoxHeight));
         DrawDebugBox(GetWorld(), Center, FVector(BoxWidth, BoxLength, BoxHeight), FQuat::Identity, FColor::Red, false, 1.0f);
         break;
 
-    case EAttackCollisionType::Capsule: // •ÏX
+    case EAttackCollisionType::Capsule:
         CustomCollisionShape = FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHeight);
         DrawDebugCapsule(GetWorld(), Center, CapsuleHeight, CapsuleRadius, FQuat::Identity, FColor::Red, false, 1.0f);
         break;
 
-    case EAttackCollisionType::Sphere: // •ÏX
+    case EAttackCollisionType::Sphere:
     default:
         CustomCollisionShape = FCollisionShape::MakeSphere(Radius > 0.f ? Radius : SphereRadius);
         DrawDebugSphere(GetWorld(), Center, Radius > 0.f ? Radius : SphereRadius, 16, FColor::Red, false, 1.0f);

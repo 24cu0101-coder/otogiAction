@@ -32,7 +32,4 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PlayerActorKey;
 
-	// 追跡を完了（成功）とする接近距離
-	UPROPERTY(EditAnywhere, Category = "AI")
-	float AcceptanceRadius = 100.0f;
 };

@@ -31,8 +31,6 @@ EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
     }
 
     // AIをプレイヤーに向けて移動させる
-    // ※注意: MoveToActorは非同期処理なので、即座に移動完了はしません。
-    // 完全に追跡し続ける場合はTickTaskを使うか、BehaviorTreeの別ノード（MoveTo）と組み合わせるのが一般的です。
     AIController->MoveToActor(PlayerActor, 100.0f);
 
     // 今回は「移動命令を出した」時点で一旦タスク成功（Succeeded）として返します
@@ -80,5 +78,5 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
 
     // まだ離れている場合は、毎フレームプレイヤーの位置を追いかけるように再命令
     // (MoveToActorは内部で最適化されるため、毎フレーム呼んでも基本的には安全です)
-    AIController->MoveToActor(PlayerActor, AcceptanceRadius);
+    AIController->MoveToActor(PlayerActor, EnemyCharacter->AttackRange);
 }
