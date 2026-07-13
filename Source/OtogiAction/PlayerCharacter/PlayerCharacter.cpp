@@ -12,8 +12,10 @@
 #include "PlayerComponent/PlayerDodgeComponent.h"
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
+#include "PlayerComponent/StrongAttack/StrongAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 #include "../Component/Collision/AttackCollisionComponent.h"
+#include "../Component/Status/StatusComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -71,6 +73,9 @@ APlayerCharacter::APlayerCharacter()
 	//通常攻撃コンポーネント生成
 	NormalAttackComp = CreateDefaultSubobject<UNormalAttackComponent>(TEXT("NormalAtComp"));
 
+	//強攻撃コンポーネント生成
+	StrongAttackComp = CreateDefaultSubobject<UStrongAttackComponent>(TEXT("SAttackComp"));
+
 	//ターゲットコンポーネント
 	TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
 
@@ -80,6 +85,8 @@ APlayerCharacter::APlayerCharacter()
 	//AttackCollisionComponentの生成
 	CollisionComp = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("CollisionComp"));
 
+	//Statusコンポーネント生成
+	StatusComp = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComp"));
 }
 
 //ゲームが始まったときに生成
@@ -123,7 +130,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCharacterMovement);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);;
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
+		//通常攻撃
 		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
+		//強攻撃
+		EnhancedInputComponent->BindAction(SAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack);
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
@@ -190,7 +200,6 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 //
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
-	MovementCharaComp->StartWarping(600.f);
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp)
 	{
@@ -199,6 +208,17 @@ void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value)
 
 	}
 }
+
+void APlayerCharacter::OnStrongAttack()
+{
+	//強攻撃コンポーネントがあったら
+	if (StrongAttackComp)
+	{
+		StrongAttackComp->ExecuteStrongAttackAbility();
+	}
+
+}
+
 //スキル群の切り替え
 void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 {
