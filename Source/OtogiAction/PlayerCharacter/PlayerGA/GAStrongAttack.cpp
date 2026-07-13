@@ -2,6 +2,7 @@
 
 
 #include "GAStrongAttack.h"
+#include "../PlayerCharacter.h"
 
 void UGAStrongAttack::ActivateAbility(const FGameplayAbilitySpecHandle SAttack,
 	const FGameplayAbilityActorInfo* playerActorInfo,
