@@ -4,20 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "AttackTask.generated.h"
+#include "JumpAttackTask.generated.h"
 
 class UEnemyAttackBaseComponent;
 class UBlackboardComponent;
+class ABossEnemyCharacter;
+
 /**
  * 
  */
 UCLASS()
-class OTOGIACTION_API UAttackTask : public UBTTaskNode
+class OTOGIACTION_API UJumpAttackTask : public UBTTaskNode
 {
 	GENERATED_BODY()
-	
 public:
-	UAttackTask();
+	UJumpAttackTask();
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
@@ -36,4 +37,9 @@ private:
 	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
 
 	UBlackboardComponent* BBComp;
+
+	ABossEnemyCharacter* EnemyCharacter;
+
+	//MaxWalkSpeedの初期値を設定
+	float DefaultSpeed;
 };

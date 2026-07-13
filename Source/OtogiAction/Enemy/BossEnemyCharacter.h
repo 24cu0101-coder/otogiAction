@@ -19,12 +19,19 @@ public:
 	// Sets default values for this character's properties
 	ABossEnemyCharacter();
 
+	//パンチアタックMontageの再生時間を返す関数
+	float GetPlayPunchAttackMontageTime();
+	//ジャンプアタックMontageの再生時間を返す関数
+	float GetPlayJumpAttackMontageTime();
+
+	//スピードをセットする関数
+	void SetMovementSpeed(float NewSpeed);
+	//スピードをゲットする関数
+	float GetMovementSpeed();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	//攻撃モンタージュの再生時間を返す関数
-	float PlayAttackAnimation();
 
 	//受けた攻撃分体力を減らし、現在HPを返す
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
@@ -61,7 +68,12 @@ public:
 	UAbilitySystemComponent* AbilitySystemComponent;
 
 protected:
+	//パンチアタックMontageの変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")
-	UAnimMontage* AttackMontage;
+	UAnimMontage* PunchAttackMontage;
+
+	//ジャンプアタックMontageの変数
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")
+	UAnimMontage* JumpAttackMontage;
 
 };
