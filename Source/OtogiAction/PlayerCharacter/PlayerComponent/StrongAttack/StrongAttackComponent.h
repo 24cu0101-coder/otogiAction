@@ -46,4 +46,10 @@ public:
 	//強攻撃アビリティを実行する
 	void ExecuteStrongAttackAbility();
 		
+
+private:
+	//キャラ移動コンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.MovementComp", meta = (AllowPrivateAccess = "true"))
+	UMoveComponent* MCC;
+
 };

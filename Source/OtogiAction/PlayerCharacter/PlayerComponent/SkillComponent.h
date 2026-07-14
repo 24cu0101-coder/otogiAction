@@ -16,21 +16,13 @@ struct FSkillSet
 {
 	GENERATED_BODY()
 
-	//1つ目のスキル
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
-	TSubclassOf<UGameplayAbility>Skill_A;
+	//グループスキル
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	TSubclassOf<UGameplayAbility> SkillAbility;
 
-	//2つ目のスキル
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
-	TSubclassOf<UGameplayAbility>Skill_B;
-
-	//3つ目のスキル
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
-	TSubclassOf<UGameplayAbility>Skill_X;
-
-	//4つ目のスキル
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill")
-	TSubclassOf<UGameplayAbility>Skill_Y;
+	//ゲージの消費量
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	float Cost = 30.f;
 
 };
 

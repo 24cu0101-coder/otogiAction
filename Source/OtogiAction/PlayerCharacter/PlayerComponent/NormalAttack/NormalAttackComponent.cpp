@@ -16,7 +16,7 @@ UNormalAttackComponent::UNormalAttackComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	//キャラクター移動コンポーネント生成
-	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("MC"));
+	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("NAMC"));
 
 	//AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("NAttackComponentASC"));
 

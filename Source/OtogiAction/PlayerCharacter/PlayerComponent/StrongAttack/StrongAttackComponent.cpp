@@ -4,12 +4,15 @@
 #include "StrongAttackComponent.h"
 #include "GameplayTagContainer.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+#include "../Move/MoveComponent.h"
+
 
 
 UStrongAttackComponent::UStrongAttackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("SAMC"));
 }
 
 
@@ -68,6 +71,9 @@ void UStrongAttackComponent::ExecuteStrongAttackAbility()
 		//強攻撃アビリティがあるなら
 		if (SAttackAbility)
 		{
+			MCC->StartWarping(600.f);
+
+
 			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
 
 			//アビリティ実行

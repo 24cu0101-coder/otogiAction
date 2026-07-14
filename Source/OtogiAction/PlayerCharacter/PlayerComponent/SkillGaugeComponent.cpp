@@ -8,9 +8,9 @@ USkillGaugeComponent::USkillGaugeComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
-	//ç¾åœ¨ã®ã‚²ãƒ¼ã‚¸ã®åˆæœŸåŒ–
+	//Œ»İ‚ÌƒQ[ƒW‚Ì‰Šú‰»
 	CurrentSkillGauge = 0.f;
 }
 
@@ -38,7 +38,7 @@ bool USkillGaugeComponent::CanUseSkill(float SkillCost) const
 
 bool USkillGaugeComponent::ConsumeGauge(float Amount)
 {
-	//ä½¿ç”¨å¯èƒ½ã‹ç¢ºèª
+	//g—p‰Â”\‚©Šm”F
 	if (!CanUseSkill(Amount))
 	{
 		return false;
