@@ -3,6 +3,8 @@
 
 #include "SkillComponent.h"
 #include "AbilitySystemComponent.h"
+#include "SkillGaugeComponent.h"
+
 
 // Sets default values for this component's properties
 USkillComponent::USkillComponent()
@@ -25,13 +27,13 @@ void USkillComponent::RegisterAbilities(UAbilitySystemComponent* ASC)
 	//ACSがNULLなら返す
 	if (!OwnerASC)return;
 
-	//登録されているAbilityにGASを登録
+
 	for (const FSkillSet& Group : SkillGroups)
 	{
-		if (Group.Skill_A) OwnerASC->GiveAbility(FGameplayAbilitySpec(Group.Skill_A, 1, 0));
-		if (Group.Skill_B) OwnerASC->GiveAbility(FGameplayAbilitySpec(Group.Skill_B, 1, 0));
-		if (Group.Skill_X) OwnerASC->GiveAbility(FGameplayAbilitySpec(Group.Skill_X, 1, 0));
-		if (Group.Skill_Y) OwnerASC->GiveAbility(FGameplayAbilitySpec(Group.Skill_Y, 1, 0));
+		if (Group.SkillAbility)
+		{
+			OwnerASC->GiveAbility(FGameplayAbilitySpec(Group.SkillAbility, 1, 0));
+		}
 	}
 }
 
@@ -50,43 +52,32 @@ void USkillComponent::SwitchSkillGroup(int32 Direction)
 
 void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 {
-	//ACSがある且つ登録されているスキル群がある場合を除いて返す。
-	if (!OwnerASC || SkillGroups.Num() == 0)return;
+	if (!OwnerASC || SkillGroups.Num() == 0) return;
 
-	//選択中のスキル群に入っているスキルを取得
 	FSkillSet CurrentSet = SkillGroups[CurrentGroupPointer];
-	TSubclassOf<UGameplayAbility>TargetSkillAbilityClass = nullptr;
 
-	//ボタンのインデックスに対応したアビリティをターゲットにセット
-	switch (ButtonIndex)
-	{
-	case 0:
-		TargetSkillAbilityClass = CurrentSet.Skill_A;
-		break;
+	if (!CurrentSet.SkillAbility) return;
 
-	case 1:
-		TargetSkillAbilityClass = CurrentSet.Skill_B;
-		break;
-
-	case 2:
-		TargetSkillAbilityClass = CurrentSet.Skill_X;
-		break;
-
-	case 3:
-		TargetSkillAbilityClass = CurrentSet.Skill_Y;
-		break;
-
-	default:
-		break;
-	}
-
+	//重複発動を防ぐ
 	FGameplayTag ExcuteSkillTag = FGameplayTag::RequestGameplayTag(FName("State.Attacking.Skill"));
 	if (OwnerASC->HasMatchingGameplayTag(ExcuteSkillTag)) return;
 
-	//スキルの発動
-	if (TargetSkillAbilityClass)
+	//スキルゲージのチェックと消費
+	if (USkillGaugeComponent* GaugeComp = GetOwner()->FindComponentByClass<USkillGaugeComponent>())
 	{
-		OwnerASC->TryActivateAbilityByClass(TargetSkillAbilityClass);
+		//ゲージが足りているか
+		if (GaugeComp->CanUseSkill(CurrentSet.Cost))
+		{
+			//消費に成功したらアビリティを発動
+			if (GaugeComp->ConsumeGauge(CurrentSet.Cost))
+			{
+				OwnerASC->TryActivateAbilityByClass(CurrentSet.SkillAbility);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp,Warning, TEXT("スキルゲージ不足"));
+		}
 	}
 }
 
