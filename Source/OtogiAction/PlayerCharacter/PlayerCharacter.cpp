@@ -18,6 +18,7 @@
 #include "../Component/Status/StatusComponent.h"
 #include "../Orb/OrbActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerComponent/SkillGaugeComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -89,6 +90,9 @@ APlayerCharacter::APlayerCharacter()
 
 	//Statusコンポーネント生成
 	StatusComp = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComp"));
+
+	//スキルゲージコンポーネント
+	GaugeComp = CreateDefaultSubobject<USkillGaugeComponent>(TEXT("GaugeComp"));
 }
 
 //ゲームが始まったときに生成
@@ -140,9 +144,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
 		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill1Pressed);
-		EnhancedInputComponent->BindAction(ExcuteSkill2, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill2Pressed);
-		EnhancedInputComponent->BindAction(ExcuteSkill3, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill3Pressed);
-		EnhancedInputComponent->BindAction(ExcuteSkill4, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill4Pressed);
 
 		//オーブ吸う
 		EnhancedInputComponent->BindAction(AbsorbAction, ETriggerEvent::Started, this, &APlayerCharacter::OnAbsorb);
@@ -243,27 +244,7 @@ void APlayerCharacter::OnSkill1Pressed()
 		SkillComp->RequestSkillTrigger(0);
 	}
 }
-void APlayerCharacter::OnSkill2Pressed()
-{
-	if (SkillComp)
-	{
-		SkillComp->RequestSkillTrigger(1);
-	}
-}
-void APlayerCharacter::OnSkill3Pressed()
-{
-	if (SkillComp)
-	{
-		SkillComp->RequestSkillTrigger(2);
-	}
-}
-void APlayerCharacter::OnSkill4Pressed()
-{
-	if (SkillComp)
-	{
-		SkillComp->RequestSkillTrigger(3);
-	}
-}
+
 void APlayerCharacter::OnAbsorb()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Absorb Button Pressed"));
