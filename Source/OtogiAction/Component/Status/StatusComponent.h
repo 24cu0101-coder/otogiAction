@@ -66,6 +66,10 @@ public:
 	{
 		return CurrentHP;
 	}
+	float GetMaxHP() const
+	{
+		return MaxHP;
+	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	UNiagaraSystem* DarkParticleAsset;

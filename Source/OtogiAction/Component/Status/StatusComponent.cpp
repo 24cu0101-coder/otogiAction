@@ -15,10 +15,13 @@ void UStatusComponent::BeginPlay()
 
     CurrentHP = MaxHP;
 }
-
 void UStatusComponent::TakeDamage(float Damage)
 {
     CurrentHP -= Damage;
+    CurrentHP = FMath::Clamp(CurrentHP, 0.f, MaxHP);
+
+    // HPが変わったことを通知
+    OnDamaged.Broadcast(CurrentHP);
 
     UE_LOG(LogTemp, Warning,
         TEXT("%s HP:%f"),
@@ -27,8 +30,6 @@ void UStatusComponent::TakeDamage(float Damage)
 
     if (CurrentHP <= 0.f)
     {
-        CurrentHP = 0.f;
-
         UE_LOG(LogTemp, Warning,
             TEXT("%s Dead"),
             *GetOwner()->GetName());
@@ -36,6 +37,7 @@ void UStatusComponent::TakeDamage(float Damage)
         OnDead.Broadcast();
     }
 }
+
 void UStatusComponent::Heal(float HealAmount)
 {
     CurrentHP += HealAmount;
