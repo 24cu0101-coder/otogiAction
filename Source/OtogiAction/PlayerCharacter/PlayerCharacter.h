@@ -141,6 +141,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* ExcuteSkill4;
 
+	//オーブ吸う
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* AbsorbAction;
 
 protected:
 	//入力イベント発生時に実行される内部関数
@@ -156,4 +159,6 @@ protected:
 	void OnSkill2Pressed();
 	void OnSkill3Pressed();
 	void OnSkill4Pressed();
+
+	void OnAbsorb();
 };
