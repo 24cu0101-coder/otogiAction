@@ -16,6 +16,8 @@
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 #include "../Component/Collision/AttackCollisionComponent.h"
 #include "../Component/Status/StatusComponent.h"
+#include "../Orb/OrbActor.h"
+#include "Kismet/GameplayStatics.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -142,6 +144,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(ExcuteSkill3, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill3Pressed);
 		EnhancedInputComponent->BindAction(ExcuteSkill4, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill4Pressed);
 
+		//オーブ吸う
+		EnhancedInputComponent->BindAction(AbsorbAction, ETriggerEvent::Started, this, &APlayerCharacter::OnAbsorb);
 	}
 
 }
@@ -260,4 +264,41 @@ void APlayerCharacter::OnSkill4Pressed()
 		SkillComp->RequestSkillTrigger(3);
 	}
 }
+void APlayerCharacter::OnAbsorb()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Absorb Button Pressed"));
 
+	// レベル内にあるOrbを格納する配列
+	TArray<AActor*> Orbs;
+
+	// レベル内に存在する全てのOrbActorを取得
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(),
+		AOrbActor::StaticClass(),
+		Orbs);
+
+	// 取得したOrbを1つずつ処理する
+	for (AActor* Actor : Orbs)
+	{
+		// AActorをAOrbActorへ変換
+		AOrbActor* Orb = Cast<AOrbActor>(Actor);
+
+		// Orbでなければ次へ
+		if (!Orb)
+		{
+			continue;
+		}
+
+		// PlayerとOrbとの距離を計算
+		float Distance = FVector::Dist(
+			GetActorLocation(),
+			Orb->GetActorLocation());
+
+		// 吸い込み範囲(1000)以内なら
+		if (Distance <= 1000.f)
+		{
+			// OrbにPlayerを目標として設定し、吸い込み状態にする
+			Orb->StartAbsorb(this);
+		}
+	}
+}

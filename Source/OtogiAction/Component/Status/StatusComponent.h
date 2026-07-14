@@ -62,6 +62,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const;
 
+	float GetCurrentHP() const
+	{
+		return CurrentHP;
+	}
+	float GetMaxHP() const
+	{
+		return MaxHP;
+	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	UNiagaraSystem* DarkParticleAsset;

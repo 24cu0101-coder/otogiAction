@@ -14,12 +14,79 @@ void UGAStrongAttack::ActivateAbility(const FGameplayAbilitySpecHandle SAttack,
 	//アビリティ取得
 	ASC = GetAbilitySystemComponentFromActorInfo();
 
-	//プレイヤーの情報を取得
-	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	if (!PlayerActor || SAttackMontage)
+	if (!ASC)
 	{
 		//リターン
 		return;
 	}		
+
+	//アニメーション再生
+	PlaySAttackMontage();
+
+}
+
+void UGAStrongAttack::PlaySAttackMontage()
+{
+	//数秒後終了処理
+	FTimerHandle EndDodgTimer;
+	GetWorld()->GetTimerManager().SetTimer(EndDodgTimer, this, &UGAStrongAttack::RestartSAttackMontage, 0.3f, false);
+
+
+	if (SAttackMontage)
+	{
+
+		//アニメーション再生タスク
+		UAbilityTask_PlayMontageAndWait* SAttackMontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
+			(this, NAME_None, SAttackMontage);
+
+		if (SAttackMontageTask)
+		{
+			//SAttackMontageTask->OnCancelled.AddDynamic(this, &UGAStrongAttack::SAttackMontageEnd);
+		}
+
+		if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo())) {
+			//アニメーションインスタンスを取得
+			if (UAnimInstance* SAttackAnimInstance = Char->GetMesh()->GetAnimInstance())
+			{
+
+				SAttackMontageTask->ReadyForActivation();
+
+				SAttackAnimInstance->Montage_SetPlayRate(SAttackMontage, 0.f);
+			}
+		}
+	}
+}
+
+
+//モンタージュ終了時呼び出す
+void UGAStrongAttack::SAttackMontageEnd()
+{
+	SAttackAbilityEnd();
+}
+
+//アビリティ終了時呼び出す
+void UGAStrongAttack::SAttackAbilityEnd()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+
+}
+
+
+void UGAStrongAttack::RestartSAttackMontage()
+{
+	//数秒後終了処理
+	FTimerHandle EndDodgTimer;
+	GetWorld()->GetTimerManager().SetTimer(EndDodgTimer, this, &UGAStrongAttack::SAttackMontageEnd, 1.f, false);
+
+	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo())) {
+		//アニメーションインスタンスを取得
+		if (UAnimInstance* SAttackAnimInstance = Char->GetMesh()->GetAnimInstance())
+		{
+
+			SAttackAnimInstance->Montage_SetPlayRate(SAttackMontage);
+		}
+	}
+
 }
