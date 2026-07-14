@@ -13,5 +13,11 @@ UCLASS()
 class OTOGIACTION_API UMoveStopedNotifyState : public UAnimNotifyState
 {
 	GENERATED_BODY()
-	
+public:
+
+	// バーが始まったらロックON
+	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
+
+	// バーが終わったらロックOFF
+	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

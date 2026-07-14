@@ -52,6 +52,8 @@ public:
 	//攻撃時に呼び出して敵に向かって吸い寄せを開始する関数
 	void StartWarping(float FoftLockRadius);
 
+	void StopMoving(bool StopMove);
+
 protected:
 	//歩きスピード
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Speed")
