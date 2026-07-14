@@ -1,0 +1,100 @@
+#include "OrbActor.h"
+#include "Components/StaticMeshComponent.h"
+#include "OtogiAction/Component/Status/StatusComponent.h"
+
+AOrbActor::AOrbActor()
+{
+    PrimaryActorTick.bCanEverTick = true;
+
+    MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+
+    RootComponent = MeshComponent;
+}
+
+void AOrbActor::BeginPlay()
+{
+    Super::BeginPlay();
+
+    StartLocation = GetActorLocation();
+}
+
+//ãzÇÌÇÍÇÈèÛë‘
+void AOrbActor::StartAbsorb(AActor* Target)
+{
+    bIsAbsorbing = true;
+    TargetActor = Target;
+}
+
+//OwnerÇ…EnemyÇê›íË
+void AOrbActor::SetOwnerEnemy(AActor* Enemy)
+{
+    OwnerEnemy = Enemy;
+}
+
+void AOrbActor::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    // ãzÇÌÇÍÇƒÇ¢ÇÈÇ»ÇÁPlayerÇ÷îÚÇ‘
+// ãzÇÌÇÍÇƒÇ¢ÇÈÇ»ÇÁPlayerÇ÷îÚÇ‘
+if (bIsAbsorbing)
+{
+    if (TargetActor)
+    {
+        // PlayerÇ÷ÇÃï˚å¸ÇåvéZ
+        FVector Direction =
+            (TargetActor->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+
+        // à⁄ìÆë¨ìx
+        float MoveSpeed = 800.f;
+
+        // PlayerÇ÷à⁄ìÆ
+        SetActorLocation(
+            GetActorLocation() + Direction * MoveSpeed * DeltaTime);
+
+        // PlayerÇ∆ÇÃãóó£Çë™ÇÈ
+        float Distance = FVector::Dist(
+            GetActorLocation(),
+            TargetActor->GetActorLocation());
+
+        // PlayerÇ…ìûíÖÇµÇΩÇÁ
+        if (Distance < 50.f)
+        {
+            // OrbÇóéÇ∆ÇµÇΩEnemyÇÃStatusComponentÇéÊìæ
+            if (OwnerEnemy && !OwnerEnemy->IsPendingKillPending())
+            {
+                UStatusComponent* Status =
+                    OwnerEnemy->FindComponentByClass<UStatusComponent>();
+
+                if (Status)
+                {
+                    // Ç∑Ç≈Ç…éÄñSÇµÇƒÇ¢ÇÈÇ»ÇÁÉ_ÉÅÅ[ÉWÇó^Ç¶Ç»Ç¢
+                    if (!Status->IsDead())
+                    {
+                        // EnemyÇÃHPÇå∏ÇÁÇ∑
+                        Status->TakeDamage(10.f);
+
+                        UE_LOG(LogTemp, Warning,
+                            TEXT("Orb Damage Enemy : %s"),
+                            *OwnerEnemy->GetName());
+                    }
+                }
+            }
+
+            // ÉIÅ[ÉuÇè¡Ç∑
+            Destroy();
+        }
+
+    }
+
+    return;
+}
+    // ãzÇÌÇÍÇƒÇ¢Ç»Ç¢Ç∆Ç´ÇÕïÇÇ≠
+    FloatTime += DeltaTime;
+
+    FVector NewLocation = StartLocation;
+
+    NewLocation.Z += FMath::Sin(FloatTime * FloatSpeed) * FloatHeight;
+
+    SetActorLocation(NewLocation);
+}

@@ -5,6 +5,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "OtogiAction//Orb/OrbSpawnComponent.h"
 #include "MinionsCharacter.generated.h"
 
 class UStatusComponent;
@@ -51,6 +52,10 @@ public:
 	//攻撃コンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UStatusComponent* StatusComponent;
+
+	//オーブコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UOrbSpawnComponent* OrbSpawnComponent;
 
 	virtual void Tick(float DeltaTime) override;
 

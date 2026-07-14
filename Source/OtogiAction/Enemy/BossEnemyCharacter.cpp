@@ -33,47 +33,14 @@ void ABossEnemyCharacter::BeginPlay()
 	
 }
 
-//パンチアタックMontageの再生時間を返す
-float ABossEnemyCharacter::GetPlayPunchAttackMontageTime()
+float ABossEnemyCharacter::PlayAttackAnimation()
 {
-	if (PunchAttackMontage && GetMesh() && GetMesh()->GetAnimInstance())
+	if (AttackMontage && GetMesh() && GetMesh()->GetAnimInstance())
 	{
 		//Montageの再生時間を秒数で返す
-		return PlayAnimMontage(PunchAttackMontage);
+		return PlayAnimMontage(AttackMontage);
 	}
 	return 0.f;
-}
-
-//ジャンプアタックMontageの再生時間を返す
-float ABossEnemyCharacter::GetPlayJumpAttackMontageTime()
-{
-	if (JumpAttackMontage && GetMesh() && GetMesh()->GetAnimInstance())
-	{
-		//Montageの再生時間を秒数で返す
-		return PlayAnimMontage(JumpAttackMontage);
-	}
-	return 0.0f;
-}
-
-//敵のスピードをセットする
-void ABossEnemyCharacter::SetMovementSpeed(float NewSpeed) 
-{
-	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-	{
-		//MaxWalkSpeedに新しい値を代入
-		MoveComp->MaxWalkSpeed = NewSpeed;
-	}
-}
-
-//敵のスピードをゲットする
-float ABossEnemyCharacter::GetMovementSpeed()
-{
-	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-	{
-		//設定されているMaxWalkSpeedを返す
-		return MoveComp->MaxWalkSpeed;
-	}
-	return 0.0f;
 }
 
 float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

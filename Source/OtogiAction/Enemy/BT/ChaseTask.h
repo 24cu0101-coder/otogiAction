@@ -32,6 +32,4 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PlayerActorKey;
 
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	float LimitChaseRange;
 };

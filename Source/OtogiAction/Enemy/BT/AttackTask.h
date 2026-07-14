@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
+#include "GameplayTagContainer.h"
 #include "AttackTask.generated.h"
 
+class UGameplayAbility;
 class UEnemyAttackBaseComponent;
 class UBlackboardComponent;
 /**
@@ -21,6 +23,7 @@ public:
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	//virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	// 実行したい攻撃コンポーネントのクラスをBT上で指定
 	UPROPERTY(EditAnywhere, Category = "Attack")
