@@ -143,7 +143,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
-		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSkill1Pressed);
+		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Started, this, &APlayerCharacter::OnSkill1Pressed);
 
 		//オーブ吸う
 		EnhancedInputComponent->BindAction(AbsorbAction, ETriggerEvent::Started, this, &APlayerCharacter::OnAbsorb);

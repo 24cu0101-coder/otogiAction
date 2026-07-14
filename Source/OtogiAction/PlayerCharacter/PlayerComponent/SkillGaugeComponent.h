@@ -46,7 +46,8 @@ public:
 
 protected:
 	//ゲージの最大値
-	float MaxSkillGauge;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkillGauge")
+	float MaxSkillGauge = 500;
 
 private:
 	//現在のゲージ
