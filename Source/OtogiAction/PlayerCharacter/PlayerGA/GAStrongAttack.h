@@ -39,4 +39,19 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* ASC;
+
+
+	//モンタージュを再生する関数
+	UFUNCTION()
+	void PlaySAttackMontage();
+
+	UFUNCTION()
+	void RestartSAttackMontage();
+
+
+	UFUNCTION()
+	void SAttackMontageEnd();
+
+	UFUNCTION()
+	void SAttackAbilityEnd();
 };
