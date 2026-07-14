@@ -22,9 +22,9 @@ AOrbActor* UOrbSpawnComponent::SpawnOrb()
         GetOwner()->GetActorLocation();
 
     SpawnLocation += FVector(
-        FMath::RandRange(-50.f, 50.f),
-        FMath::RandRange(-50.f, 50.f),
-        50.f);
+        FMath::RandRange(-150.f, 150.f),
+        FMath::RandRange(-150.f, 150.f),
+        150.f);
 
     AOrbActor* SpawnedOrb =
         GetWorld()->SpawnActor<AOrbActor>(
