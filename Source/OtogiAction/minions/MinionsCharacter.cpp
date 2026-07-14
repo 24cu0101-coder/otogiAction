@@ -6,7 +6,6 @@
 #include "Ability/GA_minionsAttack_Strong.h"
 #include "AIController.h"
 #include "BrainComponent.h"
-#include "../Orb/OrbActor.h"
 
 AMinionsCharacter::AMinionsCharacter()
 {
@@ -19,10 +18,9 @@ AMinionsCharacter::AMinionsCharacter()
 	AttackComponent = CreateDefaultSubobject<UminionsAttackComponent>(TEXT("AttackComponent")); 
 	
 	// GASコンポーネント生成
-	AbilitySystemComponent =CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent =
+		CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
-	//オーブスポーンコンポーネント
-	OrbSpawnComponent =CreateDefaultSubobject<UOrbSpawnComponent>(TEXT("OrbSpawnComponent"));
 }
 
 UAbilitySystemComponent* AMinionsCharacter::GetAbilitySystemComponent() const
@@ -81,70 +79,13 @@ void AMinionsCharacter::GiveDefaultAbilities()
 	}
 }
 
-void AMinionsCharacter::OnDamage(
-	AActor* DamagedActor,
-	float Damage,
-	const UDamageType* DamageType,
-	AController* InstigatedBy,
-	AActor* DamageCauser)
+void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (!StatusComponent || !OrbSpawnComponent)
+	if(StatusComponent)
 	{
-		return;
-	}
-
-	// ダメージを受ける前の現在HP
-	float CurrentHP = StatusComponent->GetCurrentHP();
-
-	// 実際に減るHP以上のOrbを出さない
-	float ActualDamage = FMath::Min(Damage, CurrentHP);
-
-	// 10ダメージにつきOrb1個
-	int32 OrbCount = FMath::FloorToInt(ActualDamage / 10.f);
-
-	// 10未満のダメージでも最低1個出す
-	if (OrbCount <= 0)
-	{
-		OrbCount = 1;
-	}
-
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("Minion Damage:%f CurrentHP:%f SpawnOrb:%d"),
-		Damage,
-		CurrentHP,
-		OrbCount);
-
-
-	for (int32 i = 0; i < OrbCount; i++)
-	{
-
-		UE_LOG(LogTemp, Warning,
-			TEXT("Spawn Orb %d"),
-			i);
-
-		AOrbActor* Orb = OrbSpawnComponent->SpawnOrb();
-
-		if (Orb)
-		{
-			// このMinionが出したOrbとして登録
-			Orb->SetOwnerEnemy(this);
-		}
-	}
-}/*void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
-{
-	AOrbActor* SpawnedOrb = OrbSpawnComponent->SpawnOrb();
-
-	if (OrbSpawnComponent)
-	{
-		AOrbActor* Orb = OrbSpawnComponent->SpawnOrb();
-
-		if (Orb)
-		{
-			Orb->SetOwnerEnemy(this);
-		}
-	}
-}*/
+		StatusComponent->TakeDamage(Damage);
+	} 
+}
 
 //死
 void AMinionsCharacter::Dead()

@@ -77,6 +77,5 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
     }
 
     // まだ離れている場合は、毎フレームプレイヤーの位置を追いかけるように再命令
-    // (MoveToActorは内部で最適化されるため、毎フレーム呼んでも基本的には安全です)
-    AIController->MoveToActor(PlayerActor, EnemyCharacter->AttackRange);
+    AIController->MoveToActor(PlayerActor, LimitChaseRange);
 }

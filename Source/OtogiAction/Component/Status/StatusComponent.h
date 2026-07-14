@@ -63,11 +63,6 @@ public:
 	bool IsDead() const;
 
 
-	float GetCurrentHP() const
-	{
-		return CurrentHP;
-	}
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	UNiagaraSystem* DarkParticleAsset;
 
