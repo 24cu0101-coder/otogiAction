@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "../PlayerTargetComponent.h"
+#include "Camera/PlayerCameraManager.h"
 
 //コンストラクタ
 UMoveCameraComponent::UMoveCameraComponent()
@@ -109,5 +110,27 @@ void UMoveCameraComponent::CameraMove(FVector2D InputValue)
 
 void UMoveCameraComponent::SetCameraRotationLock(bool bLock)
 {
+}
+
+//カメラシェイク開始関数
+//引き数で名前指定すればそのカメラシェイク出せるのと、ヌルにしといてもデフォルト設定してる物が出るよ
+void UMoveCameraComponent::PlayerCameraShake(TSubclassOf<UCameraShakeBase> ShakeClass, float scale)
+{
+	if (!OwnerCharacter)return;
+
+	if (APlayerController* PC = Cast<APlayerController>(OwnerCharacter->GetController()))
+	{
+		if (PC->PlayerCameraManager)
+		{
+			//カメラシェイクをBPで設定してればそのまま実行
+			TSubclassOf<UCameraShakeBase> ActiveShakeClass = ShakeClass ? ShakeClass : DefaultCameraShakeClass;
+
+			if (ActiveShakeClass)
+			{
+				// カメラマネージャーにシェイクの開始を命令！
+				PC->PlayerCameraManager->StartCameraShake(ActiveShakeClass, scale);
+			}
+		}
+	}
 }
 

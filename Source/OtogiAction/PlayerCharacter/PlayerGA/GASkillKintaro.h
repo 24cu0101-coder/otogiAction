@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GASkillKintaro.generated.h"
 
 /**
@@ -18,25 +17,25 @@ class OTOGIACTION_API UGASkillKintaro : public UGameplayAbility
 public:
 	UGASkillKintaro();
 
-protected:
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	// アビリティ開始時の処理
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
 
+protected:
+protected:
+	//変身モンタージュ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kintaro | Visual")
+	UAnimMontage* KintaroMontage;
+
+	//金太郎状態GameplayEffect
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kintaro | Effects")
+	TSubclassOf<UGameplayEffect> KintaroEffectClass;
+
+private:
+	// アニメーションが終了（またはキャンセル）した時のコールバック関数
 	UFUNCTION()
 	void AbilityFinished();
-
-	//召喚する斧のアクタークラス
-	UPROPERTY(EditDefaultsOnly, Category = "Kintaro")
-	TSubclassOf<AActor>AxActorClass;
-
-	//どの位置に出すか
-	UPROPERTY(EditDefaultsOnly, Category = "Kintaro")
-	FVector SpawnOffset = FVector(150.f, 0.f, 100.f);
-
-	UPROPERTY(EditDefaultsOnly, Category = "Kintaro")
-	UAnimMontage* KintaroMontage;
-	
-private:
-	UPROPERTY()
-	AActor* SpawnAxActor;
-
 };
