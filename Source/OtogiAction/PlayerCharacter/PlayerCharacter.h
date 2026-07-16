@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "AbilitySystemInterface.h"
+#include "OtogiAction/Component/Audio/CharacterAudioComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "PlayerCharacter.generated.h"
 
 //前方宣言
@@ -27,6 +29,8 @@ class UStatusComponent;
 class UStrongAttackComponent;
 class USkillGaugeComponent;
 class UWeaponComponent;
+class UPlayerHPWidget;
+class USkillGaugeWidget;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -58,6 +62,10 @@ public:
 	//武器のクラスを外部に渡すゲッター関数
 	UFUNCTION(BlueprintCallable, Category = "Components")
 	UWeaponComponent* GetWeaponComponent() const { return WeaponComp; }
+
+	//スキルゲージをUIに表示
+	UFUNCTION(BlueprintCallable)
+	void UpdateSkillGaugeUI();
 
 private:
 	//スプリングアームコンポーネント
@@ -115,6 +123,27 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UWeaponComponent* WeaponComp;
 
+	//Audioコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio", meta = (AllowPrivateAccess = "true"))
+	UCharacterAudioComponent* CharacterAudioComponent;
+
+	//HPWidget
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> PlayerHPWidgetClass;
+
+	UPROPERTY()
+	UPlayerHPWidget* PlayerHPWidget;
+
+	UFUNCTION()
+	void OnPlayerDamaged(float CurrentHP);
+
+	//Skillげーぃ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> SkillGaugeWidgetClass;
+
+	UPROPERTY()
+	USkillGaugeWidget* SkillGaugeWidget;
+
 
 	//-------------------------
 	//Enhanced Input 設定
@@ -153,6 +182,9 @@ private:
 	//オーブ吸う
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* AbsorbAction;
+
+
+
 
 protected:
 	//入力イベント発生時に実行される内部関数

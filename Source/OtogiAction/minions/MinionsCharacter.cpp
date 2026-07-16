@@ -26,6 +26,9 @@ AMinionsCharacter::AMinionsCharacter()
 	//オーブスポーンコンポーネント
 	OrbSpawnComponent = CreateDefaultSubobject<UOrbSpawnComponent>(TEXT("OrbSpawnComponent"));
 
+	//Audioコンポーネント
+	CharacterAudioComponent =CreateDefaultSubobject<UCharacterAudioComponent>(TEXT("CharacterAudioComponent"));
+
 	//HPwidget
 	HPWidgetComponent =CreateDefaultSubobject<UWidgetComponent>(TEXT("HPWidget"));
 
@@ -106,6 +109,13 @@ void AMinionsCharacter::GiveDefaultAbilities()
 
 void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
 {
+	//被弾音
+	if (CharacterAudioComponent)
+	{
+		CharacterAudioComponent->PlayCharacterSound(
+			ECharacterSoundType::Damage
+		);
+	}
 	if (!StatusComponent || !OrbSpawnComponent)
 	{
 		return;

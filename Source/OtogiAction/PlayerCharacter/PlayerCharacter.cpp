@@ -20,6 +20,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerComponent/SkillGaugeComponent.h"
 #include "PlayerComponent/WeaponComponent.h"
+#include "OtogiAction/UI/PlayerHPWidget.h"
+#include "OtogiAction/UI/SkillGaugeWidget.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -97,13 +99,16 @@ APlayerCharacter::APlayerCharacter()
 
 	//武器コンポーネント
 	WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComp"));
+
+	//Audioコンポーネント
+	CharacterAudioComponent =CreateDefaultSubobject<UCharacterAudioComponent>(TEXT("CharacterAudioComponent"));
 }
 
 //ゲームが始まったときに生成
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	// Enhanced Input のマッピングコンテキストを追加
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -119,6 +124,43 @@ void APlayerCharacter::BeginPlay()
 		SkillComp->RegisterAbilities(GetAbilitySystemComponent());
 	}
 
+	//PlayerのHP表示
+	if (PlayerHPWidgetClass)
+	{
+		PlayerHPWidget = CreateWidget<UPlayerHPWidget>(
+			GetWorld(),
+			PlayerHPWidgetClass);
+
+		if (PlayerHPWidget)
+		{
+			PlayerHPWidget->AddToViewport();
+
+			PlayerHPWidget->SetHPPercent(
+				StatusComp->GetCurrentHP() /
+				StatusComp->GetMaxHP());
+		}
+	}
+
+	//SkillGauge表示
+	if (SkillGaugeWidgetClass)
+	{
+		SkillGaugeWidget = CreateWidget<USkillGaugeWidget>(
+			GetWorld(),
+			SkillGaugeWidgetClass);
+
+		if (SkillGaugeWidget)
+		{
+			SkillGaugeWidget->AddToViewport();
+
+			SkillGaugeWidget->SetGaugePercent(
+				GaugeComp->GetGaugeRatio());
+		}
+	}
+
+	if (StatusComp)
+	{
+		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::OnPlayerDamaged);
+	}
 }
 
 //毎フレーム処理
@@ -288,5 +330,23 @@ void APlayerCharacter::OnAbsorb()
 			// OrbにPlayerを目標として設定し、吸い込み状態にする
 			Orb->StartAbsorb(this);
 		}
+	}
+}
+//げんざいHPをUIに表示
+void APlayerCharacter::OnPlayerDamaged(float CurrentHP)
+{
+	if (PlayerHPWidget && StatusComp)
+	{
+		PlayerHPWidget->SetHPPercent(
+			CurrentHP / StatusComp->GetMaxHP());
+	}
+}
+//現在のSkillGaugeをUIに表示
+void APlayerCharacter::UpdateSkillGaugeUI()
+{
+	if (SkillGaugeWidget && GaugeComp)
+	{
+		SkillGaugeWidget->SetGaugePercent(
+			GaugeComp->GetGaugeRatio());
 	}
 }

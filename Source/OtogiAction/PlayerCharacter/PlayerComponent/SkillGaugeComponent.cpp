@@ -20,7 +20,7 @@ void USkillGaugeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentSkillGauge = MaxSkillGauge;
+	CurrentSkillGauge = 0.f;
 
 }
 
