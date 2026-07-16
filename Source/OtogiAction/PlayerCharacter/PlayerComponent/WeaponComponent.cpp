@@ -33,7 +33,7 @@ void UWeaponComponent::BeginPlay()
 
 		if (ASC)
 		{
-			FGameplayTag KintaroTag = FGameplayTag::RequestGameplayTag(TEXT("State.Kintaro"));
+			FGameplayTag KintaroTag = FGameplayTag::RequestGameplayTag(TEXT("State.Skill.Kintaro"));
 
 			// タグ変化で関数にバインド
 			ASC->RegisterGameplayTagEvent(KintaroTag, EGameplayTagEventType::NewOrRemoved)

@@ -28,8 +28,8 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 	BBComp = EnemyController->GetBlackboardComponent();
 	if (!BBComp) return EBTNodeResult::Failed;
 
-	//PunchAttackKeyがfalseだったら
-	if (!BBComp->GetValueAsBool(CanPunchAttackKey.SelectedKeyName)) return EBTNodeResult::Failed;
+	////PunchAttackKeyがfalseだったら
+	//if (!BBComp->GetValueAsBool(CanPunchAttackKey.SelectedKeyName)) return EBTNodeResult::Failed;
 
 	CachedOwnerComp = &OwnerComp;
 
