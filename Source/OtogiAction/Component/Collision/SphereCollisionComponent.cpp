@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/OverlapResult.h"
+#include "../../PlayerCharacter/PlayerCharacter.h"
+#include "../../HitStopComponent.h"
 
 // Sets default values for this component's properties
 USphereCollisionComponent::USphereCollisionComponent()
@@ -37,7 +39,7 @@ void USphereCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 }
 
-void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage)
+void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage, float HitStopDuration, float HitStopTimeScale)
 {
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();
@@ -95,6 +97,14 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					UDamageType::StaticClass()
 				);
 
+				if (APlayerCharacter* Player = Cast<APlayerCharacter>(Owner))
+				{
+					if (UHitStopComponent* HitStop = Player->GetHitStopComponent())
+					{
+						HitStop->TriggerHitStop(Player, OverlappedActor, HitStopDuration, HitStopTimeScale);
+					}
+
+				}
 				//デバッグ用の表示
 				DrawDebugSphere(
 					GetWorld(),

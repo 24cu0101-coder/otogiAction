@@ -19,7 +19,7 @@ public:
 
 	//
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void ExcuteAreaAttack(float Radius, FName TargetTag, float Damage);
+	void ExcuteAreaAttack(float Radius, FName TargetTag, float Damage, float HitStopDuration, float HitStopTimeScale);
 
 protected:
 	// Called when the game starts

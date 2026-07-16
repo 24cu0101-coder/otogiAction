@@ -17,7 +17,7 @@ void UPlayerCollisionNotifyState::Notify(USkeletalMeshComponent* MeshComp, UAnim
 		//if (USphereCollisionComponent* CollComp = Cast<USphereCollisionComponent>(MeshComp->GetOwner()))
 		if (USphereCollisionComponent* CollComp = OwnerActor->FindComponentByClass<USphereCollisionComponent>())
 		{
-			CollComp->ExcuteAreaAttack(Radius, TargetTag, Damage);
+			CollComp->ExcuteAreaAttack(Radius, TargetTag, Damage, HitStopDuration, HitStopTimreScale);
 		}
 	}
 }

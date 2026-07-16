@@ -20,6 +20,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerComponent/SkillGaugeComponent.h"
 #include "PlayerComponent/WeaponComponent.h"
+#include "../HitStopComponent.h"
+#include "HitReactionComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -97,6 +99,12 @@ APlayerCharacter::APlayerCharacter()
 
 	//武器コンポーネント
 	WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComp"));
+
+	//ヒットストップコンポーネント
+	HitStopComp = CreateDefaultSubobject<UHitStopComponent>(TEXT("HitStopComp"));
+
+	//ヒットリアクションコンポーネント
+	HitReactionComp = CreateDefaultSubobject<UHitReactionComponent>(TEXT("HitReactionComp"));
 }
 
 //ゲームが始まったときに生成
@@ -117,6 +125,12 @@ void APlayerCharacter::BeginPlay()
 	if (SkillComp && GetAbilitySystemComponent())
 	{
 		SkillComp->RegisterAbilities(GetAbilitySystemComponent());
+	}
+
+	//ステータスコンポーネントからの通知によってハンドル関数につなげる
+	if (StatusComp)
+	{
+		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::HandleDamaged);
 	}
 
 }
@@ -288,5 +302,16 @@ void APlayerCharacter::OnAbsorb()
 			// OrbにPlayerを目標として設定し、吸い込み状態にする
 			Orb->StartAbsorb(this);
 		}
+	}
+}
+
+//ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
+void APlayerCharacter::HandleDamaged(float NewHP)
+{
+	if (StatusComp && StatusComp->IsDead())return;
+
+	if (HitReactionComp)
+	{
+		HitReactionComp->PlayHitReaction(nullptr);
 	}
 }

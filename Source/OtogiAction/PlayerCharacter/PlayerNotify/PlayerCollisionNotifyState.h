@@ -16,12 +16,25 @@ public:
 
 protected:
 	//すべてのエディタ（キャラ・武器問わず）で使い回せる引数設定
+	//スフィアの半径
 	UPROPERTY(EditAnywhere, Category = "Attack Settings")
 	float Radius = 150.f;
 
+	//ターゲット
 	UPROPERTY(EditAnywhere, Category = "Attack Settings")
 	FName TargetTag = FName("Enemy");
 
+	//ダメージ
 	UPROPERTY(EditAnywhere, Category = "Attack Settings")
 	float Damage = 20.f;
+
+	//ヒットストップ時間
+	UPROPERTY(EditAnywhere, Category = "Attack Settings")
+	float HitStopDuration = 0.09f;
+
+	//どれくらい時間を引き延ばすか？
+	UPROPERTY(EditAnywhere, Category = "Attack Settings")
+	float HitStopTimreScale = 0.01f;
+
+
 };

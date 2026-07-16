@@ -9,7 +9,7 @@
 #include "PlayerCharacter.generated.h"
 
 //前方宣言
-class UAbilitySystemComponent;
+class UAbilitySystemComponent;		
 class USpringArmComponent;
 class UCameraComponent;
 class UMoveComponent;
@@ -27,6 +27,8 @@ class UStatusComponent;
 class UStrongAttackComponent;
 class USkillGaugeComponent;
 class UWeaponComponent;
+class UHitStopComponent;
+class UHitReactionComponent;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -58,6 +60,9 @@ public:
 	//武器のクラスを外部に渡すゲッター関数
 	UFUNCTION(BlueprintCallable, Category = "Components")
 	UWeaponComponent* GetWeaponComponent() const { return WeaponComp; }
+
+	//ヒットストップを外部から取得できるようにするゲッター関数
+	UHitStopComponent* GetHitStopComponent() const { return HitStopComp; }
 
 private:
 	//スプリングアームコンポーネント
@@ -112,8 +117,17 @@ private:
 	USkillGaugeComponent* GaugeComp;
 
 	//武器こんぽーねんと
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UWeaponComponent* WeaponComp;
+
+	//ヒットストップコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitStop", meta = (AllowPrivateAccess = "true"))
+	UHitStopComponent* HitStopComp;
+
+	//被ダメージコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReaction", meta = (AllowPrivateAccess = "true"))
+	UHitReactionComponent* HitReactionComp;
+
 
 
 	//-------------------------
@@ -170,4 +184,8 @@ protected:
 	void OnSkill4Pressed();
 
 	void OnAbsorb();
+
+	//ハンドル関数
+	UFUNCTION()
+	void HandleDamaged(float NewHP);
 };
