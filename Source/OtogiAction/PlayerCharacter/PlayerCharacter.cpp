@@ -11,7 +11,7 @@
 #include "PlayerComponent/Camera/MoveCameraComponent.h"
 #include "PlayerComponent/PlayerDodgeComponent.h"
 #include "PlayerComponent/SkillComponent.h"
-#include "PlayerComponent/NormalAttack/NormalAttackComponent.h"
+#include "PlayerComponent/NormalAttack/NormalAttackComponent2.h"
 #include "PlayerComponent/StrongAttack/StrongAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 #include "../Component/Collision/AttackCollisionComponent.h"
@@ -75,7 +75,7 @@ APlayerCharacter::APlayerCharacter()
 
 
 	//通常攻撃コンポーネント生成
-	NormalAttackComp = CreateDefaultSubobject<UNormalAttackComponent>(TEXT("NormalAtComp"));
+	NormalAttackComp2 = CreateDefaultSubobject<UNormalAttackComponent2>(TEXT("NormalAtComp"));
 
 	//強攻撃コンポーネント生成
 	StrongAttackComp = CreateDefaultSubobject<UStrongAttackComponent>(TEXT("SAttackComp"));
@@ -145,7 +145,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//強攻撃
 		EnhancedInputComponent->BindAction(SAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack);
 		//スキルの切り替え
-		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
+		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Started, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
 		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Started, this, &APlayerCharacter::OnSkill1Pressed);
 
@@ -210,10 +210,13 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
 	//通常攻撃コンポーネントがあったら
-	if (NormalAttackComp)
+	if (NormalAttackComp2)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("hfgstdf"));
+
+
 		//コンポーネントの処理実行
-		NormalAttackComp->ExecuteNormalAttackAbility();
+		NormalAttackComp2->ExecuteNormalAttackAbility();
 
 	}
 }
