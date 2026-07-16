@@ -1,4 +1,4 @@
-ï»¿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "WeaponComponent.h"
@@ -24,10 +24,10 @@ void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ã‚ªãƒ¼ãƒŠãƒ¼ã‚’å–å¾—
+	// ƒI[ƒi[‚ğæ“¾
 	if (AActor* Owner = GetOwner())
 	{
-		// ã‚ªãƒ¼ãƒŠãƒ¼ã‹ã‚‰ASCå–å¾—
+		// ƒI[ƒi[‚©‚çASCæ“¾
 		IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(Owner);
 		UAbilitySystemComponent* ASC = ASCInterface ? ASCInterface->GetAbilitySystemComponent() : nullptr;
 
@@ -35,7 +35,7 @@ void UWeaponComponent::BeginPlay()
 		{
 			FGameplayTag KintaroTag = FGameplayTag::RequestGameplayTag(TEXT("State.Skill.Kintaro"));
 
-			// ã‚¿ã‚°å¤‰åŒ–ã§é–¢æ•°ã«ãƒã‚¤ãƒ³ãƒ‰
+			// ƒ^ƒO•Ï‰»‚ÅŠÖ”‚ÉƒoƒCƒ“ƒh
 			ASC->RegisterGameplayTagEvent(KintaroTag, EGameplayTagEventType::NewOrRemoved)
 				.AddUObject(this, &UWeaponComponent::OnKintaroTagChanged);
 		}
@@ -52,9 +52,16 @@ void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UWeaponComponent::OnKintaroTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
-	if (NewCount == 0)
+	if (NewCount > 0)
 	{
-		UE_LOG(LogTemp, Log, TEXT("FinishKintaro"));
+		//•t—^‚³‚ê‚½ƒ^ƒCƒ~ƒ“ƒO‚Å‹à‘¾˜Y‚ÉˆÚs
+		UE_LOG(LogTemp, Log, TEXT("KINTAROSTART"));
+		SetWeaponStyle(EPlayerWeaponStyle::Kintaro);
+	}
+	else // NewCount == 0
+	{
+		//ƒ^ƒO‚ªÁ‚¦‚½ƒ^ƒCƒ~ƒ“ƒO‚Ì‚ÅA©“®“I‚É’ÊíƒXƒ^ƒCƒ‹‚É–ß‚é
+		UE_LOG(LogTemp, Log, TEXT("KINTAROFFINIFH"));
 		SetWeaponStyle(EPlayerWeaponStyle::Nomal);
 	}
 }
@@ -63,7 +70,7 @@ void UWeaponComponent::SetActorHidden(AActor* TargetActor, bool bNewHidden)
 {
 	if (!TargetActor) return;
 
-	// 1. ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ãƒ¡ãƒƒã‚·ãƒ¥ï¼ˆæ™®é€šã®åˆ€ï¼‰ã‚’æ¢ã—ã¦éè¡¨ç¤º/è¡¨ç¤º
+	// 1. ƒXƒ^ƒeƒBƒbƒNƒƒbƒVƒ…i•’Ê‚Ì“j‚ğ’T‚µ‚Ä”ñ•\¦/•\¦
 	TArray<UStaticMeshComponent*> StaticMeshes;
 	TargetActor->GetComponents<UStaticMeshComponent>(StaticMeshes);
 	for (UStaticMeshComponent* Mesh : StaticMeshes)
@@ -74,7 +81,7 @@ void UWeaponComponent::SetActorHidden(AActor* TargetActor, bool bNewHidden)
 		}
 	}
 
-	// 2. ã‚¹ã‚±ãƒ«ã‚¿ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ï¼ˆéª¨å…¥ã‚Šåˆ€ï¼‰ã‚’æ¢ã—ã¦éè¡¨ç¤º/è¡¨ç¤º
+	// 2. ƒXƒPƒ‹ƒ^ƒ‹ƒƒbƒVƒ…iœ“ü‚è“j‚ğ’T‚µ‚Ä”ñ•\¦/•\¦
 	TArray<USkeletalMeshComponent*> SkeletalMeshes;
 	TargetActor->GetComponents<USkeletalMeshComponent>(SkeletalMeshes);
 	for (USkeletalMeshComponent* Mesh : SkeletalMeshes)
@@ -86,18 +93,18 @@ void UWeaponComponent::SetActorHidden(AActor* TargetActor, bool bNewHidden)
 	}
 }
 
-//æ­¦å™¨ã®åˆ‡ã‚Šæ›¿ãˆã‚’è¡Œã†é–¢æ•°
+//•Ší‚ÌØ‚è‘Ö‚¦‚ğs‚¤ŠÖ”
 void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 {
 	CurrentStyle = PlayerStyle;
 
-	// ğŸ’¡ ãƒ˜ãƒƒãƒ€ãƒ¼ã® WeaponActorClassï¼ˆè¨­è¨ˆå›³ã‚¯ãƒ©ã‚¹ï¼‰ã«åˆè‡´ã™ã‚‹ã€Œå®Ÿä½“ã‚¢ã‚¯ã‚¿ãƒ¼ã€ã‚’ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‹ã‚‰æ¢ã™
+	//ƒwƒbƒ_[‚Ì WeaponActorClassiİŒv}ƒNƒ‰ƒXj‚É‡’v‚·‚éuÀ‘ÌƒAƒNƒ^[v‚ğƒLƒƒƒ‰ƒNƒ^[‚©‚ç’T‚·
 	AActor* TargetWeaponActor = nullptr;
 	if (WeaponActorClass)
 	{
 		if (AActor* Owner = GetOwner())
 		{
-			// ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã«ãã£ã¤ã„ã¦ã„ã‚‹ï¼ˆAttachedï¼‰ã‚¢ã‚¯ã‚¿ãƒ¼ã®ä¸­ã‹ã‚‰ã€WeaponActorClass ã¨åŒã˜ã‚¯ãƒ©ã‚¹ã®ã‚‚ã®ã‚’æ¢ã™
+			// ƒLƒƒƒ‰ƒNƒ^[‚É‚­‚Á‚Â‚¢‚Ä‚¢‚éiAttachedjƒAƒNƒ^[‚Ì’†‚©‚çAWeaponActorClass ‚Æ“¯‚¶ƒNƒ‰ƒX‚Ì‚à‚Ì‚ğ’T‚·
 			TArray<AActor*> AttachedActors;
 			Owner->GetAttachedActors(AttachedActors);
 
@@ -112,7 +119,7 @@ void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 		}
 	}
 
-	// ğŸ’¡ åˆ€ã‚¢ã‚¯ã‚¿ãƒ¼å†…ã®ãƒ¡ãƒƒã‚·ãƒ¥ã¨é‡‘å¤ªéƒã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’ä¸€åº¦ãƒªã‚»ãƒƒãƒˆ
+	//“ƒAƒNƒ^[“à‚ÌƒƒbƒVƒ…‚Æ‹à‘¾˜YƒGƒtƒFƒNƒg‚ğˆê“xƒŠƒZƒbƒg
 	if (TargetWeaponActor)
 	{
 		SetActorHidden(TargetWeaponActor, true);
@@ -122,11 +129,11 @@ void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 		KintaroEffect->Deactivate();
 	}
 
-	// ç¾åœ¨ã®ã‚¹ãƒ†ãƒ¼ãƒˆã«åˆã‚ã›ã¦ã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–
+	// Œ»İ‚ÌƒXƒe[ƒg‚É‡‚í‚¹‚ÄƒAƒNƒeƒBƒu‰»
 	switch (CurrentStyle)
 	{
 	case EPlayerWeaponStyle::Nomal:
-		// åˆ€ã‚¢ã‚¯ã‚¿ãƒ¼å†…ã®ãƒ¡ãƒƒã‚·ãƒ¥ã‚’è¡¨ç¤ºã«æˆ»ã™
+		// “ƒAƒNƒ^[“à‚ÌƒƒbƒVƒ…‚ğ•\¦‚É–ß‚·
 		if (TargetWeaponActor)
 		{
 			SetActorHidden(TargetWeaponActor, false);
@@ -134,7 +141,7 @@ void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 		break;
 
 	case EPlayerWeaponStyle::Kintaro:
-		// é‡‘å¤ªéƒã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’èµ·å‹•
+		// ‹à‘¾˜YƒGƒtƒFƒNƒg‚ğ‹N“®
 		if (KintaroEffect)
 		{
 			KintaroEffect->Activate(true);
