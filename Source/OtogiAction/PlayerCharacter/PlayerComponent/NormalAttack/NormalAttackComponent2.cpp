@@ -3,13 +3,13 @@
 
 #include "NormalAttackComponent2.h"
 
-//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
 UNormalAttackComponent2::UNormalAttackComponent2()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 
-	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç§»å‹•ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆç”Ÿæˆ
+	//ƒLƒƒƒ‰ƒNƒ^[ˆÚ“®ƒRƒ“ƒ|[ƒlƒ“ƒg¶¬
 	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("NAMC"));
 
 
@@ -34,95 +34,97 @@ void UNormalAttackComponent2::BeginPlay()
 	{
 		if (GetOwner()->HasAuthority() && NAttackAbility1)
 		{
-			//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«NAttackAbility1ä»˜ä¸
+			//ƒvƒŒƒCƒ„[‚ÉNAttackAbility1•t—^
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(NAttackAbility1, 1));
 		}
 
 		if (GetOwner()->HasAuthority() && NAttackAbility2)
 		{
-			//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«NAttackAbility2ä»˜ä¸
+			//ƒvƒŒƒCƒ„[‚ÉNAttackAbility2•t—^
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(NAttackAbility2, 1));
 		}
 
 		if (GetOwner()->HasAuthority() && NAttackAbility3)
 		{
-			//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«NAttackAbility3ä»˜ä¸
+			//ƒvƒŒƒCƒ„[‚ÉNAttackAbility3•t—^
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(NAttackAbility3, 1));
 		}
 
 		if (GetOwner()->HasAuthority() && KintaroAttack1)
 		{
-			//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«NAttackAbility1ä»˜ä¸
+			//ƒvƒŒƒCƒ„[‚ÉNAttackAbility1•t—^
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(KintaroAttack1, 1));
 		}
 
 		if (GetOwner()->HasAuthority() && KintaroAttack2)
 		{
-			//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«NAttackAbility2ä»˜ä¸
+			//ƒvƒŒƒCƒ„[‚ÉNAttackAbility2•t—^
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(KintaroAttack2, 1));
 		}
 
 		if (GetOwner()->HasAuthority() && KintaroAttack3)
 		{
-			//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«NAttackAbility3ä»˜ä¸
+			//ƒvƒŒƒCƒ„[‚ÉNAttackAbility3•t—^
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(KintaroAttack3, 1));
 		}
 	}
 }
 
 
-//é€šå¸¸æ”»æ’ƒã‚¢ãƒ“ãƒªãƒ†ã‚£å®Ÿè¡Œ(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã§å‘¼ã°ã‚Œã‚‹)
+//’ÊíUŒ‚ƒAƒrƒŠƒeƒBÀs(ƒvƒŒƒCƒ„[ƒLƒƒƒ‰ƒNƒ^[‚ÅŒÄ‚Î‚ê‚é)
 void UNormalAttackComponent2::ExecuteNormalAttackAbility()
 {
-	//ã‚¿ã‚°
-	//å…¥åŠ›ãŒå¯èƒ½ã‹ã©ã†ã‹ã®ã‚¿ã‚°
+	//ƒ^ƒO
+	//“ü—Í‚ª‰Â”\‚©‚Ç‚¤‚©‚Ìƒ^ƒO
 	FGameplayTag PossibleNAttack = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.CantAttack"));
 
-	//ä¸‰æ®µæ”»æ’ƒæ´¾ç”Ÿã‚¿ã‚°
+	//O’iUŒ‚”h¶ƒ^ƒO
 	FGameplayTag NextTag1 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag1"));
 	FGameplayTag NextTag2 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag2"));
 
-	//é‡‘å¤ªéƒã‚¿ã‚°
+	//‹à‘¾˜Yƒ^ƒO
 	FGameplayTag kintaroTag = FGameplayTag::RequestGameplayTag(TEXT("State.Skill.Kintaro"));
+
+	FGameplayTag SkillAttack = FGameplayTag::RequestGameplayTag(TEXT("State.Attacking.Skill"));
 	//
 
 
-	if (!AbilitySystemComponent || AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
+	if (!AbilitySystemComponent || AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack) || AbilitySystemComponent->HasMatchingGameplayTag(SkillAttack))
 	{
 
 		return;
 	}
 
 
-	//é‡‘å¤ªéƒã‚¿ã‚°ãŒã‚ã£ãŸã‚‰
+	//‹à‘¾˜Yƒ^ƒO‚ª‚ ‚Á‚½‚ç
 	if (AbilitySystemComponent->HasMatchingGameplayTag(kintaroTag))
 	{	
-		//ã‚¢ãƒ“ãƒªãƒ†ã‚£ãŒã‚ã‚‹ãªã‚‰
-		//ç¾åœ¨ã®ã‚³ãƒ³ãƒœé€²è¡Œã‚¿ã‚°ãŒ2ãªã‚‰
+		//ƒAƒrƒŠƒeƒB‚ª‚ ‚é‚È‚ç
+		//Œ»İ‚ÌƒRƒ“ƒ{isƒ^ƒO‚ª2‚È‚ç
 		if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag2))
 		{
-			//ã‚¢ãƒ“ãƒªãƒ†ã‚£ãŒã‚ã‚‹ãªã‚‰
+			//ƒAƒrƒŠƒeƒB‚ª‚ ‚é‚È‚ç
 			if (KintaroAttack3)
 			{
-				//ã‚¢ãƒ“ãƒªãƒ†ã‚£å®Ÿè¡Œas
+				//ƒAƒrƒŠƒeƒBÀsas
 				AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack3);
 				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
 			}
 		}
 
-		//ç¾åœ¨ã®ã‚³ãƒ³ãƒœé€²è¡Œã‚¿ã‚°ãŒ1ãªã‚‰
+		//Œ»İ‚ÌƒRƒ“ƒ{isƒ^ƒO‚ª1‚È‚ç
 		else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag1))
 		{
-			//ã‚¢ãƒ“ãƒªãƒ†ã‚£ãŒã‚ã‚‹ãªã‚‰
+			//ƒAƒrƒŠƒeƒB‚ª‚ ‚é‚È‚ç
 			if (KintaroAttack2)
 			{
-				//ã‚¢ãƒ“ãƒªãƒ†ã‚£å®Ÿè¡Œ
+				//ƒAƒrƒŠƒeƒBÀs
 				AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack2);
 				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag1);
 			}
 		}
 
-		//å…¥åŠ›ãŒå¯èƒ½ã ã£ãŸã‚‰
+		//“ü—Í‚ª‰Â”\‚¾‚Á‚½‚ç
 		else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
 		{
 			MCC->StartWarping(600.f);
@@ -135,31 +137,31 @@ void UNormalAttackComponent2::ExecuteNormalAttackAbility()
 
 	else
 	{
-		//ç¾åœ¨ã®ã‚³ãƒ³ãƒœé€²è¡Œã‚¿ã‚°ãŒ2ãªã‚‰
+		//Œ»İ‚ÌƒRƒ“ƒ{isƒ^ƒO‚ª2‚È‚ç
 		if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag2))
 		{
-			//ã‚¢ãƒ“ãƒªãƒ†ã‚£ãŒã‚ã‚‹ãªã‚‰
+			//ƒAƒrƒŠƒeƒB‚ª‚ ‚é‚È‚ç
 			if (NAttackAbility3)
 			{
-				//ã‚¢ãƒ“ãƒªãƒ†ã‚£å®Ÿè¡Œas
+				//ƒAƒrƒŠƒeƒBÀsas
 				AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility3);
 				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
 			}
 		}
 
-		//ç¾åœ¨ã®ã‚³ãƒ³ãƒœé€²è¡Œã‚¿ã‚°ãŒ1ãªã‚‰
+		//Œ»İ‚ÌƒRƒ“ƒ{isƒ^ƒO‚ª1‚È‚ç
 		else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag1))
 		{
-			//ã‚¢ãƒ“ãƒªãƒ†ã‚£ãŒã‚ã‚‹ãªã‚‰
+			//ƒAƒrƒŠƒeƒB‚ª‚ ‚é‚È‚ç
 			if (NAttackAbility2)
 			{
-				//ã‚¢ãƒ“ãƒªãƒ†ã‚£å®Ÿè¡Œ
+				//ƒAƒrƒŠƒeƒBÀs
 				AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility2);
 				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag1);
 			}
 		}
 
-		//å…¥åŠ›ãŒå¯èƒ½ã ã£ãŸã‚‰
+		//“ü—Í‚ª‰Â”\‚¾‚Á‚½‚ç
 		else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
 		{
 			MCC->StartWarping(600.f);

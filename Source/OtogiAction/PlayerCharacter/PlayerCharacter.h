@@ -22,6 +22,7 @@ class UNormalAttackComponent2;		//通常攻撃を実行するクラス(髙山)
 class UPlayerTargetComponent;
 class USkillComponent;
 class UAttackCollisionComponent;
+class USphereCollisionComponent;
 class UStatusComponent;
 class UStrongAttackComponent;
 class USkillGaugeComponent;
@@ -95,15 +96,15 @@ private:
 	USkillComponent* SkillComp;
 
 	//ターゲットコンポーネント
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target", meta = (AllowPrivateAccess = "true"))
 	UPlayerTargetComponent* TargetComp;
 
 	//ターゲットコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
-	UAttackCollisionComponent* CollisionComp;
+	USphereCollisionComponent* CollisionComp;
 
 	//ステータスコンポーネント
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status", meta = (AllowPrivateAccess = "true"))
 	UStatusComponent* StatusComp;
 
 	//スキルゲージコンポネント

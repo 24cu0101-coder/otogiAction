@@ -14,7 +14,7 @@
 #include "PlayerComponent/NormalAttack/NormalAttackComponent2.h"
 #include "PlayerComponent/StrongAttack/StrongAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
-#include "../Component/Collision/AttackCollisionComponent.h"
+#include "../Component/Collision/SphereCollisionComponent.h"
 #include "../Component/Status/StatusComponent.h"
 #include "../Orb/OrbActor.h"
 #include "Kismet/GameplayStatics.h"
@@ -87,7 +87,7 @@ APlayerCharacter::APlayerCharacter()
 	SkillComp = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComp"));
 
 	//AttackCollisionComponentの生成
-	CollisionComp = CreateDefaultSubobject<UAttackCollisionComponent>(TEXT("CollisionComp"));
+	CollisionComp = CreateDefaultSubobject<USphereCollisionComponent>(TEXT("CollisionComp"));
 
 	//Statusコンポーネント生成
 	StatusComp = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComp"));
