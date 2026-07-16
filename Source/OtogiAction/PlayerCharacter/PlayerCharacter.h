@@ -18,7 +18,7 @@ class UInputMappingContext;
 class UInputAction;
 
 class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
-class UNormalAttackComponent;		//通常攻撃を実行するクラス(髙山)
+class UNormalAttackComponent2;		//通常攻撃を実行するクラス(髙山)
 class UPlayerTargetComponent;
 class USkillComponent;
 class UAttackCollisionComponent;
@@ -84,7 +84,7 @@ private:
 
 	//通常攻撃コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NormalAttack", meta = (AllowPrivateAccess = "true"))
-	UNormalAttackComponent* NormalAttackComp;
+	UNormalAttackComponent2* NormalAttackComp2;
 
 	//強攻撃コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StrongAttack", meta = (AllowPrivateAccess = "true"))
