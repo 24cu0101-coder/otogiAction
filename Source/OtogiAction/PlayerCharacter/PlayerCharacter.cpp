@@ -20,6 +20,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerComponent/SkillGaugeComponent.h"
 #include "PlayerComponent/WeaponComponent.h"
+#include "../HitStopComponent.h"
+#include "HitReactionComponent.h"
+#include "OtogiAction/UI/PlayerHPWidget.h"
+#include "OtogiAction/UI/SkillGaugeWidget.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -97,13 +101,21 @@ APlayerCharacter::APlayerCharacter()
 
 	//武器コンポーネント
 	WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComp"));
+
+	//ヒットストップコンポーネント
+	HitStopComp = CreateDefaultSubobject<UHitStopComponent>(TEXT("HitStopComp"));
+
+	//ヒットリアクションコンポーネント
+	HitReactionComp = CreateDefaultSubobject<UHitReactionComponent>(TEXT("HitReactionComp"));
+	//Audioコンポーネント
+	CharacterAudioComponent =CreateDefaultSubobject<UCharacterAudioComponent>(TEXT("CharacterAudioComponent"));
 }
 
 //ゲームが始まったときに生成
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	// Enhanced Input のマッピングコンテキストを追加
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -119,6 +131,50 @@ void APlayerCharacter::BeginPlay()
 		SkillComp->RegisterAbilities(GetAbilitySystemComponent());
 	}
 
+	//ステータスコンポーネントからの通知によってハンドル関数につなげる
+	if (StatusComp)
+	{
+		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::HandleDamaged);
+	}
+
+	//PlayerのHP表示
+	if (PlayerHPWidgetClass)
+	{
+		PlayerHPWidget = CreateWidget<UPlayerHPWidget>(
+			GetWorld(),
+			PlayerHPWidgetClass);
+
+		if (PlayerHPWidget)
+		{
+			PlayerHPWidget->AddToViewport();
+
+			PlayerHPWidget->SetHPPercent(
+				StatusComp->GetCurrentHP() /
+				StatusComp->GetMaxHP());
+		}
+	}
+
+	//SkillGauge表示
+	if (SkillGaugeWidgetClass)
+	{
+		SkillGaugeWidget = CreateWidget<USkillGaugeWidget>(
+			GetWorld(),
+			SkillGaugeWidgetClass);
+
+		if (SkillGaugeWidget)
+		{
+			SkillGaugeWidget->AddToViewport();
+
+			SkillGaugeWidget->SetGaugePercent(
+				GaugeComp->GetGaugeRatio());
+		}
+	}
+
+	if (StatusComp)
+	{
+		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::OnPlayerDamaged);
+		PreviousHP = StatusComp->GetMaxHP();
+	}
 }
 
 //毎フレーム処理
@@ -163,6 +219,12 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 //キャラクター移動
 void APlayerCharacter::OnCharacterMovement(const FInputActionValue& Value)
 {
+	//ダウン中なら移動入力を完全に無視する
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		return;
+	}
+
 	//スティックの傾きの軸を取得
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -196,6 +258,13 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 //回避(髙山)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
+	//ダウン中にボタンで起き上がる
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		HitReactionComp->RequestGetUp();
+		return;
+	}
+
 	
 	//回避コンポーネントがあったら
 	if (PlayerDodgeComp)
@@ -209,6 +278,12 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 //
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
+	//ダウン中なら移動入力を完全に無視する
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		return;
+	}
+
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp2)
 	{
@@ -223,6 +298,13 @@ void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value)
 
 void APlayerCharacter::OnStrongAttack()
 {
+	//ダウン中にボタンで起き上がる
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		HitReactionComp->RequestGetUp();
+		return;
+	}
+
 	//強攻撃コンポーネントがあったら
 	if (StrongAttackComp)
 	{
@@ -288,5 +370,44 @@ void APlayerCharacter::OnAbsorb()
 			// OrbにPlayerを目標として設定し、吸い込み状態にする
 			Orb->StartAbsorb(this);
 		}
+	}
+}
+
+//ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
+void APlayerCharacter::HandleDamaged(float NewHP)
+{
+	// 死亡している場合はリアクションを処理しない
+	if (StatusComp && StatusComp->IsDead()) return;
+
+	if (HitReactionComp && StatusComp)
+	{
+		//ダメージ量
+		float DamageAmount = PreviousHP - NewHP;
+
+		//最新HPを前回のHPとして保存
+		PreviousHP = NewHP;
+
+		if (DamageAmount > 0.f)
+		{
+			HitReactionComp->PlayHitReaction(DamageAmount);
+		}
+	}
+}
+//げんざいHPをUIに表示
+void APlayerCharacter::OnPlayerDamaged(float CurrentHP)
+{
+	if (PlayerHPWidget && StatusComp)
+	{
+		PlayerHPWidget->SetHPPercent(
+			CurrentHP / StatusComp->GetMaxHP());
+	}
+}
+//現在のSkillGaugeをUIに表示
+void APlayerCharacter::UpdateSkillGaugeUI()
+{
+	if (SkillGaugeWidget && GaugeComp)
+	{
+		SkillGaugeWidget->SetGaugePercent(
+			GaugeComp->GetGaugeRatio());
 	}
 }

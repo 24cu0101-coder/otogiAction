@@ -6,10 +6,12 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "AbilitySystemInterface.h"
+#include "OtogiAction/Component/Audio/CharacterAudioComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "PlayerCharacter.generated.h"
 
 //前方宣言
-class UAbilitySystemComponent;
+class UAbilitySystemComponent;		
 class USpringArmComponent;
 class UCameraComponent;
 class UMoveComponent;
@@ -27,6 +29,10 @@ class UStatusComponent;
 class UStrongAttackComponent;
 class USkillGaugeComponent;
 class UWeaponComponent;
+class UHitStopComponent;
+class UHitReactionComponent;
+class UPlayerHPWidget;
+class USkillGaugeWidget;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -58,6 +64,12 @@ public:
 	//武器のクラスを外部に渡すゲッター関数
 	UFUNCTION(BlueprintCallable, Category = "Components")
 	UWeaponComponent* GetWeaponComponent() const { return WeaponComp; }
+
+	//ヒットストップを外部から取得できるようにするゲッター関数
+	UHitStopComponent* GetHitStopComponent() const { return HitStopComp; }
+	//スキルゲージをUIに表示
+	UFUNCTION(BlueprintCallable)
+	void UpdateSkillGaugeUI();
 
 private:
 	//スプリングアームコンポーネント
@@ -112,8 +124,37 @@ private:
 	USkillGaugeComponent* GaugeComp;
 
 	//武器こんぽーねんと
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UWeaponComponent* WeaponComp;
+
+	//ヒットストップコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitStop", meta = (AllowPrivateAccess = "true"))
+	UHitStopComponent* HitStopComp;
+
+	//被ダメージコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReaction", meta = (AllowPrivateAccess = "true"))
+	UHitReactionComponent* HitReactionComp;
+
+	//Audioコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio", meta = (AllowPrivateAccess = "true"))
+	UCharacterAudioComponent* CharacterAudioComponent;
+
+	//HPWidget
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> PlayerHPWidgetClass;
+
+	UPROPERTY()
+	UPlayerHPWidget* PlayerHPWidget;
+
+	UFUNCTION()
+	void OnPlayerDamaged(float CurrentHP);
+
+	//Skillげーぃ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> SkillGaugeWidgetClass;
+
+	UPROPERTY()
+	USkillGaugeWidget* SkillGaugeWidget;
 
 
 	//-------------------------
@@ -154,6 +195,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* AbsorbAction;
 
+	//げんざいのHP 
+	float PreviousHP;
+
+
 protected:
 	//入力イベント発生時に実行される内部関数
 	void OnCharacterMovement(const FInputActionValue& Value);
@@ -170,4 +215,8 @@ protected:
 	void OnSkill4Pressed();
 
 	void OnAbsorb();
+
+	//ハンドル関数
+	UFUNCTION()
+	void HandleDamaged(float NewHP);
 };
