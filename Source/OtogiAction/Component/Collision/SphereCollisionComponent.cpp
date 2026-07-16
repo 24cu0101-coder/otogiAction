@@ -114,5 +114,20 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 			}
 		}
 	}
+	else
+	{
+		//デバッグ用の表示
+		DrawDebugSphere(
+			GetWorld(),
+			Center,
+			Radius,
+			16,							//球の滑らかさ
+			FColor::Green,              //緑色で描画
+			false,                      // ずっと残さない
+			2.0f,                       // 2秒間表示
+			0,
+			2.0f                        // 線の太さ
+		);
+	}
 
 }
