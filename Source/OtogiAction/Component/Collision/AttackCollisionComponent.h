@@ -44,12 +44,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	USphereComponent* SphereAttackCollision;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	//UBoxComponent* BoxAttackCollision;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	//UCapsuleComponent* CapsuleAttackCollision;
-
 	//BoxCollisionの幅
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "Collision|Param|Box")
 	float BoxWidth = 0.f;
@@ -86,6 +80,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Collision")
 	EAttackCollisionType CollisionType;
 
-	// 実際のコリジョン計算用（UPROPERTYは付けない）
+	// 実際のコリジョン計算用
 	FCollisionShape CustomCollisionShape;
 };

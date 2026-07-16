@@ -7,13 +7,13 @@
 #include "AttackDecorator.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class OTOGIACTION_API UAttackDecorator : public UBTDecorator
 {
 	GENERATED_BODY()
-	
+
 public:
 	UAttackDecorator();
 
@@ -25,5 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AI|Blackboard")
 	FBlackboardKeySelector CanAttackKey;
 
-
+	// サービスで設定した目標時刻キー
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector TargetTimeKey;
 };

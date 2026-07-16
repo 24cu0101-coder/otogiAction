@@ -26,6 +26,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<UEnemyAttackBaseComponent> AttackClass;
 
+	//エディターで指定するキー
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector CanPunchAttackKey;
+
 private:
 	// 攻撃終了時に呼ばれるコールバック関数
 	UFUNCTION()
@@ -36,4 +40,5 @@ private:
 	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
 
 	UBlackboardComponent* BBComp;
+
 };

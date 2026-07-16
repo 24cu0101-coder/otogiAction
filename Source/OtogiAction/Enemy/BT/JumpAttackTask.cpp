@@ -9,7 +9,7 @@
 
 UJumpAttackTask::UJumpAttackTask()
 {
-	NodeName = TEXT("C++ Jump Attack Task");
+	NodeName = TEXT("Jump Attack Task");
 
 	//時間を要するタスクであることを示すフラグを立てる
 	bNotifyTick = false;
@@ -18,9 +18,17 @@ UJumpAttackTask::UJumpAttackTask()
 
 EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	AAIController* EnemyController = OwnerComp.GetAIOwner();
+
+	//AIControllerからBlackboardコンポーネントを取得
+	BBComp = EnemyController->GetBlackboardComponent();
+	if (!BBComp) return EBTNodeResult::Failed;
+
+	//JumpAttackKeyがfalseだったら
+	if (!BBComp->GetValueAsBool(CanJumpAttackKey.SelectedKeyName)) return EBTNodeResult::Failed;
+
 	if (!AttackClass) return EBTNodeResult::Failed;
 
-	AAIController* EnemyController = OwnerComp.GetAIOwner();
 	APawn* EnemyPawn = EnemyController ? EnemyController->GetPawn() : nullptr;
 	if (!EnemyPawn) return EBTNodeResult::Failed;
 
@@ -32,9 +40,6 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	if (!PlayerCharacter) return EBTNodeResult::Failed;
 
 
-	//AIControllerからBlackboardコンポーネントを取得
-	BBComp = EnemyController->GetBlackboardComponent();
-	if (!BBComp) return EBTNodeResult::Failed;
 
 	CachedOwnerComp = &OwnerComp;
 
@@ -81,5 +86,5 @@ void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 	//敵の移動スピードをもとに戻す
 	EnemyCharacter->SetMovementSpeed(DefaultSpeed);
 
-	BBComp->SetValueAsBool(TEXT("CanAttack"), false);
+	BBComp->SetValueAsBool(CanJumpAttackKey.SelectedKeyName, false);
 }

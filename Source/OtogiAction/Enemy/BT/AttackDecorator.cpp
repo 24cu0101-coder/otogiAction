@@ -23,16 +23,22 @@ bool UAttackDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerC
 	ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(AIController->GetPawn());
 	if (!EnemyCharacter) return false;
 
-	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackboardComp) return false;
+	const UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
+	if (!BBComp) return false;
+
 
 	//BBKeys::PlayerActorからObjectを取得してキャスト
-	ACharacter* PlayerCharacter = Cast<ACharacter>(BlackboardComp->GetValueAsObject(FName("PlayerActor")));
+	ACharacter* PlayerCharacter = Cast<ACharacter>(BBComp->GetValueAsObject(FName("PlayerActor")));
 	if (!PlayerCharacter) return false;
 
 	//PlayerActorキーからオブジェクトを取得
-	UObject* TargetObject = BlackboardComp->GetValueAsObject(FName("PlayerActor"));
+	UObject* TargetObject = BBComp->GetValueAsObject(FName("PlayerActor"));
 	AActor* TargetActor = Cast<AActor>(TargetObject);
+
+	//サービスでセットしている時間を取得
+	float TargetTime = BBComp->GetValueAsFloat(TargetTimeKey.SelectedKeyName);
+
+	//if(TargetTimeKey )
 
 	float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
 
