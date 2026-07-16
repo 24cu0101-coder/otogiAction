@@ -115,5 +115,22 @@ void UCapsuleCollisionComponent::ExcuteAreaAttack(float Height, float Radius, FN
 			}
 		}
 	}
+	else
+	{
+		//デバッグ用の表示
+		DrawDebugCapsule(
+			GetWorld(),
+			Center,
+			HalfHeight,
+			Radius,
+			Owner->GetActorRotation().Quaternion(), // キャラクターの向きに合わせる
+			FColor::Green,                            //緑色で描画
+			false,                                  // ずっと残さない
+			2.0f,                                   // 2秒間表示
+			0,
+			2.0f                                    // 線の太さ
+		);
+
+	}
 
 }

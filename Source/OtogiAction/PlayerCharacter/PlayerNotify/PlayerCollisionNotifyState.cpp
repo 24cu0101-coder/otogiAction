@@ -4,6 +4,7 @@
 #include "PlayerCollisionNotifyState.h"
 #include "GameFramework/Character.h"
 #include "../../Component/Collision/SphereCollisionComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 void UPlayerCollisionNotifyState::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
@@ -11,8 +12,12 @@ void UPlayerCollisionNotifyState::Notify(USkeletalMeshComponent* MeshComp, UAnim
 
 	if (!MeshComp) return;
 
-	if (USphereCollisionComponent* CollComp = Cast<USphereCollisionComponent>(MeshComp->GetOwner()))
+	if (AActor* OwnerActor = MeshComp->GetOwner())
 	{
-		CollComp->ExcuteAreaAttack(Radius, TargetTag, Damage);
+		//if (USphereCollisionComponent* CollComp = Cast<USphereCollisionComponent>(MeshComp->GetOwner()))
+		if (USphereCollisionComponent* CollComp = OwnerActor->FindComponentByClass<USphereCollisionComponent>())
+		{
+			CollComp->ExcuteAreaAttack(Radius, TargetTag, Damage);
+		}
 	}
 }
