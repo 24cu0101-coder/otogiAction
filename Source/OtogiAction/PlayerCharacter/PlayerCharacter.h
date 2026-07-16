@@ -195,7 +195,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* AbsorbAction;
 
-
+	//‚°‚ñ‚´‚¢‚ÌHP 
+	float PreviousHP;
 
 
 protected:

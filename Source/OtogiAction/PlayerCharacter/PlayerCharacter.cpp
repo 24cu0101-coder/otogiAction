@@ -173,6 +173,7 @@ void APlayerCharacter::BeginPlay()
 	if (StatusComp)
 	{
 		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::OnPlayerDamaged);
+		PreviousHP = StatusComp->GetMaxHP();
 	}
 }
 
@@ -218,6 +219,12 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 //キャラクター移動
 void APlayerCharacter::OnCharacterMovement(const FInputActionValue& Value)
 {
+	//ダウン中なら移動入力を完全に無視する
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		return;
+	}
+
 	//スティックの傾きの軸を取得
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -251,6 +258,13 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 //回避(髙山)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
+	//ダウン中にボタンで起き上がる
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		HitReactionComp->RequestGetUp();
+		return;
+	}
+
 	
 	//回避コンポーネントがあったら
 	if (PlayerDodgeComp)
@@ -264,6 +278,12 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 //
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
+	//ダウン中なら移動入力を完全に無視する
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		return;
+	}
+
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp2)
 	{
@@ -278,6 +298,13 @@ void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value)
 
 void APlayerCharacter::OnStrongAttack()
 {
+	//ダウン中にボタンで起き上がる
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		HitReactionComp->RequestGetUp();
+		return;
+	}
+
 	//強攻撃コンポーネントがあったら
 	if (StrongAttackComp)
 	{
@@ -349,11 +376,21 @@ void APlayerCharacter::OnAbsorb()
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
 void APlayerCharacter::HandleDamaged(float NewHP)
 {
-	if (StatusComp && StatusComp->IsDead())return;
+	// 死亡している場合はリアクションを処理しない
+	if (StatusComp && StatusComp->IsDead()) return;
 
-	if (HitReactionComp)
+	if (HitReactionComp && StatusComp)
 	{
-		HitReactionComp->PlayHitReaction(nullptr);
+		//ダメージ量
+		float DamageAmount = PreviousHP - NewHP;
+
+		//最新HPを前回のHPとして保存
+		PreviousHP = NewHP;
+
+		if (DamageAmount > 0.f)
+		{
+			HitReactionComp->PlayHitReaction(DamageAmount);
+		}
 	}
 }
 //げんざいHPをUIに表示
