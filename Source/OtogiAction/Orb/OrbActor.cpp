@@ -1,6 +1,8 @@
 #include "OrbActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/SkillGaugeComponent.h"
 
 AOrbActor::AOrbActor()
 {
@@ -81,6 +83,30 @@ void AOrbActor::Tick(float DeltaTime)
                     }
                 }
 
+                APlayerCharacter* Player = Cast<APlayerCharacter>(TargetActor);
+
+                if (Player)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("Player Found"));
+
+                    if (USkillGaugeComponent* Gauge = Player->FindComponentByClass<USkillGaugeComponent>())
+                    {
+                        UE_LOG(LogTemp, Warning, TEXT("Gauge Found"));
+
+                        Gauge->ModifyGauge(50.f);
+
+                        Player->UpdateSkillGaugeUI();
+                        UE_LOG(LogTemp, Warning, TEXT("Current Gauge = %f"), Gauge->GetCurrentGauge());
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Warning, TEXT("Gauge NOT Found"));
+                    }
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("Player NOT Found"));
+                }
                 // オーブを消す
                 Destroy();
             }

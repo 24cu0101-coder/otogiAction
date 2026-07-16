@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "NormalAttackComponent2.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/Move/MoveComponent.h"
+
 
 //コンストラクタ
 UNormalAttackComponent2::UNormalAttackComponent2()

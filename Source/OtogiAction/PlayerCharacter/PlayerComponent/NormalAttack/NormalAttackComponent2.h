@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/BaseAttackComponent.h"
+#include "AbilitySystemComponent.h"
+#include "Abilities/GameplayAbility.h"
+#include "GameplayAbilitySpec.h"
+#include "GameplayTagContainer.h"
 #include "NormalAttackComponent2.generated.h"
 
 //前方宣言

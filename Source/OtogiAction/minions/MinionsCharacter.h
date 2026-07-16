@@ -83,6 +83,7 @@ public:
 #include "Abilities/GameplayAbility.h"
 #include "Components/WidgetComponent.h"
 #include "OtogiAction/Orb/OrbSpawnComponent.h"
+#include "OtogiAction/Component/Audio/CharacterAudioComponent.h"
 #include "MinionsCharacter.generated.h"
 
 class UStatusComponent;
@@ -137,6 +138,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UWidgetComponent* HPWidgetComponent;
+
+	//Audio
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UCharacterAudioComponent* CharacterAudioComponent;
 
 	//====================
 	// Orb
