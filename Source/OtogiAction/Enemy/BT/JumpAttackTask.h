@@ -27,6 +27,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<UEnemyAttackBaseComponent> AttackClass;
 
+	//エディターで指定するキー
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector CanJumpAttackKey;
+
 private:
 	// 攻撃終了時に呼ばれるコールバック関数
 	UFUNCTION()
@@ -39,6 +43,7 @@ private:
 	UBlackboardComponent* BBComp;
 
 	ABossEnemyCharacter* EnemyCharacter;
+
 
 	//MaxWalkSpeedの初期値を設定
 	float DefaultSpeed;

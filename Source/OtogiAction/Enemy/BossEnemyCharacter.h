@@ -63,9 +63,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float SightDegrees;
 
-	//GASを使うための変数
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
-	UAbilitySystemComponent* AbilitySystemComponent;
 
 protected:
 	//パンチアタックMontageの変数

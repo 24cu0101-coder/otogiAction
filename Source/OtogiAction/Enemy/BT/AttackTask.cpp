@@ -9,7 +9,7 @@
 
 UAttackTask::UAttackTask()
 {
-	NodeName = TEXT("C++ Attack Task");
+	NodeName = TEXT("Punch Attack Task");
 
 	//時間を要するタスクであることを示すフラグを立てる
 	bNotifyTick = false;
@@ -27,6 +27,9 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 	//AIControllerからBlackboardコンポーネントを取得
 	BBComp = EnemyController->GetBlackboardComponent();
 	if (!BBComp) return EBTNodeResult::Failed;
+
+	//PunchAttackKeyがfalseだったら
+	if (!BBComp->GetValueAsBool(CanPunchAttackKey.SelectedKeyName)) return EBTNodeResult::Failed;
 
 	CachedOwnerComp = &OwnerComp;
 
@@ -59,6 +62,7 @@ void UAttackTask::OnAttackCompleted(bool bSuccess)
 	EBTNodeResult::Type Result = bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	FinishLatentTask(*CachedOwnerComp, Result);
 
-	BBComp->SetValueAsBool(TEXT("CanAttack"), false);
+	//BTで指定したCanPunchAttackKeyをfalseに
+	BBComp->SetValueAsBool(CanPunchAttackKey.SelectedKeyName, false);
 
 }
