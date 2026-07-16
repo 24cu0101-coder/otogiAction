@@ -60,7 +60,8 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 
 	//重複発動を防ぐ
 	FGameplayTag ExcuteSkillTag = FGameplayTag::RequestGameplayTag(FName("State.Attacking.Skill"));
-	if (OwnerASC->HasMatchingGameplayTag(ExcuteSkillTag)) return;
+	FGameplayTag KintaroSkillTag = FGameplayTag::RequestGameplayTag(FName("State.Skill.Kintaro"));
+	if (OwnerASC->HasMatchingGameplayTag(ExcuteSkillTag) || OwnerASC->HasMatchingGameplayTag(KintaroSkillTag)) return;
 
 	//スキルゲージのチェックと消費
 	if (USkillGaugeComponent* GaugeComp = GetOwner()->FindComponentByClass<USkillGaugeComponent>())
