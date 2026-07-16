@@ -29,13 +29,10 @@ class UStatusComponent;
 class UStrongAttackComponent;
 class USkillGaugeComponent;
 class UWeaponComponent;
-<<<<<<< HEAD
 class UHitStopComponent;
 class UHitReactionComponent;
-=======
 class UPlayerHPWidget;
 class USkillGaugeWidget;
->>>>>>> e681c0e8bc77cb1f47b7bb034d2b08739bacc26f
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -68,14 +65,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Components")
 	UWeaponComponent* GetWeaponComponent() const { return WeaponComp; }
 
-<<<<<<< HEAD
 	//ヒットストップを外部から取得できるようにするゲッター関数
 	UHitStopComponent* GetHitStopComponent() const { return HitStopComp; }
-=======
 	//スキルゲージをUIに表示
 	UFUNCTION(BlueprintCallable)
 	void UpdateSkillGaugeUI();
->>>>>>> e681c0e8bc77cb1f47b7bb034d2b08739bacc26f
 
 private:
 	//スプリングアームコンポーネント
@@ -133,7 +127,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UWeaponComponent* WeaponComp;
 
-<<<<<<< HEAD
 	//ヒットストップコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitStop", meta = (AllowPrivateAccess = "true"))
 	UHitStopComponent* HitStopComp;
@@ -142,7 +135,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReaction", meta = (AllowPrivateAccess = "true"))
 	UHitReactionComponent* HitReactionComp;
 
-=======
 	//Audioコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio", meta = (AllowPrivateAccess = "true"))
 	UCharacterAudioComponent* CharacterAudioComponent;
@@ -163,7 +155,6 @@ private:
 
 	UPROPERTY()
 	USkillGaugeWidget* SkillGaugeWidget;
->>>>>>> e681c0e8bc77cb1f47b7bb034d2b08739bacc26f
 
 
 	//-------------------------
