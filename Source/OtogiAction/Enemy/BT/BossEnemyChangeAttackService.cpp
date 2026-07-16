@@ -22,38 +22,15 @@ void UBossEnemyChangeAttackService::TickNode(UBehaviorTreeComponent& OwnerComp, 
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
-	AAIController* EnemyController = OwnerComp.GetAIOwner();
-	if (!BBComp || !EnemyController) return;
+	if (!BBComp) return;
 
-	APawn* ControlledPawn = EnemyController->GetPawn();
-	//BBKeys::PlayerActorからObjectを取得してキャスト
-	ACharacter* PlayerCharacter = Cast<ACharacter>(BBComp->GetValueAsObject(FName("PlayerActor")));
-	ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(OwnerComp.GetAIOwner()->GetPawn());
+	//追跡シーケンスに入っている＝追跡中なので、無条件でタイマーをセット/更新する
+	float CurrentReadyTime = BBComp->GetValueAsFloat(AttackReadyTimeKey.SelectedKeyName);
 
-	if (ControlledPawn && PlayerCharacter)
+	// まだタイマーがセットされていなければセット
+	if (CurrentReadyTime <= 0.0f)
 	{
-		float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), PlayerCharacter->GetActorLocation());
-
-		if (Distance <= EnemyCharacter->SightRange)
-		{
-			//現在の経過時間
-			float CurrentReadyTime = BBComp->GetValueAsFloat(AttackReadyTimeKey.SelectedKeyName);
-
-			// まだタイマーがセットされていなければセット
-			if (CurrentReadyTime <= 0.0f)
-			{
-				float FutureReadyTime = GetWorld()->GetTimeSeconds() + RequiredTime;
-				BBComp->SetValueAsFloat(AttackReadyTimeKey.SelectedKeyName, FutureReadyTime);
-			}
-		}
-		else
-		{
-			//範囲外に出てしまった場合タイマー終了時刻をリセット
-			BBComp->ClearValue(AttackReadyTimeKey.SelectedKeyName);
-		}
-	}
-	else
-	{
-		BBComp->ClearValue(AttackReadyTimeKey.SelectedKeyName);
+		float FutureReadyTime = GetWorld()->GetTimeSeconds() + RequiredTime;
+		BBComp->SetValueAsFloat(AttackReadyTimeKey.SelectedKeyName, FutureReadyTime);
 	}
 }

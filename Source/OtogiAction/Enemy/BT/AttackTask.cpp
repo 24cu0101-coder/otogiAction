@@ -28,9 +28,6 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 	BBComp = EnemyController->GetBlackboardComponent();
 	if (!BBComp) return EBTNodeResult::Failed;
 
-	////PunchAttackKeyがfalseだったら
-	//if (!BBComp->GetValueAsBool(CanPunchAttackKey.SelectedKeyName)) return EBTNodeResult::Failed;
-
 	CachedOwnerComp = &OwnerComp;
 
 	//コンポーネントを動的に生成して、Pawnにアタッチする
@@ -39,10 +36,17 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 	{
 		NewAttack->RegisterComponent();
 
+		//プレイヤーを注視
+		AActor* TargetActor = Cast<AActor>(BBComp->GetValueAsObject(PlayerActorKey.SelectedKeyName));
+		if (TargetActor)
+		{
+			EnemyController->SetFocus(TargetActor);
+		}
+
 		//終了イベントをバインド
 		NewAttack->OnAttackFinished.AddDynamic(this, &UAttackTask::OnAttackCompleted);
 
-		BBComp->SetValueAsBool(TEXT("CanAttack"), true);
+		BBComp->SetValueAsBool(CanPunchAttackKey.SelectedKeyName, true);
 
 		//攻撃を実行
 		NewAttack->ExecuteAttack();
@@ -61,8 +65,17 @@ void UAttackTask::OnAttackCompleted(bool bSuccess)
 	//BTにタスクが完了したことを通知
 	EBTNodeResult::Type Result = bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	FinishLatentTask(*CachedOwnerComp, Result);
+	
+	AAIController* AIController = CachedOwnerComp->GetAIOwner();
+	if (AIController)
+	{
+	//注視を解除
+	AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	}
 
-	//BTで指定したCanPunchAttackKeyをfalseに
-	BBComp->SetValueAsBool(CanPunchAttackKey.SelectedKeyName, false);
-
+	if (BBComp)
+	{
+		//BTで指定したCanPunchAttackKeyをfalseに
+		BBComp->SetValueAsBool(CanPunchAttackKey.SelectedKeyName, false);
+	}
 }

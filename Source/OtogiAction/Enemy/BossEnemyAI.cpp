@@ -76,8 +76,8 @@ void ABossEnemyAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus
 	if (!PlayerCharacter || !PlayerCharacter->IsPlayerControlled()) return;
 
 	//親クラスからBlackboardを取得
-	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
-	if (!BlackboardComponent) return;
+	UBlackboardComponent* BBComp = GetBlackboardComponent();
+	if (!BBComp) return;
 
 	//今操作している敵の本体を取得
 	EnemyCharacter = Cast<ABossEnemyCharacter>(GetPawn());
@@ -93,7 +93,7 @@ void ABossEnemyAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus
 		SetFocus(TargetActor);
 
 		//Blackboardにプレイヤーを登録
-		BlackboardComponent->SetValueAsObject(BBKeys::PlayerActor, TargetActor);
+		BBComp->SetValueAsObject(BBKeys::PlayerActor, TargetActor);
 
 	}
 	//視界外に出たら
@@ -102,8 +102,7 @@ void ABossEnemyAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus
 		//注視を解除
 		ClearFocus(EAIFocusPriority::Gameplay);
 
-		BlackboardComponent->ClearValue(BBKeys::PlayerActor);
-		BlackboardComponent->SetValueAsBool(BBKeys::CanAttack, false);
+		BBComp->ClearValue(BBKeys::PlayerActor);
 
 		TargetActor = nullptr;
 	}

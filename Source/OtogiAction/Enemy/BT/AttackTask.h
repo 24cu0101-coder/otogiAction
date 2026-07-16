@@ -30,10 +30,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector CanPunchAttackKey;
 
+	//エディターで指定するキー
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector PlayerActorKey;
+
 private:
 	// 攻撃終了時に呼ばれるコールバック関数
 	UFUNCTION()
 	void OnAttackCompleted(bool bSuccess);
+
 
 	// 現在実行中のタスクコンポーネントを保持
 	UPROPERTY()

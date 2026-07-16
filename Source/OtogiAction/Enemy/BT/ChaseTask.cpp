@@ -16,24 +16,25 @@ UChaseTask::UChaseTask()
 EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     AAIController* AIController = OwnerComp.GetAIOwner();
-    UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+    UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
 
-    if (!AIController || !BlackboardComp)
+    if (!AIController || !BBComp)
     {
         return EBTNodeResult::Failed;
     }
 
     // BlackboardからプレイヤーのActorを取得
-    AActor* PlayerActor = Cast<AActor>(BlackboardComp->GetValueAsObject(PlayerActorKey.SelectedKeyName));
+    AActor* PlayerActor = Cast<AActor>(BBComp->GetValueAsObject(PlayerActorKey.SelectedKeyName));
     if (!PlayerActor)
     {
         return EBTNodeResult::Failed;
     }
 
+    BBComp->SetValueAsBool(CanChaseKey.SelectedKeyName, true);
+
     // AIをプレイヤーに向けて移動させる
     AIController->MoveToActor(PlayerActor, 100.0f);
 
-    // 今回は「移動命令を出した」時点で一旦タスク成功（Succeeded）として返します
     return EBTNodeResult::InProgress;
 }
 
@@ -43,15 +44,15 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
     Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
     AAIController* AIController = OwnerComp.GetAIOwner();
-    UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-    if (!AIController || !BlackboardComp)
+    UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
+    if (!AIController || !BBComp)
     {
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
         return;
     }
 
     // Blackboardから常に最新のプレイヤー位置/情報を取得
-    AActor* PlayerActor = Cast<AActor>(BlackboardComp->GetValueAsObject(PlayerActorKey.SelectedKeyName));
+    AActor* PlayerActor = Cast<AActor>(BBComp->GetValueAsObject(PlayerActorKey.SelectedKeyName));
     APawn* ControlledPawn = AIController->GetPawn();
 
     if (!PlayerActor || !ControlledPawn)
@@ -64,6 +65,9 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
     ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(AIController->GetPawn());
     if (!EnemyCharacter) return;
 
+    //敵の攻撃範囲を追跡範囲の限界とする
+    LimitChaseRange = EnemyCharacter->AttackRange;
+
     // プレイヤーとの距離を計算
     float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), PlayerActor->GetActorLocation());
 
@@ -73,6 +77,7 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
         // 移動を停止させて、タスクを「成功」で終了する
         AIController->StopMovement();
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+        BBComp->SetValueAsBool(CanChaseKey.SelectedKeyName, false);
         return;
     }
 

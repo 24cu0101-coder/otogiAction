@@ -26,19 +26,18 @@ bool UChaseDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerCo
 	if (!EnemyCharacter) return false;
 
 	//Blackboardコンポーネントを取得
-	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackboardComp) return false;
+	UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
+	if (!BBComp) return false;
 
 	//BBKeys::PlayerActorからObjectを取得してキャスト
-	ACharacter* PlayerCharacter = Cast<ACharacter>(BlackboardComp->GetValueAsObject(FName("PlayerActor")));
+	ACharacter* PlayerCharacter = Cast<ACharacter>(BBComp->GetValueAsObject(FName("PlayerActor")));
 	if (!PlayerCharacter) return false;
 
+	//プレイヤーとの距離を判定
 	float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
 
+	//視界内にプレイヤーがいたらtrue
 	bool bInSightRange = (Distance <= EnemyCharacter->SightRange);
-
-	//指定されたkeySelectorから現在のBool値を取得
-	BlackboardComp->SetValueAsBool(FName("CanChase"), bInSightRange);
 
 	//Trueならこの先のシーケンスを実行、Falseなら実行しない
 	return bInSightRange;

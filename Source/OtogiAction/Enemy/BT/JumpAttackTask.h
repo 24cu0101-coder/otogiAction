@@ -27,9 +27,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<UEnemyAttackBaseComponent> AttackClass;
 
-	//エディターで指定するキー
+	// Blackboardのキーを指定するためのプロパティ
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector CanJumpAttackKey;
+	FBlackboardKeySelector TimerKey;
+
+	// Blackboardのキーを指定するためのプロパティ
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector CanJumpAttackkey;
+
+	// Blackboardのキーを指定するためのプロパティ
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector PlayerActorKey;
 
 private:
 	// 攻撃終了時に呼ばれるコールバック関数

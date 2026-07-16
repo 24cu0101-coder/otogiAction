@@ -24,8 +24,4 @@ protected:
 	//エディタ側でBlackboardのCanAttackキーを割り当てるための変数
 	UPROPERTY(EditAnywhere, Category = "AI|Blackboard")
 	FBlackboardKeySelector CanAttackKey;
-
-	// サービスで設定した目標時刻キー
-	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector TargetTimeKey;
 };

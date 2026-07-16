@@ -19,10 +19,6 @@ class UAISenseConfig_Sight;
 namespace BBKeys
 {
 	const FName PlayerActor = TEXT("PlayerActor");
-	const FName CanAttack = TEXT("CanAttack");
-	const FName CanChase = TEXT("CanChase");
-	const FName CanJumpAttack = TEXT("CanJumpAttack");
-	inline const float JumpAttackLimitTime = 5.f;
 }
 
 UCLASS()
@@ -56,6 +52,7 @@ protected:
 	ACharacter* TargetActor;
 
 	TObjectPtr<ABossEnemyCharacter> EnemyCharacter;
+
 private:
 	//コンポーネントの保持
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI|Param", meta = (AllowPrivateAccess = "true"))

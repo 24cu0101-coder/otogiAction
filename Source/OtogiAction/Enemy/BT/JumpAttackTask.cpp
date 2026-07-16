@@ -24,9 +24,6 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	BBComp = EnemyController->GetBlackboardComponent();
 	if (!BBComp) return EBTNodeResult::Failed;
 
-	//JumpAttackKeyがfalseだったら
-	if (!BBComp->GetValueAsBool(CanJumpAttackKey.SelectedKeyName)) return EBTNodeResult::Failed;
-
 	if (!AttackClass) return EBTNodeResult::Failed;
 
 	APawn* EnemyPawn = EnemyController ? EnemyController->GetPawn() : nullptr;
@@ -39,8 +36,6 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	ACharacter* PlayerCharacter = Cast<ACharacter>(BBComp->GetValueAsObject(FName("PlayerActor")));
 	if (!PlayerCharacter) return EBTNodeResult::Failed;
 
-
-
 	CachedOwnerComp = &OwnerComp;
 
 	//コンポーネントを動的に生成して、Pawnにアタッチする
@@ -51,8 +46,13 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 		//終了イベントをバインド
 		NewAttack->OnAttackFinished.AddDynamic(this, &UJumpAttackTask::OnAttackCompleted);
-		//BlackBoardの値をセット
-		BBComp->SetValueAsBool(TEXT("CanAttack"), true);
+
+		//プレイヤーを注視
+		AActor* TargetActor = Cast<AActor>(BBComp->GetValueAsObject(PlayerActorKey.SelectedKeyName));
+		if (TargetActor)
+		{
+			EnemyController->SetFocus(TargetActor);
+		}
 
 		//プレイヤーとの距離を算出
 		float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
@@ -62,6 +62,9 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		DefaultSpeed = EnemyCharacter->GetMovementSpeed();
 		//Montage再生中のスピードをセット
 		EnemyCharacter->SetMovementSpeed(Distance / AnimationTime);
+
+		//Blackboardの値をセット
+		BBComp->SetValueAsBool(CanJumpAttackkey.SelectedKeyName, true);
 
 		//攻撃を実行
 		NewAttack->ExecuteAttack();
@@ -86,5 +89,16 @@ void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 	//敵の移動スピードをもとに戻す
 	EnemyCharacter->SetMovementSpeed(DefaultSpeed);
 
-	BBComp->SetValueAsBool(CanJumpAttackKey.SelectedKeyName, false);
+	AAIController* AIController = CachedOwnerComp->GetAIOwner();
+	if (AIController)
+	{
+		//注視を解除
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	}
+
+	if (BBComp)
+	{
+		// BlackboardのTimerEndTime をリセット
+		BBComp->SetValueAsFloat(TimerKey.SelectedKeyName, 0.0f);
+	}
 }

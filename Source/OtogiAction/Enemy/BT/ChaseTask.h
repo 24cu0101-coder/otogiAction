@@ -32,6 +32,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PlayerActorKey;
 
+	// Blackboardのキーを指定するためのプロパティ
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector CanChaseKey;
+
+	UPROPERTY(VisibleAnywhere, Category = "Blackboard")
 	float LimitChaseRange;
+
+	float JumpAttackTaskTime = 5.0f;
 };

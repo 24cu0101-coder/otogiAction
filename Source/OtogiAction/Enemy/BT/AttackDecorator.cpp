@@ -35,11 +35,6 @@ bool UAttackDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerC
 	UObject* TargetObject = BBComp->GetValueAsObject(FName("PlayerActor"));
 	AActor* TargetActor = Cast<AActor>(TargetObject);
 
-	//サービスでセットしている時間を取得
-	float TargetTime = BBComp->GetValueAsFloat(TargetTimeKey.SelectedKeyName);
-
-	//if(TargetTimeKey )
-
 	float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
 
 	bool bInAttackRange = (Distance <= EnemyCharacter->AttackRange);
