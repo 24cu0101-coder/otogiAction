@@ -145,7 +145,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//強攻撃
 		EnhancedInputComponent->BindAction(SAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack);
 		//スキルの切り替え
-		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Triggered, this, &APlayerCharacter::OnSwitchSkillGroup);
+		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Started, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
 		EnhancedInputComponent->BindAction(ExcuteSkill1, ETriggerEvent::Started, this, &APlayerCharacter::OnSkill1Pressed);
 

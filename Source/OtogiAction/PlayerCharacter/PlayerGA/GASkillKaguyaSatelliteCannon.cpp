@@ -27,32 +27,34 @@ void UGASkillKaguyaSatelliteCannon::ActivateAbility(
 
 	KSAsc = GetAbilitySystemComponentFromActorInfo();
 
-	//ä¸–ç•Œç ´å£Šå…‰ç·šç™ºå°„
+	//¢ŠE”j‰óŒõü”­ŽË
 	WorldDestruction();
 }
 
-//æ•µã‚’ã›ã‚“æ»…ã™ã‚‹
+//“G‚ð‚¹‚ñ–Å‚·‚é
 void UGASkillKaguyaSatelliteCannon::WorldDestruction()
 {
 	PlayNSPMontage();
 }
 
-//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿé–¢æ•°
+//ƒAƒjƒ[ƒVƒ‡ƒ“Ä¶ŠÖ”
 void UGASkillKaguyaSatelliteCannon::PlayNSPMontage()
 {
-	//è¡›æ˜Ÿå…µå™¨èµ·å‹•æŒ‡ç¤ºã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒ¢ãƒ³ã‚¿ãƒ¼ã‚¸ãƒ¥ãŒã‚ã‚Œã°
+	//‰q¯•ºŠí‹N“®ŽwŽ¦‚ÌƒAƒjƒ[ƒVƒ‡ƒ“ƒ‚ƒ“ƒ^[ƒWƒ…‚ª‚ ‚ê‚Î
 	if (KSPMontage)
 	{
-		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿã‚¿ã‚¹ã‚¯
+		//ƒAƒjƒ[ƒVƒ‡ƒ“Ä¶ƒ^ƒXƒN
 		UAbilityTask_PlayMontageAndWait* KAPMontageTask =
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
 			(this, NAME_None, KSPMontage);
 
-		//å†ç”Ÿã®ã‚¿ã‚¹ã‚¯ãŒã‚ã‚Œã°
+		//Ä¶‚Ìƒ^ƒXƒN‚ª‚ ‚ê‚Î
 		if (KAPMontageTask)
 		{
-			//çµ‚äº†æ™‚ã«å‘¼ã¶
+			//I—¹Žž‚ÉŒÄ‚Ô
+			KAPMontageTask->OnCompleted.AddDynamic(this, &UGASkillKaguyaSatelliteCannon::KaguyaSatelliteEnd);
 			KAPMontageTask->OnInterrupted.AddDynamic(this, &UGASkillKaguyaSatelliteCannon::KaguyaSatelliteEnd);
+			KAPMontageTask->OnCancelled.AddDynamic(this, &UGASkillKaguyaSatelliteCannon::KaguyaSatelliteEnd);
 		}
 
 		KAPMontageTask->ReadyForActivation();
