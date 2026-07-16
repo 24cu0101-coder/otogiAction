@@ -19,6 +19,7 @@
 #include "../Orb/OrbActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerComponent/SkillGaugeComponent.h"
+#include "PlayerComponent/WeaponComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -93,6 +94,9 @@ APlayerCharacter::APlayerCharacter()
 
 	//スキルゲージコンポーネント
 	GaugeComp = CreateDefaultSubobject<USkillGaugeComponent>(TEXT("GaugeComp"));
+
+	//武器コンポーネント
+	WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComp"));
 }
 
 //ゲームが始まったときに生成

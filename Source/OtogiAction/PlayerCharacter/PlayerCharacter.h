@@ -25,6 +25,7 @@ class UAttackCollisionComponent;
 class UStatusComponent;
 class UStrongAttackComponent;
 class USkillGaugeComponent;
+class UWeaponComponent;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -52,6 +53,10 @@ public:
 
 	//AbilitySystemInterfaceのゲッター関数
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	//武器のクラスを外部に渡すゲッター関数
+	UFUNCTION(BlueprintCallable, Category = "Components")
+	UWeaponComponent* GetWeaponComponent() const { return WeaponComp; }
 
 private:
 	//スプリングアームコンポーネント
@@ -105,7 +110,15 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	USkillGaugeComponent* GaugeComp;
 
+	//武器こんぽーねんと
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UWeaponComponent* WeaponComp;
+
+
+	//-------------------------
 	//Enhanced Input 設定
+	//-------------------------
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 

@@ -22,6 +22,7 @@ void UGASkillKaguyaSatelliteCannon::ActivateAbility(
 	const FGameplayEventData* DodgeTriggerEvent
 )
 {
+
 	Super::ActivateAbility(NormalAttack, playerActorInfo, AvtivationInfo, DodgeTriggerEvent);
 
 	KSAsc = GetAbilitySystemComponentFromActorInfo();
@@ -53,6 +54,9 @@ void UGASkillKaguyaSatelliteCannon::PlayNSPMontage()
 			//終了時に呼ぶ
 			KAPMontageTask->OnInterrupted.AddDynamic(this, &UGASkillKaguyaSatelliteCannon::KaguyaSatelliteEnd);
 		}
+
+		KAPMontageTask->ReadyForActivation();
+
 	}
 }
 

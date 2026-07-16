@@ -38,7 +38,16 @@ public:
 
 	//攻撃時に呼ぶことでカメラが暴れる事を防止するロック関数
 	void SetCameraRotationLock(bool bLock);
-		
+
+	//カメラシェイクを外部で呼び出すための関数
+	UFUNCTION(BlueprintCallable, Category = "Camera|Shake")
+	void PlayerCameraShake(TSubclassOf<UCameraShakeBase>ShakeClass, float scale = 1.0f);
+	
+protected:
+	//デフォルトのカメラシェイクを設定
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Shake")
+	TSubclassOf<UCameraShakeBase>DefaultCameraShakeClass;
+
 private:
 	UPROPERTY()
 	ACharacter* OwnerCharacter;
