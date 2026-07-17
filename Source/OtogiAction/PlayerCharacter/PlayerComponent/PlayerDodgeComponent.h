@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Character.h"
 #include "Components/ActorComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
@@ -53,7 +54,9 @@ public:
 	//アビリティを呼び出す関数
 	void ExecuteAbility();
 
-	
+	//AbilitySystemInterfaceのゲッター関数
+	UAbilitySystemComponent* GetDodgeAbilirtSystemComponent();
+
 		
 };
 

@@ -87,3 +87,7 @@ void UPlayerDodgeComponent::ExecuteAbility()
 	}
 }
 
+UAbilitySystemComponent* UPlayerDodgeComponent::GetDodgeAbilirtSystemComponent()
+{
+	return AbilitySystemComponent;
+}
