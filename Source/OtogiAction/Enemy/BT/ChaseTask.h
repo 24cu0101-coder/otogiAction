@@ -9,13 +9,13 @@
 class ABossEnemyCharacter;
 
 /**
- * 
+ *
  */
 UCLASS()
 class OTOGIACTION_API UChaseTask : public UBTTaskNode
 {
 	GENERATED_BODY()
-	
+
 public:
 	UChaseTask();
 
@@ -36,8 +36,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector CanChaseKey;
 
-	UPROPERTY(VisibleAnywhere, Category = "Blackboard")
-	float LimitChaseRange;
+	// 最大何秒間追跡するか（エディタから変更可能）
+	UPROPERTY(EditAnywhere, Category = "ChaseSettings")
+	float MaxChaseTime = 5.0f;
 
-	float JumpAttackTaskTime = 5.0f;
+private:
+	float ChaseTimer = 0.0f;   // 経過時間カウント用
 };

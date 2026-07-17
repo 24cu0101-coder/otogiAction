@@ -54,14 +54,28 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 			EnemyController->SetFocus(TargetActor);
 		}
 
-		//プレイヤーとの距離を算出
-		float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
-		//Montageの再生時間を取得
+		// 1. プレイヤーへの方向ベクトルを計算（水平方向のみ）
+		FVector StartLoc = EnemyCharacter->GetActorLocation();
+		FVector TargetLoc = PlayerCharacter->GetActorLocation();
+		FVector Dir = TargetLoc - StartLoc;
+		Dir.Z = 0.0f; // 上下の高低差は無視して水平の向きを出す
+		float HorizontalDistance = Dir.Size();
+		Dir.Normalize();
+
+		// 2. アニメーションの時間を取得
 		float AnimationTime = EnemyCharacter->GetPlayJumpAttackMontageTime();
-		//敵の移動スピードを元に戻すため、MaxWalkSpeedの初期値を取得
-		DefaultSpeed = EnemyCharacter->GetMovementSpeed();
-		//Montage再生中のスピードをセット
-		EnemyCharacter->SetMovementSpeed(Distance / AnimationTime);
+		if (AnimationTime <= 0.0f) AnimationTime = 1.0f; // 安全対策
+
+		// 3. 水平方向と垂直方向（ジャンプの高さ）の速度を計算
+		// アニメーションの時間内にプレイヤーの元へ届く水平速度
+		float HorizontalVelocity = HorizontalDistance / AnimationTime;
+		FVector LaunchVelocity = Dir * HorizontalVelocity;
+
+		// 上方向への飛び上がり速度（ここの数値（例: 800.f）でジャンプの高さを調整してください）
+		LaunchVelocity.Z = 800.0f;
+
+		// 4. キャラクターを吹き飛ばす（第一引数: 速度ベクトル, 第二引数: 横軸を上書きするか, 第三引数: 縦軸を上書きするか）
+		EnemyCharacter->LaunchCharacter(LaunchVelocity, true, true);
 
 		//Blackboardの値をセット
 		BBComp->SetValueAsBool(CanJumpAttackkey.SelectedKeyName, true);
@@ -86,9 +100,6 @@ void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 	EBTNodeResult::Type Result = bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	FinishLatentTask(*CachedOwnerComp, Result);
 
-	//敵の移動スピードをもとに戻す
-	EnemyCharacter->SetMovementSpeed(DefaultSpeed);
-
 	AAIController* AIController = CachedOwnerComp->GetAIOwner();
 	if (AIController)
 	{
@@ -100,5 +111,6 @@ void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 	{
 		// BlackboardのTimerEndTime をリセット
 		BBComp->SetValueAsFloat(TimerKey.SelectedKeyName, 0.0f);
+		BBComp->SetValueAsBool(CanJumpAttackkey.SelectedKeyName, false);
 	}
 }
