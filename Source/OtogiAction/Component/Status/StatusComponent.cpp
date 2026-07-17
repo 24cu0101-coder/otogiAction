@@ -91,7 +91,7 @@ bool UStatusComponent::PlayerInvincible()
         }
     }
 
-    //falseを返す6
+    //falseを返す64
     return false;
 }
 

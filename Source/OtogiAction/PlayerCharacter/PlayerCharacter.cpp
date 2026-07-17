@@ -438,17 +438,34 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	
-	StatusComp = FindComponentByClass<UStatusComponent>();	
+	//StatusComp = FindComponentByClass<UStatusComponent>();	
 
+
+	if (HitReactionComp && StatusComp)
+	{
+		//ダメージ量
+		float DamageAmount = PreviousHP - StatusComp->CurrentHP;
+
+		//最新HPを前回のHPとして保存
+		PreviousHP = StatusComp->CurrentHP;
+
+		if (DamageAmount > 0.f)
+		{
+			HitReactionComp->PlayHitReaction(DamageAmount);
+		}
+	}
 
 	if (ActualDamage <= 0.f || !StatusComp)
 	{
 		return 0.f;
 	}
 
+
 	// 2. ダメージをHPから差し引く
 	StatusComp->CurrentHP = FMath::Clamp(StatusComp->CurrentHP - ActualDamage, 0.0f, 100.0f);
+	OnPlayerDamaged(StatusComp->CurrentHP);
 
+	UE_LOG(LogTemp, Warning, TEXT(":%f"), StatusComp->CurrentHP);
 
 	// 3. HPが0になったら死亡処理などを呼ぶ
 	if (StatusComp->CurrentHP <= 0.0f)
