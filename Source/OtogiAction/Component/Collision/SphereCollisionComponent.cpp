@@ -39,7 +39,7 @@ void USphereCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 }
 
-void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage, float HitStopDuration, float HitStopTimeScale)
+void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset)
 {
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();

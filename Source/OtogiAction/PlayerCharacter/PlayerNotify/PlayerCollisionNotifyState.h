@@ -36,5 +36,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack Settings")
 	float HitStopTimreScale = 0.01f;
 
+	//攻撃範囲を前後にどれだけ出すか
+	UPROPERTY(EditAnywhere, Category = "Attack Settings")
+	float ForwardOffset = 0.01f;
+
+	//攻撃範囲を左右にどれだけ出すか
+	UPROPERTY(EditAnywhere, Category = "Attack Settings")
+	float SideOffset = 0.01f;
 
 };

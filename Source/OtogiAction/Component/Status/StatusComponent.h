@@ -28,6 +28,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+
+
 public:
 
 	// 最大HP
@@ -77,4 +79,7 @@ public:
 private:
 	//敵のパーティクル生成関数
 	void SpawnDarkParticleOnDamage(FVector SpawnLocation);
+
+	//無敵かどうか
+	bool PlayerInvincible();
 };

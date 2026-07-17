@@ -287,9 +287,6 @@ void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value)
 	//通常攻撃コンポーネントがあったら
 	if (NormalAttackComp2)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("hfgstdf"));
-
-
 		//コンポーネントの処理実行
 		NormalAttackComp2->ExecuteNormalAttackAbility();
 

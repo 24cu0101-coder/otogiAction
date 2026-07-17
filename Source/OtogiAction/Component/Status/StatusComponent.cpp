@@ -1,4 +1,6 @@
 #include "StatusComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/PlayerDodgeComponent.h"
+#include "GameplayTagContainer.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 
@@ -17,6 +19,10 @@ void UStatusComponent::BeginPlay()
 }
 void UStatusComponent::TakeDamage(float Damage)
 {
+    //プレイヤーが無敵なら処理しない
+    if (PlayerInvincible())return;
+
+
     CurrentHP -= Damage;
     CurrentHP = FMath::Clamp(CurrentHP, 0.f, MaxHP);
 
@@ -51,5 +57,41 @@ void UStatusComponent::Heal(float HealAmount)
 bool UStatusComponent::IsDead() const
 {
     return CurrentHP <= 0.f;
+}
+
+//プレイヤーが無敵かどうか
+bool UStatusComponent::PlayerInvincible()
+{
+    AActor* OwnerActor = GetOwner();
+    if (!OwnerActor)
+    {
+        return false;
+    }
+
+    APlayerCharacter* PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+    if (!PlayerActor)
+    {
+        return false;
+    }
+
+
+    UAbilitySystemComponent* ASC = PlayerActor->GetAbilitySystemComponent();
+
+    //アビリティシステムコンポーネントがあれば
+    if (ASC)
+    {
+        //無敵状態のタグを取得
+        FGameplayTag InvincibleTag = FGameplayTag::RequestGameplayTag(FName("Invincible"));
+
+        //タグがあったら
+        if (ASC->HasMatchingGameplayTag(InvincibleTag))
+        {
+            //trueを返す
+            return true;
+        }
+    }
+
+    //falseを返す6
+    return false;
 }
 
