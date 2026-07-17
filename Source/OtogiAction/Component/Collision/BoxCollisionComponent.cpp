@@ -36,7 +36,7 @@ void UBoxCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 }
 
 //指定範囲内に攻撃
-void UBoxCollisionComponent::ExcuteAreaAttack(float Width, float Height, float Length, FName TargetTag, float Damage)
+void UBoxCollisionComponent::ExcuteAreaAttack(float Width, float Height, float Length, FName TargetTag, float Damage, float ForwardOffset, float SideOffset)
 {
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();
