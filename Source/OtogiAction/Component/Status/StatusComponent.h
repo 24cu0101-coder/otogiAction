@@ -28,6 +28,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+
+
 public:
 
 	// 最大HP
