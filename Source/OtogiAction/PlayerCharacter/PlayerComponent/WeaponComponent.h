@@ -50,8 +50,8 @@ protected:
 	TSubclassOf<AActor>WeaponActorClass;
 
 	//金太郎オーラ
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Reference")
-	UNiagaraComponent* KintaroEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Effect")
+	UNiagaraComponent* KintaroEffectComp;
 
 	//タグが追加・消失したときに呼ばれる関数
 	void OnKintaroTagChanged(const FGameplayTag CallbackTag, int32 NewCount);

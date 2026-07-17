@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -23,6 +24,12 @@ UWeaponComponent::UWeaponComponent()
 void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (KintaroEffectComp)
+	{
+		// Deactivate() から DeactivateImmediate() に変更
+		KintaroEffectComp->DeactivateImmediate();
+	}
 
 	// オーナーを取得
 	if (AActor* Owner = GetOwner())
@@ -98,53 +105,50 @@ void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 {
 	CurrentStyle = PlayerStyle;
 
-	//ヘッダーの WeaponActorClass（設計図クラス）に合致する「実体アクター」をキャラクターから探す
 	AActor* TargetWeaponActor = nullptr;
-	if (WeaponActorClass)
-	{
-		if (AActor* Owner = GetOwner())
-		{
-			// キャラクターにくっついている（Attached）アクターの中から、WeaponActorClass と同じクラスのものを探す
-			TArray<AActor*> AttachedActors;
-			Owner->GetAttachedActors(AttachedActors);
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 
-			for (AActor* AttachedActor : AttachedActors)
+	if (WeaponActorClass && OwnerCharacter)
+	{
+		TArray<AActor*> AttachedActors;
+		OwnerCharacter->GetAttachedActors(AttachedActors);
+
+		for (AActor* AttachedActor : AttachedActors)
+		{
+			if (AttachedActor && AttachedActor->IsA(WeaponActorClass))
 			{
-				if (AttachedActor && AttachedActor->IsA(WeaponActorClass))
-				{
-					TargetWeaponActor = AttachedActor;
-					break;
-				}
+				TargetWeaponActor = AttachedActor;
+				break;
 			}
 		}
 	}
 
-	//刀アクター内のメッシュと金太郎エフェクトを一度リセット
-	if (TargetWeaponActor)
-	{
-		SetActorHidden(TargetWeaponActor, true);
-	}
-	if (KintaroEffect)
-	{
-		KintaroEffect->Deactivate();
-	}
+	// ★ここの一斉 Deactivate() は削除します
 
-	// 現在のステートに合わせてアクティブ化
+	// 現在のステートに合わせて「表示・非表示」と「エフェクトのON/OFF」を正しく切り替える
 	switch (CurrentStyle)
 	{
 	case EPlayerWeaponStyle::Nomal:
-		// 刀アクター内のメッシュを表示に戻す
+		// 通常時は刀を表示して、エフェクトを消す
 		if (TargetWeaponActor)
 		{
 			SetActorHidden(TargetWeaponActor, false);
 		}
+		if (KintaroEffectComp)
+		{
+			KintaroEffectComp->Deactivate();
+		}
 		break;
 
 	case EPlayerWeaponStyle::Kintaro:
-		// 金太郎エフェクトを起動
-		if (KintaroEffect)
+		// 金太郎時は刀を非表示にして、エフェクトを出す
+		if (TargetWeaponActor)
 		{
-			KintaroEffect->Activate(true);
+			SetActorHidden(TargetWeaponActor, true);
+		}
+		if (KintaroEffectComp)
+		{
+			KintaroEffectComp->Activate(true);
 		}
 		break;
 	}

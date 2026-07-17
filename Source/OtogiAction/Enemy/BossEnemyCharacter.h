@@ -40,6 +40,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
+	float HP;
+
 	//敵の攻撃範囲
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float AttackRange;
@@ -54,7 +57,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float SightDegrees;
 
-
+	// AActorのTakeDamageをオーバーライド
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	//パンチアタックMontageの変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")

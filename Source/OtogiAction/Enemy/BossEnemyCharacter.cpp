@@ -88,3 +88,27 @@ void ABossEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 }
 
+float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (ActualDamage <= 0.f)
+	{
+		return 0.f;
+	}
+
+	// 2. ダメージをHPから差し引く
+	HP = FMath::Clamp(HP - ActualDamage, 0.0f, 100.0f);
+
+	UE_LOG(LogTemp, Warning, TEXT("残りHP: %f"), HP);
+
+	// 3. HPが0になったら死亡処理などを呼ぶ
+	if (HP <= 0.0f)
+	{
+		// 死亡処理（Ragdoll化やデストロイなど）
+		Destroy();
+	}
+
+	return ActualDamage;
+}
+
