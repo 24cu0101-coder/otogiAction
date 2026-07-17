@@ -36,7 +36,7 @@ void UCapsuleCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
-void UCapsuleCollisionComponent::ExcuteAreaAttack(float Height, float Radius, FName TargetTag, float Damage)
+void UCapsuleCollisionComponent::ExcuteAreaAttack(float Height, float Radius, FName TargetTag, float Damage,float ForwardOffset,float SideOffset)
 {
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();

@@ -1,4 +1,6 @@
 #include "StatusComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+#include "GameplayTagContainer.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 
@@ -17,6 +19,24 @@ void UStatusComponent::BeginPlay()
 }
 void UStatusComponent::TakeDamage(float Damage)
 {
+    AActor* OwnerActor = GetOwner();
+    APlayerCharacter* PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+    UAbilitySystemComponent* ASC = PlayerActor->GetAbilitySystemComponent();
+    
+    FGameplayTag InvincibleTag = FGameplayTag::RequestGameplayTag(FName("Iinvincible "));
+
+
+    //アビリティシステムコンポーネントがあれば
+    if (ASC)
+    {
+        if (ASC->HasMatchingGameplayTag(InvincibleTag))
+        {
+            return;
+        }
+    }
+
+
+
     CurrentHP -= Damage;
     CurrentHP = FMath::Clamp(CurrentHP, 0.f, MaxHP);
 
