@@ -51,7 +51,7 @@ void UHitReactionComponent::PlayHitReaction(float DamageAmount)
 		if (MoveComp)
 		{
 			// 地面や空中に関わらず、後ろに少し弾く
-			Character->LaunchCharacter(KnockbackDir * LightKnockbackForce, true, true);
+			Character->LaunchCharacter(KnockbackDir * LightKnockbackForce, false, false);
 		}
 	}
 	else
@@ -61,14 +61,13 @@ void UHitReactionComponent::PlayHitReaction(float DamageAmount)
 
 		if (MoveComp)
 		{
-			// ダウン中は勝手に動けないように移動モードを一時無効化
-			MoveComp->DisableMovement();
-
-			// 斜め上後ろ方向に大きく吹き飛ばす
+			// 後ろに吹き飛ばす
 			FVector LaunchVelocity = (KnockbackDir * HeavyKnockbackForce) + FVector(0.f, 0.f, 450.f);
-			Character->LaunchCharacter(LaunchVelocity, true, true);
-		}
+			Character->LaunchCharacter(LaunchVelocity, false, false);
 
+			//Disableにする
+			MoveComp->DisableMovement();
+		}
 		if (HeavyHitReactMontage)
 		{
 			Character->PlayAnimMontage(HeavyHitReactMontage);
