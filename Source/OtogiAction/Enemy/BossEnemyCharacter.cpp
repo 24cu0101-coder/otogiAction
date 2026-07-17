@@ -74,16 +74,6 @@ float ABossEnemyCharacter::GetMovementSpeed()
 	return 0.0f;
 }
 
-float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	//‘Ì—Í‚ðŒ¸‚ç‚·
-	EnemyHP -= ActualDamage;
-
-	return EnemyHP;
-}
-
 // Called every frame
 void ABossEnemyCharacter::Tick(float DeltaTime)
 {
