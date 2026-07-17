@@ -26,13 +26,15 @@ class USkillComponent;
 class UAttackCollisionComponent;
 class USphereCollisionComponent;
 class UStatusComponent;
-class UStrongAttackComponent;
+class UStrongAttackComponent;		//強攻撃を実行するクラス(髙山)
+class UStrongAttackComponent3;		//強攻撃3を実行するクラス(髙山)
 class USkillGaugeComponent;
 class UWeaponComponent;
 class UHitStopComponent;
 class UHitReactionComponent;
 class UPlayerHPWidget;
 class USkillGaugeWidget;
+
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -70,6 +72,9 @@ public:
 	//スキルゲージをUIに表示
 	UFUNCTION(BlueprintCallable)
 	void UpdateSkillGaugeUI();
+	
+	UFUNCTION()
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 private:
 	//スプリングアームコンポーネント
@@ -102,6 +107,10 @@ private:
 	//強攻撃コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StrongAttack", meta = (AllowPrivateAccess = "true"))
 	UStrongAttackComponent* StrongAttackComp;
+
+	//強攻撃2コンポーネント(髙山)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StrongAttack2", meta = (AllowPrivateAccess = "true"))
+	UStrongAttackComponent3* StrongAttackComp2;
 
 	//スキルコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
@@ -182,6 +191,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SAttackAction;
 
+	//強攻撃2のインプットアクション(髙山)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* SAttackAction2;
 
 	//スキル選択
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
@@ -198,7 +210,6 @@ private:
 	//げんざいのHP 
 	float PreviousHP;
 
-
 protected:
 	//入力イベント発生時に実行される内部関数
 	void OnCharacterMovement(const FInputActionValue& Value);
@@ -206,6 +217,7 @@ protected:
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
 	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
 	void OnStrongAttack();									//(髙山)
+	void OnStrongAttack2();									//(髙山)
 
 	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
 	void OnSwitchSkillGroup(const FInputActionValue& Value);
