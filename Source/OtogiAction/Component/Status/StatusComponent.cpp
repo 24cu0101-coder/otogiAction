@@ -63,7 +63,18 @@ bool UStatusComponent::IsDead() const
 bool UStatusComponent::PlayerInvincible()
 {
     AActor* OwnerActor = GetOwner();
+    if (!OwnerActor)
+    {
+        return false;
+    }
+
     APlayerCharacter* PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+    if (!PlayerActor)
+    {
+        return false;
+    }
+
+
     UAbilitySystemComponent* ASC = PlayerActor->GetAbilitySystemComponent();
 
     //アビリティシステムコンポーネントがあれば
