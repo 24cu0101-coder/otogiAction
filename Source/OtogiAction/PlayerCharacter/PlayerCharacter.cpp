@@ -13,6 +13,7 @@
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalAttackComponent2.h"
 #include "PlayerComponent/StrongAttack/StrongAttackComponent.h"
+#include "PlayerComponent/StrongAttack/StrongAttackComponent3.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 #include "../Component/Collision/SphereCollisionComponent.h"
 #include "../Component/Status/StatusComponent.h"
@@ -83,6 +84,10 @@ APlayerCharacter::APlayerCharacter()
 
 	//強攻撃コンポーネント生成
 	StrongAttackComp = CreateDefaultSubobject<UStrongAttackComponent>(TEXT("SAttackComp"));
+
+	//強攻撃2コンポーネント生成
+	StrongAttackComp2 = CreateDefaultSubobject<UStrongAttackComponent3>(TEXT("SAttack2Comp"));
+
 
 	//ターゲットコンポーネント
 	TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
@@ -200,6 +205,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
 		//強攻撃
 		EnhancedInputComponent->BindAction(SAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack);
+		//強攻撃2
+		EnhancedInputComponent->BindAction(SAttackAction2, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack2);
+
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Started, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
@@ -307,8 +315,25 @@ void APlayerCharacter::OnStrongAttack()
 	{
 		StrongAttackComp->ExecuteStrongAttackAbility();
 	}
+}
+
+void APlayerCharacter::OnStrongAttack2()
+{
+	//	//ダウン中にボタンで起き上がる
+	if (HitReactionComp && HitReactionComp->IsDowned())
+	{
+		HitReactionComp->RequestGetUp();
+		return;
+	}
+
+	//強攻撃コンポーネントがあったら
+	if (StrongAttackComp2)
+	{
+		StrongAttackComp2->ExecuteSutrongAttack3Ability();
+	}
 
 }
+
 
 //スキル群の切り替え
 void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
@@ -408,3 +433,29 @@ void APlayerCharacter::UpdateSkillGaugeUI()
 			GaugeComp->GetGaugeRatio());
 	}
 }
+
+float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
+	StatusComp = FindComponentByClass<UStatusComponent>();	
+
+
+	if (ActualDamage <= 0.f || !StatusComp)
+	{
+		return 0.f;
+	}
+
+	// 2. ダメージをHPから差し引く
+	StatusComp->CurrentHP = FMath::Clamp(StatusComp->CurrentHP - ActualDamage, 0.0f, 100.0f);
+
+
+	// 3. HPが0になったら死亡処理などを呼ぶ
+	if (StatusComp->CurrentHP <= 0.0f)
+	{
+		// 死亡処理（Ragdoll化やデストロイなど）
+	}
+
+	return ActualDamage;
+}
+
