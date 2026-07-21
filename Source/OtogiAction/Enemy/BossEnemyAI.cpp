@@ -70,6 +70,7 @@ void ABossEnemyAI::Tick(float DeltaTime)
 
 void ABossEnemyAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	IsSightRangePlayerFlg = true;
 
 	// 検知したアクターがプレイヤーキャラクターか判定
 	ACharacter* PlayerCharacter = Cast<ACharacter>(Actor);

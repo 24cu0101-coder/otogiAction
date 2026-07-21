@@ -58,4 +58,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI|Param", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
 
+	//‰‚ß‚ÄƒvƒŒƒCƒ„[‚ª‹ŠE“à‚É“ü‚Á‚½‚©
+	bool IsSightRangePlayerFlg = false;
 };

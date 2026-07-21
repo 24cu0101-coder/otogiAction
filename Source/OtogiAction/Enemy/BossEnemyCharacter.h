@@ -29,6 +29,9 @@ public:
 	//スピードをゲットする関数
 	float GetMovementSpeed();
 
+	//回転する関数
+	void RotateTowardsPlayer(float DeltaTime);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

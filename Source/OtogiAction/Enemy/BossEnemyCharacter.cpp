@@ -6,6 +6,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "AbilitySystemComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABossEnemyCharacter::ABossEnemyCharacter()
@@ -17,7 +19,7 @@ ABossEnemyCharacter::ABossEnemyCharacter()
 
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;				//移動方向に向く
+		GetCharacterMovement()->bOrientRotationToMovement = false;				//移動方向に向く
 		GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);	//旋回速度（度/秒）
 	}
 
@@ -74,6 +76,34 @@ float ABossEnemyCharacter::GetMovementSpeed()
 	return 0.0f;
 }
 
+//回転する関数
+void ABossEnemyCharacter::RotateTowardsPlayer(float DeltaTime)
+{
+	//プレイヤー（Target）の取得
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	//自分とプレイヤーの位置を取得
+	FVector MyLocation = GetActorLocation();
+	FVector TargetLocation = PlayerPawn->GetActorLocation();
+
+	//プレイヤーへの方向を示す回転（Rotator）を計算
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(MyLocation, TargetLocation);
+
+	//現在の回転を取得
+	FRotator CurrentRotation = GetActorRotation();
+
+	//指定した速度で補間
+	const float InterpSpeed = GetCharacterMovement()->RotationRate.Yaw;
+	FRotator NewRotation = FMath::RInterpConstantTo(CurrentRotation, TargetRotation, DeltaTime, InterpSpeed);
+
+	//体が上下に傾かないよう Yaw（水平回転）のみを適用
+	SetActorRotation(FRotator(0.0f, NewRotation.Yaw, 0.0f));
+}
+
 // Called every frame
 void ABossEnemyCharacter::Tick(float DeltaTime)
 {
@@ -97,15 +127,15 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 		return 0.f;
 	}
 
-	// 2. ダメージをHPから差し引く
+	//ダメージをHPから差し引く
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, 100.0f);
 
-	UE_LOG(LogTemp, Warning, TEXT("残りHP: %f"), HP);
+	UE_LOG(LogTemp, Warning, TEXT("CurrentHP: %f"), HP);
 
-	// 3. HPが0になったら死亡処理などを呼ぶ
+	//HPが0になったら死亡処理などを呼ぶ
 	if (HP <= 0.0f)
 	{
-		// 死亡処理（Ragdoll化やデストロイなど）
+		//死亡処理（Ragdoll化やデストロイなど）
 		Destroy();
 	}
 
