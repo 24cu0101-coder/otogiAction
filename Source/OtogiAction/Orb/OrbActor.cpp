@@ -3,6 +3,7 @@
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/SkillGaugeComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AOrbActor::AOrbActor()
 {
@@ -37,8 +38,26 @@ void AOrbActor::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    // 自動吸収
+    if (!bIsAbsorbing)
+    {
+        APlayerCharacter* Player =
+            Cast<APlayerCharacter>(
+                UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+        if (Player)
+        {
+            float Distance = FVector::Dist(
+                GetActorLocation(),
+                Player->GetActorLocation());
+
+            if (Distance <= AbsorbRange)
+            {
+                StartAbsorb(Player);
+            }
+        }
+    }
     // 吸われているならPlayerへ飛ぶ
-// 吸われているならPlayerへ飛ぶ
     if (bIsAbsorbing)
     {
         if (TargetActor)

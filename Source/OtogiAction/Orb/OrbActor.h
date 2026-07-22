@@ -39,6 +39,10 @@ private:
     UPROPERTY(EditAnywhere, Category = "Orb")
     float FloatSpeed = 2.f;
 
+    // 自動九州の距離
+    UPROPERTY(EditAnywhere, Category = "Orb")
+    float AbsorbRange = 300.f;
+
     // 吸われているか
     bool bIsAbsorbing = false;
 
