@@ -8,6 +8,7 @@
 #include "Engine/OverlapResult.h"
 #include "../../PlayerCharacter/PlayerCharacter.h"
 #include "../../HitStopComponent.h"
+#include "../UHitReactionBaseComponent.h"
 
 // Sets default values for this component's properties
 USphereCollisionComponent::USphereCollisionComponent()
@@ -39,7 +40,7 @@ void USphereCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 }
 
-void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset)
+void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage,float StunPoint, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset)
 {
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();
@@ -96,6 +97,16 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					Owner,
 					UDamageType::StaticClass()
 				);
+
+				//ヒットリアクションとスタン値の加算
+				if (UUHitReactionBaseComponent* HitReaction = OverlappedActor->FindComponentByClass<UUHitReactionBaseComponent>())
+				{
+					//スタン値の加算
+					HitReaction->AddStunPoint(StunPoint);
+
+					//のけぞり
+					HitReaction->PlayHitReaction(Damage);
+				}
 
 				if (APlayerCharacter* Player = Cast<APlayerCharacter>(Owner))
 				{

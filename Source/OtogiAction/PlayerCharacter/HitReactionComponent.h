@@ -1,14 +1,14 @@
-// ヒットしたダメージに対してのリアクションステータス
+// ヒットしたダメージに対してのplayerリアクションステータス
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "../Component/UHitReactionBaseComponent.h"
 #include "HitReactionComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class OTOGIACTION_API UHitReactionComponent : public UActorComponent
+class OTOGIACTION_API UHitReactionComponent : public UUHitReactionBaseComponent
 {
 	GENERATED_BODY()
 
@@ -17,16 +17,16 @@ public:
 	UHitReactionComponent();
 
 	//被弾したときに呼ばれる関数
-	void PlayHitReaction(float DamageAmount);
+	virtual void PlayHitReaction(float DamageAmount)override;
 
 	void  RequestGetUp();
-
-	//ダウン状態化を取得するゲッター
-	bool IsDowned() const { return bIsDowned; }
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	//スタン値が最大になったときに呼ばれる
+	virtual void OnStunMax() override;
 
 	//ヒットリアクションモンタージュ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anims")
@@ -37,10 +37,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anims")
 	UAnimMontage* GetupMontage;
-
-	// この数値以上のダメージを受けたらダウン状態にする
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
-	float HeavyDamageThreshold = 20.0f;
 
 	// 通常のけぞりのノックバック力
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")

@@ -28,6 +28,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Attack Settings")
 	float Damage = 20.f;
 
+	//スタン値の加算
+	UPROPERTY(EditAnywhere, Category = "Attack Settings")
+	float StunPoint = 20.f;
+
 	//ヒットストップ時間
 	UPROPERTY(EditAnywhere, Category = "Attack Settings")
 	float HitStopDuration = 0.09f;

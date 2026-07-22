@@ -16,15 +16,17 @@
 #include "PlayerComponent/StrongAttack/StrongAttackComponent3.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 #include "../Component/Collision/SphereCollisionComponent.h"
-#include "../Component/Status/StatusComponent.h"
+#include "PlayerStatusComponent.h"
 #include "../Orb/OrbActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerComponent/SkillGaugeComponent.h"
 #include "PlayerComponent/WeaponComponent.h"
 #include "../HitStopComponent.h"
 #include "HitReactionComponent.h"
+#include "../Component/UHitReactionBaseComponent.h"
 #include "OtogiAction/UI/PlayerHPWidget.h"
 #include "OtogiAction/UI/SkillGaugeWidget.h"
+#include"PlayerDeathComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -99,7 +101,7 @@ APlayerCharacter::APlayerCharacter()
 	CollisionComp = CreateDefaultSubobject<USphereCollisionComponent>(TEXT("CollisionComp"));
 
 	//Statusコンポーネント生成
-	StatusComp = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComp"));
+	StatusComp = CreateDefaultSubobject<UPlayerStatusComponent>(TEXT("StatusComp"));
 
 	//スキルゲージコンポーネント
 	GaugeComp = CreateDefaultSubobject<USkillGaugeComponent>(TEXT("GaugeComp"));
@@ -114,6 +116,9 @@ APlayerCharacter::APlayerCharacter()
 	HitReactionComp = CreateDefaultSubobject<UHitReactionComponent>(TEXT("HitReactionComp"));
 	//Audioコンポーネント
 	CharacterAudioComponent =CreateDefaultSubobject<UCharacterAudioComponent>(TEXT("CharacterAudioComponent"));
+	
+	//デッドコンポーネント
+	DeathComp = CreateDefaultSubobject<UPlayerDeathComponent>(TEXT("DeathComp"));
 }
 
 //ゲームが始まったときに生成
@@ -140,6 +145,12 @@ void APlayerCharacter::BeginPlay()
 	if (StatusComp)
 	{
 		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::HandleDamaged);
+	}
+
+	//statusコンポーネントから死亡通知を受け取る
+	if (StatusComp)
+	{
+		StatusComp->OnDead.AddDynamic(this, &APlayerCharacter::OnDeath);
 	}
 
 	//PlayerのHP表示
@@ -228,7 +239,7 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 void APlayerCharacter::OnCharacterMovement(const FInputActionValue& Value)
 {
 	//ダウン中なら移動入力を完全に無視する
-	if (HitReactionComp && HitReactionComp->IsDowned())
+	if (HitReactionComp && HitReactionComp->IsStunned())
 	{
 		return;
 	}
@@ -267,9 +278,12 @@ void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 {
 	//ダウン中にボタンで起き上がる
-	if (HitReactionComp && HitReactionComp->IsDowned())
+	if (HitReactionComp && HitReactionComp->IsStunned())
 	{
-		HitReactionComp->RequestGetUp();
+		if (UHitReactionComponent* PlayerHitComp = Cast<UHitReactionComponent>(HitReactionComp))
+		{
+			PlayerHitComp->RequestGetUp();
+		}
 		return;
 	}
 
@@ -287,7 +301,7 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
 {
 	//ダウン中なら移動入力を完全に無視する
-	if (HitReactionComp && HitReactionComp->IsDowned())
+	if (HitReactionComp && HitReactionComp->IsStunned())
 	{
 		return;
 	}
@@ -304,9 +318,8 @@ void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value)
 void APlayerCharacter::OnStrongAttack()
 {
 	//ダウン中にボタンで起き上がる
-	if (HitReactionComp && HitReactionComp->IsDowned())
+	if (HitReactionComp && HitReactionComp->IsStunned())
 	{
-		HitReactionComp->RequestGetUp();
 		return;
 	}
 
@@ -320,9 +333,8 @@ void APlayerCharacter::OnStrongAttack()
 void APlayerCharacter::OnStrongAttack2()
 {
 	//	//ダウン中にボタンで起き上がる
-	if (HitReactionComp && HitReactionComp->IsDowned())
+	if (HitReactionComp && HitReactionComp->IsStunned())
 	{
-		HitReactionComp->RequestGetUp();
 		return;
 	}
 
@@ -437,42 +449,47 @@ void APlayerCharacter::UpdateSkillGaugeUI()
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	
-	//StatusComp = FindComponentByClass<UStatusComponent>();	
 
-
-	if (HitReactionComp && StatusComp)
+	if (StatusComp)
 	{
-		//ダメージ量
-		float DamageAmount = PreviousHP - StatusComp->CurrentHP;
+		//StatusComp の TakeDamage を呼ぶ（無敵なら 0 が返ってくる）
+		const float AppliedDamage = StatusComp->TakeDamage(ActualDamage);
 
-		//最新HPを前回のHPとして保存
-		PreviousHP = StatusComp->CurrentHP;
-
-		if (DamageAmount > 0.f)
+		// ダメージを受けた場合のみ何らかの追加処理（演出など）を行う
+		if (AppliedDamage > 0.f)
 		{
-			HitReactionComp->PlayHitReaction(DamageAmount);
+			// 必要ならここにHitStopなどの処理
+			
 		}
+
+		return AppliedDamage;
 	}
 
-	if (ActualDamage <= 0.f || !StatusComp)
+	return 0.f;
+}
+
+void APlayerCharacter::OnDeath()
+{
+	if (bIsDead) return;
+	bIsDead = true;
+
+	// 入力を止める
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		return 0.f;
+		DisableInput(PC);
 	}
 
+	//// 移動を止める
+	//if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	//{
+	//	MoveComp->StopMovementImmediately();
+	//	MoveComp->DisableMovement();
+	//}
 
-	// 2. ダメージをHPから差し引く
-	StatusComp->CurrentHP = FMath::Clamp(StatusComp->CurrentHP - ActualDamage, 0.0f, 100.0f);
-	OnPlayerDamaged(StatusComp->CurrentHP);
-
-	UE_LOG(LogTemp, Warning, TEXT(":%f"), StatusComp->CurrentHP);
-
-	// 3. HPが0になったら死亡処理などを呼ぶ
-	if (StatusComp->CurrentHP <= 0.0f)
+	// 3. 死亡コンポーネントの処理を開始
+	if (DeathComp)
 	{
-		// 死亡処理（Ragdoll化やデストロイなど）
+		DeathComp->Dead();
 	}
-
-	return ActualDamage;
 }
 

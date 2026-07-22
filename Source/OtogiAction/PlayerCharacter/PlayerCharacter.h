@@ -25,15 +25,16 @@ class UPlayerTargetComponent;
 class USkillComponent;
 class UAttackCollisionComponent;
 class USphereCollisionComponent;
-class UStatusComponent;
+class UPlayerStatusComponent;
 class UStrongAttackComponent;		//強攻撃を実行するクラス(髙山)
 class UStrongAttackComponent3;		//強攻撃3を実行するクラス(髙山)
 class USkillGaugeComponent;
 class UWeaponComponent;
 class UHitStopComponent;
-class UHitReactionComponent;
+class UUHitReactionBaseComponent;
 class UPlayerHPWidget;
 class USkillGaugeWidget;
+class UPlayerDeathComponent;
 
 
 UCLASS()
@@ -75,6 +76,9 @@ public:
 	
 	UFUNCTION()
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	//死亡処理
+	virtual void OnDeath();
 
 private:
 	//スプリングアームコンポーネント
@@ -126,7 +130,7 @@ private:
 
 	//ステータスコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status", meta = (AllowPrivateAccess = "true"))
-	UStatusComponent* StatusComp;
+	UPlayerStatusComponent* StatusComp;
 
 	//スキルゲージコンポネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
@@ -142,11 +146,15 @@ private:
 
 	//被ダメージコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReaction", meta = (AllowPrivateAccess = "true"))
-	UHitReactionComponent* HitReactionComp;
+	UUHitReactionBaseComponent* HitReactionComp;
 
 	//Audioコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio", meta = (AllowPrivateAccess = "true"))
 	UCharacterAudioComponent* CharacterAudioComponent;
+
+	//死亡コンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dead",meta = (AllowPrivateAccess = "true"))
+	UPlayerDeathComponent* DeathComp;
 
 	//HPWidget
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
@@ -209,6 +217,9 @@ private:
 
 	//げんざいのHP 
 	float PreviousHP;
+
+	//死亡しているか否か
+	bool bIsDead = false;
 
 protected:
 	//入力イベント発生時に実行される内部関数

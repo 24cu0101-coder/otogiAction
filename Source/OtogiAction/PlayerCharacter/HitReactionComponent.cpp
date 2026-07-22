@@ -32,73 +32,74 @@ void UHitReactionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 void UHitReactionComponent::PlayHitReaction(float DamageAmount)
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
-	if (!Character || bIsDowned) return;
+	if (!Character || bIsStunned) return;
 
 	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
 
-	// キャラクターの真後ろ方向を計算
 	FVector KnockbackDir = -Character->GetActorForwardVector();
 	KnockbackDir.Z = 0.0f;
 	KnockbackDir.Normalize();
 
-	if (DamageAmount < HeavyDamageThreshold)
+	// 通常ヒット（小ダメ・大ダメ問わず、スタンMAXになるまでは普通ののけぞり）
+	if (LightHitReactMontage)
 	{
-		// 1. 小ダメージ：のけぞり
-		if (LightHitReactMontage)
-		{
-			Character->PlayAnimMontage(LightHitReactMontage);
-		}
-		if (MoveComp)
-		{
-			// 地面や空中に関わらず、後ろに少し弾く
-			Character->LaunchCharacter(KnockbackDir * LightKnockbackForce, false, false);
-		}
+		Character->PlayAnimMontage(LightHitReactMontage);
 	}
-	else
+	if (MoveComp)
 	{
-		// 2. 大ダメージ：吹っ飛びダウン
-		bIsDowned = true;
+		Character->LaunchCharacter(KnockbackDir * LightKnockbackForce, false, false);
+	}
+}
 
-		if (MoveComp)
-		{
-			// 後ろに吹き飛ばす
-			FVector LaunchVelocity = (KnockbackDir * HeavyKnockbackForce) + FVector(0.f, 0.f, 450.f);
-			Character->LaunchCharacter(LaunchVelocity, false, false);
+//スタン値がマックスになったらダウンする
+void UHitReactionComponent::OnStunMax()
+{
+	Super::OnStunMax();
 
-			//Disableにする
-			MoveComp->DisableMovement();
-		}
-		if (HeavyHitReactMontage)
-		{
-			Character->PlayAnimMontage(HeavyHitReactMontage);
-		}
+
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (!Character) return;
+
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+
+	FVector KnockbackDir = -Character->GetActorForwardVector();
+	KnockbackDir.Z = 0.0f;
+	KnockbackDir.Normalize();
+
+	if (MoveComp)
+	{
+		FVector LaunchVelocity = (KnockbackDir * HeavyKnockbackForce) + FVector(0.f, 0.f, 450.f);
+		Character->LaunchCharacter(LaunchVelocity, false, false);
+		MoveComp->DisableMovement();
+	}
+	if (HeavyHitReactMontage)
+	{
+		Character->PlayAnimMontage(HeavyHitReactMontage);
 	}
 }
 
 //起き上がり
 void UHitReactionComponent::RequestGetUp()
 {
-	if (!bIsDowned) return;
+	if (!bIsStunned) return;
 
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character) return;
 
 	if (GetupMontage)
 	{
-		// 起き上がりモーションを再生
 		Character->PlayAnimMontage(GetupMontage);
 
 		UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
-			// アニメーション終了イベントをバインド
 			AnimInstance->OnMontageEnded.AddDynamic(this, &UHitReactionComponent::OnGetUpFinished);
 		}
 	}
 	else
 	{
-		// モーションが設定されていない場合の安全策（即座に復帰）
-		bIsDowned = false;
+		// モーションなしの場合の安全復帰
+		ResetStun();
 		if (Character->GetCharacterMovement())
 		{
 			Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
@@ -111,16 +112,14 @@ void UHitReactionComponent::OnGetUpFinished(UAnimMontage* Montage, bool bInterru
 {
 	if (Montage == GetupMontage)
 	{
-		bIsDowned = false;
+		ResetStun(); //
 
 		ACharacter* Character = Cast<ACharacter>(GetOwner());
 		if (Character && Character->GetCharacterMovement())
 		{
-			// 再び自由に歩き回れるように移動モードを戻す
 			Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 		}
 
-		// イベントのバインドを解除してメモリリークを防ぐ
 		UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
