@@ -27,7 +27,7 @@ class UAttackCollisionComponent;
 class USphereCollisionComponent;
 class UPlayerStatusComponent;
 class UStrongAttackComponent;		//強攻撃を実行するクラス(髙山)
-class UStrongAttackComponent3;		//強攻撃3を実行するクラス(髙山)
+class UIaiAttackComponent;			//居合攻撃を実行するクラス(髙山)
 class USkillGaugeComponent;
 class UWeaponComponent;
 class UHitStopComponent;
@@ -113,9 +113,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StrongAttack", meta = (AllowPrivateAccess = "true"))
 	UStrongAttackComponent* StrongAttackComp;
 
-	//強攻撃2コンポーネント(髙山)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StrongAttack2", meta = (AllowPrivateAccess = "true"))
-	UStrongAttackComponent3* StrongAttackComp2;
+	//居合攻撃component(髙山)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "IaiAttack", meta = (AllowPrivateAccess = "true"))
+	UIaiAttackComponent* IaiAttackComp;
+
+
 
 	//スキルコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill", meta = (AllowPrivateAccess = "true"))
@@ -200,10 +202,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SAttackAction;
 
-	//強攻撃2のインプットアクション(髙山)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction* SAttackAction2;
+	UInputAction* IaiAttackAction;
 
+
+		
 	//スキル選択
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SwitchSkillGroup;
@@ -229,7 +232,7 @@ protected:
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
 	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
 	void OnStrongAttack();									//(髙山)
-	void OnStrongAttack2();									//(髙山)
+	void OnIaiAttack();										//(髙山)
 
 	TObjectPtr<UPlayerDodgeComponent>DodgeComponent;
 	void OnSwitchSkillGroup(const FInputActionValue& Value);

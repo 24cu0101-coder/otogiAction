@@ -13,7 +13,7 @@
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalAttackComponent2.h"
 #include "PlayerComponent/StrongAttack/StrongAttackComponent.h"
-#include "PlayerComponent/StrongAttack/StrongAttackComponent3.h"
+#include "PlayerComponent/StrongAttack/IaiAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
 #include "../Component/Collision/SphereCollisionComponent.h"
 #include "PlayerStatusComponent.h"
@@ -87,9 +87,7 @@ APlayerCharacter::APlayerCharacter()
 	//強攻撃コンポーネント生成
 	StrongAttackComp = CreateDefaultSubobject<UStrongAttackComponent>(TEXT("SAttackComp"));
 
-	//強攻撃2コンポーネント生成
-	StrongAttackComp2 = CreateDefaultSubobject<UStrongAttackComponent3>(TEXT("SAttack2Comp"));
-
+	IaiAttackComp = CreateDefaultSubobject<UIaiAttackComponent>(TEXT("IAttackComp"));
 
 	//ターゲットコンポーネント
 	TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
@@ -216,8 +214,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
 		//強攻撃
 		EnhancedInputComponent->BindAction(SAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack);
-		//強攻撃2
-		EnhancedInputComponent->BindAction(SAttackAction2, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack2);
+		//居合攻撃	
+		EnhancedInputComponent->BindAction(IaiAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnIaiAttack);
 
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Started, this, &APlayerCharacter::OnSwitchSkillGroup);
@@ -330,22 +328,21 @@ void APlayerCharacter::OnStrongAttack()
 	}
 }
 
-void APlayerCharacter::OnStrongAttack2()
+void APlayerCharacter::OnIaiAttack()
 {
-	//	//ダウン中にボタンで起き上がる
+	//ダウン中にボタンで起き上がる
 	if (HitReactionComp && HitReactionComp->IsStunned())
 	{
 		return;
 	}
 
-	//強攻撃コンポーネントがあったら
-	if (StrongAttackComp2)
+	//居合攻撃コンポーネントがあったら
+	if (IaiAttackComp)
 	{
-		StrongAttackComp2->ExecuteSutrongAttack3Ability();
+		IaiAttackComp->ExecuteIaiAttackAbility();
 	}
 
 }
-
 
 //スキル群の切り替え
 void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
