@@ -40,7 +40,7 @@ void UHitReactionComponent::PlayHitReaction(float DamageAmount)
 	KnockbackDir.Z = 0.0f;
 	KnockbackDir.Normalize();
 
-	// 通常ヒット（小ダメ・大ダメ問わず、スタンMAXになるまでは普通ののけぞり）
+	// 通常ヒット
 	if (LightHitReactMontage)
 	{
 		Character->PlayAnimMontage(LightHitReactMontage);

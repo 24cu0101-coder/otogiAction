@@ -42,54 +42,54 @@ void USphereCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage,float StunPoint, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset)
 {
-	//ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è¦ªã‚¯ãƒ©ã‚¹ã‚’å–å¾—
+	//ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌeƒNƒ‰ƒX‚ğæ“¾
 	AActor* Owner = GetOwner();
 	if (!Owner) return;
 
-	// è‡ªèº«ã®ç¾åœ¨ä½ç½®
+	// ©g‚ÌŒ»İˆÊ’u
 	FVector Center = Owner->GetActorLocation();
-	//åˆ¤å®šã‚’å‰å¾Œå·¦å³ã«å‹•ã‹ã™
+	//”»’è‚ğ‘OŒã¶‰E‚É“®‚©‚·
 	Center += Owner->GetActorForwardVector() * ForwardOffset;
 	Center += Owner->GetActorRightVector() * SideOffset;
 
-	//çƒã®å¤§ãã•ã‚’æŒ‡å®š
+	//‹…‚Ì‘å‚«‚³‚ğw’è
 	HitCollisionShape = FCollisionShape::MakeSphere(Radius);
 
-	// æ¤œç´¢å¯¾è±¡ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚¿ã‚¤ãƒ—ï¼ˆPawnã¨WorldDynamicï¼‰
+	// ŒŸõ‘ÎÛ‚ÌƒIƒuƒWƒFƒNƒgƒ^ƒCƒviPawn‚ÆWorldDynamicj
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 
-	// ã‚¯ã‚¨ãƒªè¨­å®šï¼ˆæ”»æ’ƒã®å®Ÿè¡Œè€…è‡ªèº«ã¯ç„¡è¦–ã™ã‚‹ï¼‰
+	// ƒNƒGƒŠİ’èiUŒ‚‚ÌÀsÒ©g‚Í–³‹‚·‚éj
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(Owner);
 
-	//å½“ãŸã£ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å…¥ã‚Œã‚‹é…åˆ—
+	//“–‚½‚Á‚½ƒIƒuƒWƒFƒNƒg‚ğ“ü‚ê‚é”z—ñ
 	TArray<FOverlapResult> OverlapResults;
 
-	// ç¯„å›²å†…ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚¹ã‚­ãƒ£ãƒ³
+	// ”ÍˆÍ“à‚ÌƒIƒuƒWƒFƒNƒg‚ğƒXƒLƒƒƒ“
 	bool bHasOverlap = GetWorld()->OverlapMultiByObjectType(
-		OverlapResults,     //å½“ãŸã£ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
-		Center,             //ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®ä¸­å¿ƒ
-		FQuat::Identity,    //å›è»¢
-		ObjectQueryParams,  //æ¤œç´¢å¯¾è±¡ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
-		HitCollisionShape,    //åˆ¤å®šã‚’ã¨ã‚‹å½¢
-		QueryParams         //ç„¡è¦–ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+		OverlapResults,     //“–‚½‚Á‚½ƒIƒuƒWƒFƒNƒg
+		Center,             //ƒRƒŠƒWƒ‡ƒ“‚Ì’†S
+		FQuat::Identity,    //‰ñ“]
+		ObjectQueryParams,  //ŒŸõ‘ÎÛ‚ÌƒIƒuƒWƒFƒNƒg
+		HitCollisionShape,    //”»’è‚ğ‚Æ‚éŒ`
+		QueryParams         //–³‹‚·‚éƒIƒuƒWƒFƒNƒg
 	);
 
 	if (bHasOverlap)
 	{
-		// é‡è¤‡ã—ã¦åŒã˜ã‚¢ã‚¯ã‚¿ãƒ¼ã«ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆãªã„ã‚ˆã†ã€ã™ã§ã«ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆãŸã‚¢ã‚¯ã‚¿ãƒ¼ã‚’è¨˜æ†¶ã™ã‚‹é…åˆ—
+		// d•¡‚µ‚Ä“¯‚¶ƒAƒNƒ^[‚Éƒ_ƒ[ƒW‚ğ—^‚¦‚È‚¢‚æ‚¤A‚·‚Å‚Éƒ_ƒ[ƒW‚ğ—^‚¦‚½ƒAƒNƒ^[‚ğ‹L‰¯‚·‚é”z—ñ
 		TArray<AActor*> DamagedActors;
 
 		for (const FOverlapResult& Result : OverlapResults)
 		{
 			AActor* OverlappedActor = Result.GetActor();
 
-			// ã‚¢ã‚¯ã‚¿ãƒ¼ãŒå­˜åœ¨ã—ã€æŒ‡å®šã®ã‚¿ã‚°ã‚’æŒã£ã¦ãŠã‚Šã€ã¾ã ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã¦ã„ãªã„å ´åˆ
+			// ƒAƒNƒ^[‚ª‘¶İ‚µAw’è‚Ìƒ^ƒO‚ğ‚Á‚Ä‚¨‚èA‚Ü‚¾ƒ_ƒ[ƒW‚ğ—^‚¦‚Ä‚¢‚È‚¢ê‡
 			if (OverlappedActor && OverlappedActor->ActorHasTag(TargetTag) && !DamagedActors.Contains(OverlappedActor))
 			{
-				// UE5æ¨™æº–ã®ãƒ€ãƒ¡ãƒ¼ã‚¸é©ç”¨å‡¦ç†
+				// UE5•W€‚Ìƒ_ƒ[ƒW“K—pˆ—
 				UGameplayStatics::ApplyDamage(
 					OverlappedActor,
 					Damage,
@@ -98,14 +98,11 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					UDamageType::StaticClass()
 				);
 
-				//ãƒ’ãƒƒãƒˆãƒªã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã¨ã‚¹ã‚¿ãƒ³å€¤ã®åŠ ç®—
+				//ƒqƒbƒgƒŠƒAƒNƒVƒ‡ƒ“‚ÆƒXƒ^ƒ“’l‚Ì‰ÁZ
 				if (UUHitReactionBaseComponent* HitReaction = OverlappedActor->FindComponentByClass<UUHitReactionBaseComponent>())
 				{
-					//ã‚¹ã‚¿ãƒ³å€¤ã®åŠ ç®—
+					//ƒXƒ^ƒ“’l‚Ì‰ÁZ
 					HitReaction->AddStunPoint(StunPoint);
-
-					//ã®ã‘ãã‚Š
-					HitReaction->PlayHitReaction(Damage);
 				}
 
 				if (APlayerCharacter* Player = Cast<APlayerCharacter>(Owner))
@@ -116,19 +113,19 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					}
 
 				}
-				//ãƒ‡ãƒãƒƒã‚°ç”¨ã®è¡¨ç¤º
+				//ƒfƒoƒbƒO—p‚Ì•\¦
 				DrawDebugSphere(
 					GetWorld(),
 					Center,
 					Radius,
-					16,							//çƒã®æ»‘ã‚‰ã‹ã•
-					FColor::Red,                // èµ¤è‰²ã§æç”»
-					false,                      // ãšã£ã¨æ®‹ã•ãªã„
-					2.0f,                       // 2ç§’é–“è¡¨ç¤º
+					16,							//‹…‚ÌŠŠ‚ç‚©‚³
+					FColor::Red,                // ÔF‚Å•`‰æ
+					false,                      // ‚¸‚Á‚Æc‚³‚È‚¢
+					2.0f,                       // 2•bŠÔ•\¦
 					0,
-					2.0f                        // ç·šã®å¤ªã•
+					2.0f                        // ü‚Ì‘¾‚³
 				);
-				// äºŒé‡ãƒ’ãƒƒãƒˆé˜²æ­¢ãƒªã‚¹ãƒˆã«è¿½åŠ 
+				// “ñdƒqƒbƒg–h~ƒŠƒXƒg‚É’Ç‰Á
 				DamagedActors.Add(OverlappedActor);
 
 				UE_LOG(LogTemp, Warning, TEXT("[%s] Attacked [%s]; Damage: %f"), *Owner->GetName(), *OverlappedActor->GetName(), Damage);
@@ -137,17 +134,17 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 	}
 	else
 	{
-		//ãƒ‡ãƒãƒƒã‚°ç”¨ã®è¡¨ç¤º
+		//ƒfƒoƒbƒO—p‚Ì•\¦
 		DrawDebugSphere(
 			GetWorld(),
 			Center,
 			Radius,
-			16,							//çƒã®æ»‘ã‚‰ã‹ã•
-			FColor::Green,              //ç·‘è‰²ã§æç”»
-			false,                      // ãšã£ã¨æ®‹ã•ãªã„
-			2.0f,                       // 2ç§’é–“è¡¨ç¤º
+			16,							//‹…‚ÌŠŠ‚ç‚©‚³
+			FColor::Green,              //—ÎF‚Å•`‰æ
+			false,                      // ‚¸‚Á‚Æc‚³‚È‚¢
+			2.0f,                       // 2•bŠÔ•\¦
 			0,
-			2.0f                        // ç·šã®å¤ªã•
+			2.0f                        // ü‚Ì‘¾‚³
 		);
 	}
 

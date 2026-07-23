@@ -40,11 +40,17 @@ void UPlayerDeathComponent::Dead()
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character) return;
 
-	//コリジョンを無効化
-	if (Character->GetCapsuleComponent())
+	if (UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance())
 	{
-		Character->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AnimInstance->Montage_Stop(0.1f);
 	}
+
+
+	//コリジョンを無効化
+	/*if (Character->GetCapsuleComponent())
+	{
+		Character->GetCapsuleComponent()->SetCollisionResponseToChannels(ECC_Pawn, ECR_Ignore);
+	}*/
 
 	//死亡モンタージュ再生
 	if (DeathMontage)

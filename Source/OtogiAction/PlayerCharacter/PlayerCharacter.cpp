@@ -410,22 +410,22 @@ void APlayerCharacter::OnAbsorb()
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
 void APlayerCharacter::HandleDamaged(float NewHP)
 {
-	// 死亡している場合はリアクションを処理しない
-	if (StatusComp && StatusComp->IsDead()) return;
+	//// 死亡している場合はリアクションを処理しない
+	//if (StatusComp && StatusComp->IsDead()) return;
 
-	if (HitReactionComp && StatusComp)
-	{
-		//ダメージ量
-		float DamageAmount = PreviousHP - NewHP;
+	//if (HitReactionComp && StatusComp)
+	//{
+	//	//ダメージ量
+	//	float DamageAmount = PreviousHP - NewHP;
 
-		//最新HPを前回のHPとして保存
-		PreviousHP = NewHP;
+	//	//最新HPを前回のHPとして保存
+	//	PreviousHP = NewHP;
 
-		if (DamageAmount > 0.f)
-		{
-			HitReactionComp->PlayHitReaction(DamageAmount);
-		}
-	}
+	//	if (DamageAmount > 0.f)
+	//	{
+	//		HitReactionComp->PlayHitReaction(DamageAmount);
+	//	}
+	//}
 }
 //げんざいHPをUIに表示
 void APlayerCharacter::OnPlayerDamaged(float CurrentHP)
@@ -448,24 +448,28 @@ void APlayerCharacter::UpdateSkillGaugeUI()
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	//死んでいたらリターン
+	if (bIsDead)return 0.f;
+
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (StatusComp)
+	if (ActualDamage <= 0.f || !StatusComp) return 0.f;
+
+	// StatusComp の TakeDamage 内で HP <= 0 になると、自動的に OnDead.Broadcast() ? OnDeath() が呼ばれる！
+	const float AppliedDamage = StatusComp->TakeDamage(ActualDamage);
+
+	//死亡していない（生きている）場合のみ、被弾リアクションを再生する
+		// ※ StatusComp->TakeDamage() の中で死亡した場合、すでに OnDeath() が走って bIsDead = true になっているため、ここを回避できます！
+	if (!bIsDead && AppliedDamage > 0.f)
 	{
-		//StatusComp の TakeDamage を呼ぶ（無敵なら 0 が返ってくる）
-		const float AppliedDamage = StatusComp->TakeDamage(ActualDamage);
-
-		// ダメージを受けた場合のみ何らかの追加処理（演出など）を行う
-		if (AppliedDamage > 0.f)
+		if (HitReactionComp)
 		{
-			// 必要ならここにHitStopなどの処理
-			
+			HitReactionComp->PlayHitReaction(AppliedDamage);
 		}
-
-		return AppliedDamage;
 	}
 
-	return 0.f;
+	//戻り値を忘れずに返す
+	return AppliedDamage;
 }
 
 void APlayerCharacter::OnDeath()
