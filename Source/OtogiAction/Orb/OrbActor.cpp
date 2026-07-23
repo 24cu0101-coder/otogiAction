@@ -93,8 +93,7 @@ void AOrbActor::Tick(float DeltaTime)
                         if (!Status->IsDead())
                         {
                             // EnemyのHPを減らす
-                            Status->TakeDamage(10.f);
-
+                            Status->TakeDamage(OrbDamage);
                             UE_LOG(LogTemp, Warning,
                                 TEXT("Orb Damage Enemy : %s"),
                                 *OwnerEnemy->GetName());
@@ -142,4 +141,9 @@ void AOrbActor::Tick(float DeltaTime)
     NewLocation.Z += FMath::Sin(FloatTime * FloatSpeed) * FloatHeight;
 
     SetActorLocation(NewLocation);
+}
+
+void AOrbActor::SetOrbDamage(float InDamage)
+{
+    OrbDamage = InDamage;
 }

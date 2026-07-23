@@ -2,6 +2,8 @@
 
 
 #include "GAIaiAttack.h"
+#include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 void UGAIaiAttack::ActivateAbility(const FGameplayAbilitySpecHandle IaiAttack,

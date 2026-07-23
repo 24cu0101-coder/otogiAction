@@ -106,8 +106,25 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		}
 	}
 }
-
 void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
+{
+	// 被弾音
+	if (CharacterAudioComponent)
+	{
+		CharacterAudioComponent->PlayCharacterSound(
+			ECharacterSoundType::Damage);
+	}
+
+	// 必要なComponentがなければ終了
+	if (!StatusComponent || !OrbSpawnComponent)
+	{
+		return;
+	}
+
+	// ダメージに応じたOrb生成
+	OrbSpawnComponent->SpawnOrbs(this,Damage);
+}
+/*void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	//被弾音
 	if (CharacterAudioComponent)
@@ -165,7 +182,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 			i);
 
 
-		AOrbActor* Orb = OrbSpawnComponent->SpawnOrb();
+		AOrbActor* Orb = OrbSpawnComponent->SpawnOrb(10.f);
 
 		if (Orb)
 		{
@@ -174,19 +191,6 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 
 			// 出した数を加算
 			SpawnedOrbCount++;
-		}
-	}
-}/*void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
-{
-	AOrbActor* SpawnedOrb = OrbSpawnComponent->SpawnOrb();
-
-	if (OrbSpawnComponent)
-	{
-		AOrbActor* Orb = OrbSpawnComponent->SpawnOrb();
-
-		if (Orb)
-		{
-			Orb->SetOwnerEnemy(this);
 		}
 	}
 }*/

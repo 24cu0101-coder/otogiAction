@@ -50,4 +50,11 @@ private:
     UPROPERTY()
     AActor* TargetActor = nullptr;
 
+    UPROPERTY()
+    float OrbDamage = 0.f;
+
+public:
+
+    void SetOrbDamage(float InDamage);
+
 };
