@@ -19,18 +19,21 @@ class OTOGIACTION_API UBossEnemyHitReactionComponent : public UUHitReactionBaseC
 public:
 	UBossEnemyHitReactionComponent();
 
-	//ã‚¨ãƒãƒŸãƒ¼ç”¨ã®ãƒ’ãƒƒãƒˆãƒªã‚¢ã‚¯ã‚·ãƒ§ãƒ³
+	//ƒGƒlƒ~[—p‚ÌƒqƒbƒgƒŠƒAƒNƒVƒ‡ƒ“
 	virtual void  PlayHitReaction(float DamageAmount)override;
 
 protected:
-	//ã‚¹ã‚¿ãƒ³ãŒãƒãƒƒã‚¯ã‚¹ã«ãªã£ãŸã¨ãã«å‘¼ã°ã‚Œã‚‹
+	//ƒXƒ^ƒ“‚ªƒ}ƒbƒNƒX‚É‚È‚Á‚½‚Æ‚«‚ÉŒÄ‚Î‚ê‚é
 	virtual void OnStunMax() override;
 
-	//é€šå¸¸ãƒ’ãƒƒãƒˆãƒªã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’å—ã‘ã‚‹ã‹ã©ã†ã‹
+	//‹¯‚İ’l‚ªƒ}ƒbƒNƒX‚É‚È‚Á‚½‚çŒÄ‚Î‚ê‚é
+	virtual void OnFearMax() override;
+
+	//’ÊíƒqƒbƒgƒŠƒAƒNƒVƒ‡ƒ“‚ğó‚¯‚é‚©‚Ç‚¤‚©
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Reaction")
 	bool bIsBoss = false;
 
-	// ã‚¹ã‚¿ãƒ³ã—ã¦ãƒ€ã‚¦ãƒ³ã—ã¦ã„ã‚‹æ™‚é–“ï¼ˆç§’ï¼‰
+	// ƒXƒ^ƒ“‚µ‚Äƒ_ƒEƒ“‚µ‚Ä‚¢‚éŠÔi•bj
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Reaction")
 	float StunDownDuration = 4.0f;
 

@@ -28,8 +28,9 @@ void UUHitReactionBaseComponent::AddStunPoint(float StunAmount)
 	//すでにスタンしていたら返す
 	if (bIsStunned)return;
 
-	//スタン値の加算
+	//スタン値と怯み値の加算
 	CurrentStunPoint = FMath::Clamp(CurrentStunPoint + StunAmount, 0.f, MaxStunPoint);
+	CurrentFearPoint = FMath::Clamp(CurrentFearPoint + StunAmount, 0.f, MaxFearPoint);
 
 	UE_LOG(LogTemp, Log, TEXT("[%s] StunPoint Added: +%.1f (Current: %.1f / %.1f)"),
 		*GetOwner()->GetName(), StunAmount, CurrentStunPoint, MaxStunPoint);
@@ -41,18 +42,38 @@ void UUHitReactionBaseComponent::AddStunPoint(float StunAmount)
 	if (CurrentStunPoint >= MaxStunPoint)
 	{
 		OnStunMax();
+		return;
 	}
-	else
+	
+	//怯み値を超えたら怯む
+	if (CurrentFearPoint >= MaxFearPoint)
 	{
-		//一定時間スタン値の加算がなければ減算
-		GetWorld()->GetTimerManager().SetTimer(StunRecoveryTimerHandle, this, &UUHitReactionBaseComponent::DecreaseStunOverTime, 0.1f, true, StunRecoveryDelay);
+		CurrentFearPoint = 0.f;
+		OnFearMax();
 	}
+
+	//回復タイマー
+	GetWorld()->GetTimerManager().SetTimer(
+		StunRecoveryTimerHandle,
+		this,
+		&UUHitReactionBaseComponent::DecreaseStunOverTime,
+		0.1f, // 0.1秒周期で減らしていく
+		true, // ループ
+		StunRecoveryDelay // 最初の開始ディレイ
+	);
+
+	
 }
 
 //playerとエネミー側の子クラスで実装するリアクション関数
 void UUHitReactionBaseComponent::PlayHitReaction(float DamageAmount)
 {
 
+}
+
+//子クラスで定義する怯み関数
+void UUHitReactionBaseComponent::OnFearMax()
+{
 }
 
 //スタン値が最大になったら
@@ -95,5 +116,6 @@ void UUHitReactionBaseComponent::DecreaseStunOverTime()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(StunRecoveryTimerHandle);
 	}
+
 }
 

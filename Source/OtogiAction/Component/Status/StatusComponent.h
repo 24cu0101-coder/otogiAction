@@ -32,35 +32,35 @@ protected:
 
 public:
 
-	// æœ€å¤§HP
+	// Å‘åHP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	float MaxHP = 100.f;
 
-	// ç¾åœ¨HP
+	// Œ»İHP
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status")
-	float CurrentHP = 100.f;
+	float CurrentHP = 1000.f;
 
-	// æ”»æ’ƒåŠ›
+	// UŒ‚—Í
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	float Attack = 20.f;
 
-	// ãƒ€ãƒ¡ãƒ¼ã‚¸é€šçŸ¥
+	// ƒ_ƒ[ƒW’Ê’m
 	UPROPERTY(BlueprintAssignable)
 	FOnDamaged OnDamaged;
 
-	// æ­»äº¡é€šçŸ¥
+	// €–S’Ê’m
 	UPROPERTY(BlueprintAssignable)
 	FOnDead OnDead;
 
-	// ãƒ€ãƒ¡ãƒ¼ã‚¸
+	// ƒ_ƒ[ƒW
 	UFUNCTION(BlueprintCallable)
 	void TakeDamage(float DamageAmount);
 
-	// å›å¾©
+	// ‰ñ•œ
 	UFUNCTION(BlueprintCallable)
 	void Heal(float HealAmount);
 
-	// æ­»äº¡åˆ¤å®š
+	// €–S”»’è
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const;
 
@@ -77,9 +77,9 @@ public:
 	UNiagaraSystem* DarkParticleAsset;
 
 private:
-	//æ•µã®ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ç”Ÿæˆé–¢æ•°
+	//“G‚Ìƒp[ƒeƒBƒNƒ‹¶¬ŠÖ”
 	void SpawnDarkParticleOnDamage(FVector SpawnLocation);
 
-	//ç„¡æ•µã‹ã©ã†ã‹
+	//–³“G‚©‚Ç‚¤‚©
 	bool PlayerInvincible();
 };
