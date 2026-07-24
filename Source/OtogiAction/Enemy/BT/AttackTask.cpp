@@ -31,7 +31,7 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 	CachedOwnerComp = &OwnerComp;
 
 	//コンポーネントを動的に生成して、Pawnにアタッチする
-	UEnemyAttackBaseComponent* NewAttack = NewObject<UEnemyAttackBaseComponent>(EnemyPawn, AttackClass);
+	NewAttack = NewObject<UEnemyAttackBaseComponent>(EnemyPawn, AttackClass);
 	if (NewAttack)
 	{
 		NewAttack->RegisterComponent();
@@ -56,7 +56,45 @@ EBTNodeResult::Type UAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 	}
 
 
-    return EBTNodeResult::Failed;
+	return EBTNodeResult::Failed;
+}
+
+EBTNodeResult::Type UAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	AAIController* AIController = OwnerComp.GetAIOwner();
+	if (AIController)
+	{
+		//注視を解除
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+
+		ACharacter* EnemyCharacter = Cast<ACharacter>(AIController->GetPawn());
+		if (EnemyCharacter && EnemyCharacter->GetMesh())
+		{
+			if (UAnimInstance* AnimInstance = EnemyCharacter->GetMesh()->GetAnimInstance())
+			{
+				// 割込みが入ったら現在再生中の攻撃モンタージュを即座に停止する
+				AnimInstance->Montage_Stop(0.1f, nullptr); // 0.1秒でブレンドアウト
+			}
+		}
+	}
+
+	if (NewAttack)
+	{
+		NewAttack->OnAttackFinished.RemoveAll(this);
+		NewAttack->DestroyComponent();
+		NewAttack = nullptr;
+	}
+
+	//Blackboardの攻撃可能フラグを下げておく
+	if (BBComp)
+	{
+		BBComp->SetValueAsBool(CanPunchAttackKey.SelectedKeyName, false);
+	}
+
+	//明示的にBTへ「中断完了」を伝える
+	FinishLatentTask(OwnerComp, EBTNodeResult::Aborted);
+
+	return EBTNodeResult::Aborted;
 }
 
 //攻撃終了時
@@ -65,12 +103,12 @@ void UAttackTask::OnAttackCompleted(bool bSuccess)
 	//BTにタスクが完了したことを通知
 	EBTNodeResult::Type Result = bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	FinishLatentTask(*CachedOwnerComp, Result);
-	
+
 	AAIController* AIController = CachedOwnerComp->GetAIOwner();
 	if (AIController)
 	{
-	//注視を解除
-	AIController->ClearFocus(EAIFocusPriority::Gameplay);
+		//注視を解除
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
 
 	if (BBComp)

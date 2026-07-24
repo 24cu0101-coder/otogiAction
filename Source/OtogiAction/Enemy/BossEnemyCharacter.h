@@ -8,7 +8,8 @@
 #include "BossEnemyCharacter.generated.h"
 
 
-class UAbilitySystemComponent;
+class UBossEnemyHitReactionComponent;
+class UUHitReactionBaseComponent;
 
 UCLASS()
 class OTOGIACTION_API ABossEnemyCharacter : public ACharacter
@@ -27,7 +28,12 @@ public:
 	//スピードをセットする関数
 	void SetMovementSpeed(float NewSpeed);
 	//スピードをゲットする関数
-	float GetMovementSpeed();
+	float GetMovementSpeed()const;
+
+	//被弾しているかどうかを返す関数
+	bool GetIsHitFlg()const;
+	//被弾のフラグをセットする関数
+	void SetIsHitFlg(bool NewFlg);
 
 	//回転する関数
 	void RotateTowardsPlayer(float DeltaTime);
@@ -59,6 +65,13 @@ public:
 	//視野角の範囲
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float SightDegrees;
+
+	//敵が被弾したかどうか
+	bool IsHit = false;
+
+	//被ダメージコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReaction", meta = (AllowPrivateAccess = "true"))
+	UUHitReactionBaseComponent* HitReactionComp;
 
 	// AActorのTakeDamageをオーバーライド
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
