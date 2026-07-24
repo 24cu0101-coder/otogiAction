@@ -60,22 +60,31 @@ void UHitReactionComponent::OnStunMax()
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character) return;
 
-	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
-
-	FVector KnockbackDir = -Character->GetActorForwardVector();
-	KnockbackDir.Z = 0.0f;
-	KnockbackDir.Normalize();
-
-	if (MoveComp)
-	{
-		FVector LaunchVelocity = (KnockbackDir * HeavyKnockbackForce) + FVector(0.f, 0.f, 450.f);
-		Character->LaunchCharacter(LaunchVelocity, false, false);
-		MoveComp->DisableMovement();
-	}
+	//吹き飛ばしモンタージュ
 	if (HeavyHitReactMontage)
 	{
 		Character->PlayAnimMontage(HeavyHitReactMontage);
 	}
+
+	//AddInpulse
+	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
+	if (MoveComp)
+	{
+		MoveComp->SetMovementMode(EMovementMode::MOVE_Falling);
+
+		//吹き飛ばすベクトル：後ろ
+		FVector KnockbackDir = -Character->GetActorForwardVector();
+		KnockbackDir.Z = 0.0f;
+		KnockbackDir.Normalize();
+
+		//吹き飛ばすベクトル：後ろ+上
+		FVector ImpulseVector = (KnockbackDir * HeavyKnockbackForce) + FVector(0.f, 0.f, 600.f);
+
+		//吹き飛ばし
+		MoveComp->AddImpulse(ImpulseVector, true);
+	}
+
+
 }
 
 //起き上がり

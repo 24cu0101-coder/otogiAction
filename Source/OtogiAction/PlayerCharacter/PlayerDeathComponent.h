@@ -37,6 +37,10 @@ public:
 
 private:
 	//リスポーンタイマースタート
-	void RespawnTimerStart();
+	void RespawnTimerend();
+
+	// 死亡時のコントローラーを保持しておく変数
+	UPROPERTY()
+	AController* CachedController;
 		
 };

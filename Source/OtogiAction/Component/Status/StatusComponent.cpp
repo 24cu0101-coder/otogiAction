@@ -19,6 +19,7 @@ void UStatusComponent::BeginPlay()
 }
 void UStatusComponent::TakeDamage(float Damage)
 {
+    UE_LOG(LogTemp, Warning, TEXT("TakeDamage Start"));
     //プレイヤーが無敵なら処理しない
     if (PlayerInvincible())return;
 

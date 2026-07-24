@@ -1,5 +1,6 @@
 #include "MinionsCharacter.h"
 #include "minionsAttackComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "Ability/GA_minionsAttack_Normal.h"
 #include "Ability/GA_minionsAttack_Middle.h"
@@ -12,7 +13,7 @@
 
 AMinionsCharacter::AMinionsCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	//ステータス
 	StatusComponent = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComponent"));
@@ -70,7 +71,7 @@ void AMinionsCharacter::BeginPlay()
 
 	GiveDefaultAbilities();
 
-	AttackComponent->Attack();
+	//AttackComponent->Attack();
 
 	if (UEnemyHPWidget* HPWidget =
 		Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
