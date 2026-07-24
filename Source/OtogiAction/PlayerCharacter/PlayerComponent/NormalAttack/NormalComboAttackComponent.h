@@ -8,7 +8,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "GameplayAbilitySpec.h"
 #include "GameplayTagContainer.h"
-#include "NormalAttackComponent2.generated.h"
+#include "NormalComboAttackComponent.generated.h"
 
 //前方宣言
 class APlayerCharacter;
@@ -20,13 +20,12 @@ class UAttackCollisionComponent;
  * 
  */
 UCLASS()
-class OTOGIACTION_API UNormalAttackComponent2 : public UBaseAttackComponent
+class OTOGIACTION_API UNormalComboAttackComponent : public UBaseAttackComponent
 {
 	GENERATED_BODY()
 	
 public:
-	UNormalAttackComponent2();
-
+	UNormalComboAttackComponent();
 
 protected:
 	//プレイヤーのアクター
@@ -51,6 +50,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NormalAttack.Gas")
 	TSubclassOf<UGameplayAbility> NAttackAbility3;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NormalAttack.Gas")
+	TSubclassOf<UGameplayAbility> NAttackAbility4;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NormalAttack.Gas")
+	TSubclassOf<UGameplayAbility> NAttackAbilityFinish;
+
+
 	//通常攻撃のアビリティ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KintaroAttack.Gas")
 	TSubclassOf<UGameplayAbility> KintaroAttack1;
@@ -60,7 +68,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KintaroAttack.Gas")
 	TSubclassOf<UGameplayAbility> KintaroAttack3;
-
 
 	//アビリティのハンドル
 	FGameplayAbilitySpecHandle NAttackHandle;
@@ -81,6 +88,9 @@ private:
 	//キャラ移動コンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.MovementComp", meta = (AllowPrivateAccess = "true"))
 	UMoveComponent* MCC;
+
+
+
 
 
 };

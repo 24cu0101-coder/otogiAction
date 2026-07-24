@@ -7,7 +7,7 @@
 #include "NextAnimNotify.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "OtogiAction/PlayerCharacter/PlayerComponent/NormalAttack/NormalAttackComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/NormalAttack/NormalComboAttackComponent.h"
 
 void UNextAnimNotify::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
@@ -17,7 +17,7 @@ void UNextAnimNotify::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenc
 
 	if (AActor* OwnerActor = MeshComp->GetOwner())
 	{
-		if (UNormalAttackComponent* NAttackComp = OwnerActor->FindComponentByClass<UNormalAttackComponent>())
+		if (UNormalComboAttackComponent* NAttackComp = OwnerActor->FindComponentByClass<UNormalComboAttackComponent>())
 		{
 			if (UAbilitySystemComponent* ASComponent = NAttackComp->GetNAttackACS())
 			{
@@ -35,7 +35,7 @@ void UNextAnimNotify::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 	if (AActor* Owner = MeshComp->GetOwner())
 	{
-		if (UNormalAttackComponent* NAttackComp = Owner->FindComponentByClass<UNormalAttackComponent>())
+		if (UNormalComboAttackComponent* NAttackComp = Owner->FindComponentByClass<UNormalComboAttackComponent>())
 		{
 			if (UAbilitySystemComponent* ASC = NAttackComp->GetNAttackACS())
 			{

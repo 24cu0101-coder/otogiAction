@@ -61,6 +61,9 @@ protected:
 
 	void NAttackAbilityEnd();
 
+	UFUNCTION()
+	void LoopCount(FGameplayEventData Payload);
+
 
 	////次に再生するアニメーションのタグを渡す関数
 	//void NextNAttack(FGameplayEventData EventData);
@@ -90,6 +93,9 @@ protected:
 	//FGameplayTag IsNormalAttackTag;
 
 private:
+
+	int32 Count;
+	int32 Countlimit;
 
 
 

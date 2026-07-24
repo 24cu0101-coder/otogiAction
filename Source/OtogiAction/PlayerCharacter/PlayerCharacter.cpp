@@ -11,7 +11,7 @@
 #include "PlayerComponent/Camera/MoveCameraComponent.h"
 #include "PlayerComponent/PlayerDodgeComponent.h"
 #include "PlayerComponent/SkillComponent.h"
-#include "PlayerComponent/NormalAttack/NormalAttackComponent2.h"
+#include "PlayerComponent/NormalAttack/NormalComboAttackComponent.h"
 #include "PlayerComponent/StrongAttack/StrongAttackComponent.h"
 #include "PlayerComponent/StrongAttack/IaiAttackComponent.h"
 #include "../PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
@@ -82,7 +82,7 @@ APlayerCharacter::APlayerCharacter()
 
 
 	//通常攻撃コンポーネント生成
-	NormalAttackComp2 = CreateDefaultSubobject<UNormalAttackComponent2>(TEXT("NormalAtComp"));
+	NormalCombo = CreateDefaultSubobject<UNormalComboAttackComponent>(TEXT("NormalAtComp"));
 
 	//強攻撃コンポーネント生成
 	StrongAttackComp = CreateDefaultSubobject<UStrongAttackComponent>(TEXT("SAttackComp"));
@@ -211,7 +211,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::OnCameraMovement);;
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &APlayerCharacter::OnPlayerDodge);
 		//通常攻撃
-		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalAttack);
+		EnhancedInputComponent->BindAction(NormalAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnNormalCombo);
 		//強攻撃
 		EnhancedInputComponent->BindAction(SAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnStrongAttack);
 		//居合攻撃	
@@ -296,7 +296,7 @@ void APlayerCharacter::OnPlayerDodge(const FInputActionValue& Value)
 }       
 
 //
-void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value) 
+void APlayerCharacter::OnNormalCombo(const FInputActionValue& Value)
 {
 	//ダウン中なら移動入力を完全に無視する
 	if (HitReactionComp && HitReactionComp->IsStunned())
@@ -305,10 +305,10 @@ void APlayerCharacter::OnNormalAttack(const FInputActionValue& Value)
 	}
 
 	//通常攻撃コンポーネントがあったら
-	if (NormalAttackComp2)
+	if (NormalCombo)
 	{
 		//コンポーネントの処理実行
-		NormalAttackComp2->ExecuteNormalAttackAbility();
+		NormalCombo->ExecuteNormalAttackAbility();
 
 	}
 }

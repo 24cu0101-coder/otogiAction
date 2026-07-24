@@ -11,7 +11,10 @@
 //コンストラクタ
 UGANormalAttack::UGANormalAttack():
 	NAttackIndex(0),
-	NAttackASC(nullptr)
+	NAttackASC(nullptr),
+	Count(0),
+	Countlimit(3)
+
 {
 
 }
@@ -26,8 +29,34 @@ void UGANormalAttack::ActivateAbility(
 {
 	Super::ActivateAbility(NormalAttack, playerActorInfo, AvtivationInfo, DodgeTriggerEvent);
 
+	//アビリティシステムコンポーネントを取得
 	NAttackASC = GetAbilitySystemComponentFromActorInfo();
 			
+
+	//モンタージュのloopをcountするためのタグ
+	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("LoopCounter"));
+
+	//四段目のイベント
+	UAbilityTask_WaitGameplayEvent* SheathingEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		TargetTag,
+		nullptr,
+		false,
+		false
+	);
+
+	//アニメーションloopの際のイベントのタスクがあれば
+	if (SheathingEvent)
+	{
+		SheathingEvent->EventReceived.AddDynamic(this, &UGANormalAttack::LoopCount);
+
+		//UE_LOG(LogTemp, Warning, TEXT("yy"));
+
+		SheathingEvent->ReadyForActivation();
+
+	}
+
+
 	//アニメーションを再生する関数を呼ぶ
 	PlayNAttackMontage();
 }
@@ -79,4 +108,41 @@ void UGANormalAttack::NAttackMontageEnd()
 void UGANormalAttack::NAttackAbilityEnd()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+//loopのcountと脱出
+void UGANormalAttack::LoopCount(FGameplayEventData Payload)
+{
+	//loopのたびに加算
+	++Count;
+
+	//loopの限界を超えたら
+	if (Countlimit < Count)
+	{
+		//キャラクター取得
+		ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+
+		//キャラクターがあれば
+		if (Character)
+		{
+			//メッシュを取得
+			USkeletalMeshComponent* Mesh = Character->GetMesh();
+			//メッシュがあればq
+			if (Mesh)
+			{
+				//現在のアニメーションを取得
+				UAnimInstance* AnimInstance = Mesh->GetAnimInstance();
+
+				//原罪再生しているアニメーションがあれば
+				if (AnimInstance)
+				{
+					//loopのシーケンスを抜ける
+					AnimInstance->Montage_SetNextSection(FName("roop1"), FName("roop2"), CurrentMontage);
+
+					//countを初期化
+					Count = 0;
+				}
+			}
+		}
+	}
 }
