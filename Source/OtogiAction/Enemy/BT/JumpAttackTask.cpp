@@ -75,6 +75,8 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 			//上方向への飛び上がり速度（ここの数値（例: 800.f）でジャンプの高さを調整してください）
 			LaunchVelocity.Z = 800.0f;
+
+			EnemyCharacter->LaunchCharacter(LaunchVelocity,false,false);
 		}
 
 		//Blackboardの値をセット
