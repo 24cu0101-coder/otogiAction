@@ -10,6 +10,7 @@
 #include "../Orb/OrbActor.h"
 #include "Components/WidgetComponent.h"
 #include "../UI/EnemyHPWidget.h"
+#include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
 
 AMinionsCharacter::AMinionsCharacter()
 {
@@ -29,6 +30,9 @@ AMinionsCharacter::AMinionsCharacter()
 
 	//Audioコンポーネント
 	CharacterAudioComponent =CreateDefaultSubobject<UCharacterAudioComponent>(TEXT("CharacterAudioComponent"));
+
+	//SphereCollisonComponent
+	SphereCollisionComponent =CreateDefaultSubobject<USphereCollisionComponent>(TEXT("SphereCollisionComponent"));
 
 	//HPwidget
 	HPWidgetComponent =CreateDefaultSubobject<UWidgetComponent>(TEXT("HPWidget"));

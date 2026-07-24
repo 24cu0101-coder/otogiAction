@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	float Damage = 20.f;
 
+	//スタン値
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	float StunPoint = 10.f;
 
 	//前方向へのずらし
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
@@ -38,5 +41,7 @@ public:
 	//横方向へのずらし
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	float SideOffset = 0.f;
+
+
 
 };

@@ -89,6 +89,7 @@ public:
 class UStatusComponent;
 class UminionsAttackComponent;
 class UWidgetComponent;
+class USphereCollisionComponent;
 
 UCLASS()
 class OTOGIACTION_API AMinionsCharacter
@@ -142,6 +143,9 @@ public:
 	//Audio
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UCharacterAudioComponent* CharacterAudioComponent;
+
+	UPROPERTY()
+	USphereCollisionComponent* SphereCollisionComponent;
 
 	//====================
 	// Orb

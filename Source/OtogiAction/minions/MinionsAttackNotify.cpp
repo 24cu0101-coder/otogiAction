@@ -1,8 +1,8 @@
 #include "MinionsAttackNotify.h"
-#include "MinionsCharacter.h"
-#include "minionsAttackComponent.h"
 
-#include "GameFramework/Actor.h"
+#include "MinionsCharacter.h"
+
+#include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
 
 
 void UMinionsAttackNotify::Notify(
@@ -25,20 +25,30 @@ void UMinionsAttackNotify::Notify(
 	}
 
 
-	UminionsAttackComponent* AttackComponent =
-		Minions->FindComponentByClass<UminionsAttackComponent>();
+	USphereCollisionComponent* SphereCollision =
+		Minions->FindComponentByClass<USphereCollisionComponent>();
 
 
-	if (!AttackComponent)
+	if (!SphereCollision)
 	{
 		UE_LOG(LogTemp, Error,
-			TEXT("Minions AttackComponent Not Found"));
+			TEXT("SphereCollisionComponent Not Found"));
 
 		return;
 	}
 
 
-	AttackComponent->ExecuteAttackHit();
+	SphereCollision->ExcuteAreaAttack(
+		Radius,
+		FName("Player"),
+		Damage,
+		StunPoint, 
+		0.f,
+		1.f,             
+		ForwardOffset,
+		SideOffset
+	);
+
 
 	UE_LOG(LogTemp, Warning,
 		TEXT("Minions Attack Notify"));
