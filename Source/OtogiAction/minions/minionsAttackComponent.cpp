@@ -254,3 +254,68 @@ void UminionsAttackComponent::Attack()
 		ASC->TryActivateAbilitiesByTag(TargetTagContainer);
 	}
 }
+void UminionsAttackComponent::ExecuteAttackHit()
+{
+	AActor* OwnerActor = GetOwner();
+
+	if (!OwnerActor)
+	{
+		return;
+	}
+
+
+	FVector Center =
+		OwnerActor->GetActorLocation();
+
+
+	float Radius = 200.f;
+
+
+	DrawDebugSphere(
+		GetWorld(),
+		Center,
+		Radius,
+		24,
+		FColor::Red,
+		false,
+		1.f);
+
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(OwnerActor);
+
+
+	TArray<AActor*> OutActors;
+
+
+	UKismetSystemLibrary::SphereOverlapActors(
+		GetWorld(),
+		Center,
+		Radius,
+		{ UEngineTypes::ConvertToObjectType(ECC_Pawn) },
+		APlayerCharacter::StaticClass(),
+		IgnoreActors,
+		OutActors);
+
+
+
+	for (AActor* Actor : OutActors)
+	{
+		APlayerCharacter* Player =
+			Cast<APlayerCharacter>(Actor);
+
+
+		if (Player)
+		{
+			UGameplayStatics::ApplyDamage(
+				Player,
+				20.f,
+				OwnerActor->GetInstigatorController(),
+				OwnerActor,
+				UDamageType::StaticClass());
+
+
+			UE_LOG(LogTemp, Warning, TEXT("Notify Damage"));
+		}
+	}
+}

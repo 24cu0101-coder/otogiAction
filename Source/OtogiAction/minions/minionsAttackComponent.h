@@ -57,6 +57,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Attack();
 
+	void ExecuteAttackHit();
+
 private:
 	//ASC取得
 	UAbilitySystemComponent* GetASC()const;

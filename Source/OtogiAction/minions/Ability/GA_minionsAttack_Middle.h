@@ -7,6 +7,8 @@
 #include "Animation/AnimMontage.h"
 #include "GA_minionsAttack_Middle.generated.h"
 
+class UAbilityTask_PlayMontageAndWait;
+
 UCLASS()
 class OTOGIACTION_API UGA_minionsAttack_Middle : public UGameplayAbility
 {
@@ -23,11 +25,31 @@ public:
 		const FGameplayEventData* TriggerEventData
 	) override;
 
+
 protected:
-	//Montageセット
+
+	// 攻撃Montage
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> AttackMontage;
-	//ダメージセット
+
+
+	// ダメージ
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack")
 	float Damage = 20.f;
+
+
+	// Montage終了時
+	UFUNCTION()
+	void OnMontageCompleted();
+
+
+	UFUNCTION()
+	void OnMontageInterrupted();
+
+
+private:
+
+	FGameplayAbilitySpecHandle CurrentSpecHandle;
+	const FGameplayAbilityActorInfo* CurrentActorInfo;
+	FGameplayAbilityActivationInfo CurrentActivationInfo;
 };
