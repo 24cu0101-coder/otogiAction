@@ -34,6 +34,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PlayerActorKey;
 
+	// 攻撃タスクの header (.h) に追加
+	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 private:
 	// 攻撃終了時に呼ばれるコールバック関数
 	UFUNCTION()
@@ -46,4 +48,6 @@ private:
 
 	UBlackboardComponent* BBComp;
 
+	UPROPERTY()
+	TObjectPtr<UEnemyAttackBaseComponent> NewAttack;
 };

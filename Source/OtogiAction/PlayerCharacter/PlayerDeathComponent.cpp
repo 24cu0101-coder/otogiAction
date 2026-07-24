@@ -5,7 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
-//#include "../OrtogiGameMode.h"
+#include "../OtogiActionGameModeBase.h"
 
 // Sets default values for this component's properties
 UPlayerDeathComponent::UPlayerDeathComponent()
@@ -40,17 +40,13 @@ void UPlayerDeathComponent::Dead()
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character) return;
 
+	//復活時に使う新しいコントローラーを保持しておく
+	CachedController = Character->GetController();
+
 	if (UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance())
 	{
 		AnimInstance->Montage_Stop(0.1f);
 	}
-
-
-	//コリジョンを無効化
-	/*if (Character->GetCapsuleComponent())
-	{
-		Character->GetCapsuleComponent()->SetCollisionResponseToChannels(ECC_Pawn, ECR_Ignore);
-	}*/
 
 	//死亡モンタージュ再生
 	if (DeathMontage)
@@ -69,7 +65,7 @@ void UPlayerDeathComponent::Dead()
 	GetWorld()->GetTimerManager().SetTimer(
 		RespawnTimerHandle,
 		this,
-		&UPlayerDeathComponent::RespawnTimerStart,
+		&UPlayerDeathComponent::RespawnTimerend,
 		RespawnDelay,
 		false
 	);
@@ -79,16 +75,14 @@ void UPlayerDeathComponent::Dead()
 
 
 //リスポーン開始タイマー
-void UPlayerDeathComponent::RespawnTimerStart()
+void UPlayerDeathComponent::RespawnTimerend()
 {
-	ACharacter* Character = Cast<ACharacter>(GetOwner());
-	if (!Character) return;
-
-	AController* PC = Character->GetController();
-
-	/* //GameMode を取得してリスポーンを依頼
-	if (AOtogiGameMode* GM = Cast<AOtogiGameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+	//保持したコントローラーを付与して新しいプレイヤーのアクターを生成
+	if (AOtogiActionGameModeBase* GM = Cast<AOtogiActionGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
 	{
-		GM->RespawnPlayer(PC);
-	}*/
+		if (CachedController)
+		{
+			GM->RespawmPlayer(CachedController);
+		}
+	}
 }

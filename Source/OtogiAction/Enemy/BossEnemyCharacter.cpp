@@ -8,6 +8,8 @@
 #include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "../Component/UHitReactionBaseComponent.h"
+#include "BossEnemyHitReactionComponent.h"
 
 // Sets default values
 ABossEnemyCharacter::ABossEnemyCharacter()
@@ -23,6 +25,8 @@ ABossEnemyCharacter::ABossEnemyCharacter()
 		GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);	//旋回速度（度/秒）
 	}
 
+	//ヒットリアクションコンポーネント
+	HitReactionComp = CreateDefaultSubobject<UBossEnemyHitReactionComponent>(TEXT("HitReactionComp"));
 
 }
 
@@ -56,7 +60,7 @@ float ABossEnemyCharacter::GetPlayJumpAttackMontageTime()
 }
 
 //敵のスピードをセットする
-void ABossEnemyCharacter::SetMovementSpeed(float NewSpeed) 
+void ABossEnemyCharacter::SetMovementSpeed(float NewSpeed)
 {
 	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
 	{
@@ -66,7 +70,7 @@ void ABossEnemyCharacter::SetMovementSpeed(float NewSpeed)
 }
 
 //敵のスピードをゲットする
-float ABossEnemyCharacter::GetMovementSpeed()
+float ABossEnemyCharacter::GetMovementSpeed()const
 {
 	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
 	{
@@ -74,6 +78,18 @@ float ABossEnemyCharacter::GetMovementSpeed()
 		return MoveComp->MaxWalkSpeed;
 	}
 	return 0.0f;
+}
+
+//被弾しているかどうかを返す関数
+bool ABossEnemyCharacter::GetIsHitFlg()const
+{
+	return IsHit;
+}
+
+//被弾のフラグをセットする関数
+void ABossEnemyCharacter::SetIsHitFlg(bool NewFlg)
+{
+	IsHit = NewFlg;
 }
 
 //回転する関数
@@ -127,6 +143,9 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 		return 0.f;
 	}
 
+	//BehaviorTreeと同期させるため被弾フラグを立てる
+	IsHit = true;
+
 	//ダメージをHPから差し引く
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, 100.0f);
 
@@ -135,6 +154,7 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	//HPが0になったら死亡処理などを呼ぶ
 	if (HP <= 0.0f)
 	{
+		IsHit = false;
 		//死亡処理（Ragdoll化やデストロイなど）
 		Destroy();
 	}

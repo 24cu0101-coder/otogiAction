@@ -94,6 +94,37 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 }
 
 
+EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	AAIController* AIController = OwnerComp.GetAIOwner();
+	if (AIController)
+	{
+		//注視を解除
+		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+
+		ACharacter* BossEnemyCharacter = Cast<ACharacter>(AIController->GetPawn());
+		if (BossEnemyCharacter && BossEnemyCharacter->GetMesh())
+		{
+			if (UAnimInstance* AnimInstance = BossEnemyCharacter->GetMesh()->GetAnimInstance())
+			{
+				// 割込みが入ったら現在再生中の攻撃モンタージュを即座に停止する
+				AnimInstance->Montage_Stop(0.1f, nullptr); // 0.1秒でブレンドアウト
+			}
+		}
+	}
+
+	//Blackboardの攻撃可能フラグを下げておく
+	if (BBComp)
+	{
+		BBComp->SetValueAsBool(CanJumpAttackkey.SelectedKeyName, false);
+	}
+
+	//明示的にBTへ「中断完了」を伝える
+	FinishLatentTask(OwnerComp, EBTNodeResult::Aborted);
+
+	return EBTNodeResult::Aborted;
+}
+
 void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 {
 	//BTにタスクが完了したことを通知
