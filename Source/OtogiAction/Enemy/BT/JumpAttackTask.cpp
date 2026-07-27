@@ -38,6 +38,9 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 	CachedOwnerComp = &OwnerComp;
 
+	//デリゲートをバインド
+	NotifyHandle = EnemyCharacter->OnJumpAttackNotify.AddUObject(this, &UJumpAttackTask::OnHitNotifyReceived, &OwnerComp, EnemyCharacter);
+
 	//コンポーネントを動的に生成して、Pawnにアタッチする
 	UEnemyAttackBaseComponent* NewAttack = NewObject<UEnemyAttackBaseComponent>(EnemyPawn, AttackClass);
 	if (NewAttack)
@@ -95,6 +98,20 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 }
 
+//Notifyを受け取る関数
+void UJumpAttackTask::OnHitNotifyReceived(UBehaviorTreeComponent* OwnerComp, ABossEnemyCharacter* EnemyChar)
+{
+	if (!OwnerComp || !EnemyChar) return;
+
+	// 1. 重要：二重発火やメモリ残存を防ぐため真っ先にUnbind（解除）する
+	EnemyChar->OnJumpAttackNotify.Remove(NotifyHandle);
+
+	// 2. ヒット判定やダメージ適用処理（例: TraceやDamageの呼び出し）
+	// UE_LOG(LogTemp, Log, TEXT("C++: Attack Hit Notify Received!"));
+
+	// 3. Behavior Tree に Task 完了を伝える (Success)
+	FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
+}
 
 EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -104,13 +121,16 @@ EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp
 		//注視を解除
 		AIController->ClearFocus(EAIFocusPriority::Gameplay);
 
-		ACharacter* BossEnemyCharacter = Cast<ACharacter>(AIController->GetPawn());
-		if (BossEnemyCharacter && BossEnemyCharacter->GetMesh())
+		if (EnemyCharacter && EnemyCharacter->GetMesh())
 		{
-			if (UAnimInstance* AnimInstance = BossEnemyCharacter->GetMesh()->GetAnimInstance())
+			if (UAnimInstance* AnimInstance = EnemyCharacter->GetMesh()->GetAnimInstance())
 			{
+				// 安全のためデリゲート解除 & アニメーション停止
+				EnemyCharacter->OnJumpAttackNotify.Remove(NotifyHandle);
+
 				// 割込みが入ったら現在再生中の攻撃モンタージュを即座に停止する
 				AnimInstance->Montage_Stop(0.1f, nullptr); // 0.1秒でブレンドアウト
+
 			}
 		}
 	}
@@ -147,3 +167,4 @@ void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 		BBComp->SetValueAsBool(CanJumpAttackkey.SelectedKeyName, false);
 	}
 }
+

@@ -23,6 +23,9 @@ public:
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+	// 攻撃タスクの header (.h) に追加
+	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
 	// 実行したい攻撃コンポーネントのクラスをBT上で指定
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<UEnemyAttackBaseComponent> AttackClass;
@@ -39,13 +42,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector PlayerActorKey;
 
-	// 攻撃タスクの header (.h) に追加
-	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
 private:
 	// 攻撃終了時に呼ばれるコールバック関数
 	UFUNCTION()
 	void OnAttackCompleted(bool bSuccess);
+
+	//Notifyを受け取るコールバック関数
+	void OnHitNotifyReceived(UBehaviorTreeComponent* OwnerComp, ABossEnemyCharacter* EnemyChar);
 
 	// 現在実行中のタスクコンポーネントを保持
 	UPROPERTY()
@@ -56,4 +59,7 @@ private:
 	ABossEnemyCharacter* EnemyCharacter;
 	//MaxWalkSpeedの初期値を設定
 	float DefaultSpeed;
+
+	//JumpAttackデリゲートのハンドル
+	FDelegateHandle NotifyHandle;
 };

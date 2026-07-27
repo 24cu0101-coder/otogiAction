@@ -11,6 +11,9 @@
 class UBossEnemyHitReactionComponent;
 class UUHitReactionBaseComponent;
 
+//ジャンプアタックMontageでNotifyが作動したときのdelegate
+DECLARE_MULTICAST_DELEGATE(FOnJumpAttackNotifyDelegate);
+
 UCLASS()
 class OTOGIACTION_API ABossEnemyCharacter : public ACharacter
 {
@@ -19,6 +22,15 @@ class OTOGIACTION_API ABossEnemyCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ABossEnemyCharacter();
+
+	// AActorのTakeDamageをオーバーライド
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//パンチアタックMontageの再生時間を返す関数
 	float GetPlayPunchAttackMontageTime();
@@ -38,17 +50,12 @@ public:
 	//回転する関数
 	void RotateTowardsPlayer(float DeltaTime);
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	//JumpAttackNotifyから呼び出す関数
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void TriggerJumpAttack();
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	//敵のHP
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float HP;
 
@@ -73,8 +80,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReaction", meta = (AllowPrivateAccess = "true"))
 	UUHitReactionBaseComponent* HitReactionComp;
 
-	// AActorのTakeDamageをオーバーライド
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	//JumpAttackTaskからバインドするための公開デリゲート
+	FOnJumpAttackNotifyDelegate OnJumpAttackNotify;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 protected:
 	//パンチアタックMontageの変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")
