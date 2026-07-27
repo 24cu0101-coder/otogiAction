@@ -23,6 +23,9 @@ protected:
 	//スタンがマックスになったときに呼ばれる
 	virtual void OnStunMax() override;
 
+	//怯み値がマックスになったら呼ばれる
+	virtual void OnFearMax() override;
+
 	//通常ヒットリアクションを受けるかどうか
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Reaction")
 	bool bIsBoss = false;

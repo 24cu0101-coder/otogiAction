@@ -301,6 +301,10 @@ void UminionsAttackComponent::ExecuteAttackHit()
 
 	for (AActor* Actor : OutActors)
 	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("Hit Actor = %s"),
+			*Actor->GetName());
+
 		APlayerCharacter* Player =
 			Cast<APlayerCharacter>(Actor);
 

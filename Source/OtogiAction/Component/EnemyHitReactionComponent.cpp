@@ -21,16 +21,25 @@ void UEnemyHitReactionComponent::PlayHitReaction(float DamageAmount)
 {
 	//すでにスタンしていたら返す
 	if (bIsStunned)return;
+}
 
-	//通常攻撃で怯まないキャラクターならリターン
+//怯み値がマックスになったら怯む
+void UEnemyHitReactionComponent::OnFearMax()
+{
+	Super::OnFearMax();
+	//スタン中はスキップ
+	if (bIsStunned)return;
+
+	//ボスはスキップ
 	if (bIsBoss)return;
 
-	//ひるむキャラクターならひるませる
+	//怯みアニメーションの再生
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (Character && LightHitMontage)
 	{
 		Character->PlayAnimMontage(LightHitMontage);
 	}
+
 }
 
 //スタン値がマックスになったら大ダウンする関数

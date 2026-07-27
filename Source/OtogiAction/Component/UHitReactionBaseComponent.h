@@ -39,6 +39,8 @@ protected:
 	//スタン値が最大値まで行ったらスタンする
 	virtual void OnStunMax();
 
+	virtual void OnFearMax();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -50,6 +52,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stun")
 	float MaxStunPoint = 100.f;
 
+	//現在のスタン値
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stun")
+	float  CurrentStunPoint = 0.f;
+
+	//怯みのポイント
+	//超えたら怯む
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stun")
+	float MaxFearPoint = 50.f;
+
+	//現在の怯み値
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stun")
+	float CurrentFearPoint = 0.f;
+
 	//この時間が経過したらスタン値が回復し始める
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stun")
 	float StunRecoveryDelay = 3.f;
@@ -58,10 +73,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stun")
 	float StunRecoveryRate = 10.f;
 
-	//現在のスタン値
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stun")
-	float  CurrentStunPoint = 0.f;
-
+	
 	//スタンしているか
 	bool bIsStunned = false;
 

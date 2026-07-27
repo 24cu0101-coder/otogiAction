@@ -90,6 +90,8 @@ class UStatusComponent;
 class UminionsAttackComponent;
 class UWidgetComponent;
 class USphereCollisionComponent;
+class UMinionsHitReactionComponent;
+
 
 UCLASS()
 class OTOGIACTION_API AMinionsCharacter
@@ -147,6 +149,10 @@ public:
 	UPROPERTY()
 	USphereCollisionComponent* SphereCollisionComponent;
 
+	//HitReaction
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UMinionsHitReactionComponent* HitReactionComponent;
+
 	//====================
 	// Orb
 	//====================
@@ -173,4 +179,11 @@ public:
 
 	UFUNCTION()
 	void UpdateHPWidget(float CurrentHP);
+
+private:
+	bool bIsHit = false;
+
+public:
+	bool GetIsHitFlg() const { return bIsHit; }
+	void SetIsHitFlg(bool bHit) { bIsHit = bHit; }
 };

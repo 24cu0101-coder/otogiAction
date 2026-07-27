@@ -11,6 +11,8 @@
 #include "Components/WidgetComponent.h"
 #include "../UI/EnemyHPWidget.h"
 #include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
+#include "OtogiAction/minions/MinionsHitReactionComponent.h"
+
 
 AMinionsCharacter::AMinionsCharacter()
 {
@@ -33,6 +35,9 @@ AMinionsCharacter::AMinionsCharacter()
 
 	//SphereCollisonComponent
 	SphereCollisionComponent =CreateDefaultSubobject<USphereCollisionComponent>(TEXT("SphereCollisionComponent"));
+
+	//HitReaction
+	HitReactionComponent = CreateDefaultSubobject<UMinionsHitReactionComponent>(TEXT("HitReactionComponent"));
 
 	//HPwidget
 	HPWidgetComponent =CreateDefaultSubobject<UWidgetComponent>(TEXT("HPWidget"));
@@ -113,6 +118,16 @@ void AMinionsCharacter::GiveDefaultAbilities()
 }
 void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
 {
+	//Hitフラグ
+	SetIsHitFlg(true);
+
+
+	/* HitReaction開始
+	if (HitReactionComponent)
+	{
+		HitReactionComponent->PlayHitReaction(Damage);
+	}
+	*/
 	// 被弾音
 	if (CharacterAudioComponent)
 	{

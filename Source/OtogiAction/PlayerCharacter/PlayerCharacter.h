@@ -20,7 +20,7 @@ class UInputMappingContext;
 class UInputAction;
 
 class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
-class UNormalAttackComponent2;		//通常攻撃を実行するクラス(髙山)
+class UNormalComboAttackComponent;		//通常攻撃を実行するクラス(髙山)
 class UPlayerTargetComponent;
 class USkillComponent;
 class UAttackCollisionComponent;
@@ -107,7 +107,7 @@ private:
 
 	//通常攻撃コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NormalAttack", meta = (AllowPrivateAccess = "true"))
-	UNormalAttackComponent2* NormalAttackComp2;
+	UNormalComboAttackComponent* NormalCombo;
 
 	//強攻撃コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StrongAttack", meta = (AllowPrivateAccess = "true"))
@@ -230,7 +230,7 @@ protected:
 	void OnCharacterMovement(const FInputActionValue& Value);
 	void OnCameraMovement(const FInputActionValue& Value);
 	void OnPlayerDodge(const FInputActionValue& Value);		//(髙山)
-	void OnNormalAttack(const FInputActionValue& Value);	//(髙山)
+	void OnNormalCombo(const FInputActionValue& Value);	//(髙山)
 	void OnStrongAttack();									//(髙山)
 	void OnIaiAttack();										//(髙山)
 

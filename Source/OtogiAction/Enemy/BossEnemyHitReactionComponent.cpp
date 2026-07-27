@@ -12,47 +12,64 @@ UBossEnemyHitReactionComponent::UBossEnemyHitReactionComponent()
 
 }
 
-//ãƒªã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã®ãƒ¢ãƒ³ã‚¿ãƒ¼ã‚¸ãƒ¥å†ç”Ÿ
+//ƒŠƒAƒNƒVƒ‡ƒ“‚Ìƒ‚ƒ“ƒ^[ƒWƒ…Ä¶
 void UBossEnemyHitReactionComponent::PlayHitReaction(float DamageAmount)
 {
-	//ã™ã§ã«ã‚¹ã‚¿ãƒ³ã—ã¦ã„ãŸã‚‰è¿”ã™
-	if (bIsStunned)return;
+	////‚·‚Å‚ÉƒXƒ^ƒ“‚µ‚Ä‚¢‚½‚ç•Ô‚·
+	//if (bIsStunned)return;
 
-	//é€šå¸¸æ”»æ’ƒã§æ€¯ã¾ãªã„ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ãªã‚‰ãƒªã‚¿ãƒ¼ãƒ³
-	if (bIsBoss)return;
+	////’ÊíUŒ‚‚Å‹¯‚Ü‚È‚¢ƒLƒƒƒ‰ƒNƒ^[‚È‚çƒŠƒ^[ƒ“
+	//if (bIsBoss)return;
 
-	//ã“ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æ‰€æœ‰ã—ã¦ã„ã‚‹ã‚¢ã‚¯ã‚¿ãƒ¼ã‚’å–å¾—
-	AActor* OwnerActor = GetOwner();
+	////‚±‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğŠ—L‚µ‚Ä‚¢‚éƒAƒNƒ^[‚ğæ“¾
+	//AActor* OwnerActor = GetOwner();
 
-	//æ•µã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼å‹ã«ã‚­ãƒ£ã‚¹ãƒˆ
-	ABossEnemyCharacter* OwnerCharacter = Cast<ABossEnemyCharacter>(OwnerActor);
+	////“GƒLƒƒƒ‰ƒNƒ^[Œ^‚ÉƒLƒƒƒXƒg
+	//ABossEnemyCharacter* OwnerCharacter = Cast<ABossEnemyCharacter>(OwnerActor);
 
-	if (OwnerCharacter)
-	{
-		//æ•µã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ãƒ¡ãƒƒã‚·ãƒ¥å–å¾—
-		USkeletalMeshComponent* Mesh = OwnerCharacter->GetMesh();
-		if (!Mesh) return;
+	//if (OwnerCharacter)
+	//{
+	//	//“GƒLƒƒƒ‰ƒNƒ^[‚ÌƒƒbƒVƒ…æ“¾
+	//	USkeletalMeshComponent* Mesh = OwnerCharacter->GetMesh();
+	//	if (!Mesh) return;
 
-		if (Mesh->GetAnimInstance() && LightHitMontage)
-		{
-			//ãƒ¢ãƒ³ã‚¿ãƒ¼ã‚¸ãƒ¥å†ç”Ÿ
-			OwnerCharacter->PlayAnimMontage(LightHitMontage);
-		}
-	}
+	//	if (Mesh->GetAnimInstance() && LightHitMontage)
+	//	{
+	//		//ƒ‚ƒ“ƒ^[ƒWƒ…Ä¶
+	//		OwnerCharacter->PlayAnimMontage(LightHitMontage);
+	//	}
+	//}
 }
 
 void UBossEnemyHitReactionComponent::OnStunMax()
 {
-	//ã‚¹ã‚¿ãƒ³çŠ¶æ…‹ã«
+	//ƒXƒ^ƒ“ó‘Ô‚É
 	bIsStunned = true;
 	UE_LOG(LogTemp, Warning, TEXT("[%s] *** STUN MAXED OUT! ***"), *GetOwner()->GetName());
 
-	//ã‚¹ã‚¿ãƒ³å€¤ã‚¿ã‚¤ãƒãƒ¼ã®ãƒªã‚»ãƒƒãƒˆ
+	//ƒXƒ^ƒ“’lƒ^ƒCƒ}[‚ÌƒŠƒZƒbƒg
 	GetWorld()->GetTimerManager().ClearTimer(StunRecoveryTimerHandle);
 
 }
 
-//ã‚¹ã‚¿ãƒ³ã®ãƒªã‚»ãƒƒãƒˆé–¢æ•°
+void UBossEnemyHitReactionComponent::OnFearMax()
+{
+	Super::OnFearMax();
+	//ƒXƒ^ƒ“’†‚ÍƒXƒLƒbƒv
+	if (bIsStunned)return;
+
+	//ƒ{ƒX‚ÍƒXƒLƒbƒv
+	if (bIsBoss)return;
+
+	//‹¯‚İƒAƒjƒ[ƒVƒ‡ƒ“‚ÌÄ¶
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (Character && LightHitMontage)
+	{
+		Character->PlayAnimMontage(LightHitMontage);
+	}
+}
+
+//ƒXƒ^ƒ“‚ÌƒŠƒZƒbƒgŠÖ”
 void UBossEnemyHitReactionComponent::RecoverFromStun()
 {
 	ResetStun();
