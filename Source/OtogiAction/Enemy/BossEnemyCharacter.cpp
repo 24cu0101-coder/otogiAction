@@ -120,6 +120,13 @@ void ABossEnemyCharacter::RotateTowardsPlayer(float DeltaTime)
 	SetActorRotation(FRotator(0.0f, NewRotation.Yaw, 0.0f));
 }
 
+//JumpAttackNotify‚©‚çŒÄ‚Ño‚·ŠÖ”
+void ABossEnemyCharacter::TriggerJumpAttack()
+{
+	//Notify‚ªì“®‚µ‚½‚çdelegate‚ğ”­‰Î‚·‚é
+	OnJumpAttackNotify.Broadcast();
+}
+
 // Called every frame
 void ABossEnemyCharacter::Tick(float DeltaTime)
 {

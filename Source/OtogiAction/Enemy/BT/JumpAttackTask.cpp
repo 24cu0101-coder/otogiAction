@@ -38,6 +38,9 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 	CachedOwnerComp = &OwnerComp;
 
+	//デリゲートをバインド
+	NotifyHandle = EnemyCharacter->OnJumpAttackNotify.AddUObject(this, &UJumpAttackTask::OnHitNotifyReceived, &OwnerComp, EnemyCharacter);
+
 	//コンポーネントを動的に生成して、Pawnにアタッチする
 	UEnemyAttackBaseComponent* NewAttack = NewObject<UEnemyAttackBaseComponent>(EnemyPawn, AttackClass);
 	if (NewAttack)
@@ -52,31 +55,6 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		if (TargetActor)
 		{
 			EnemyController->SetFocus(TargetActor);
-		}
-
-		//プレイヤーへ飛びつく処理
-		{
-			//プレイヤーへの方向ベクトルを計算（水平方向のみ）
-			FVector StartLoc = EnemyCharacter->GetActorLocation();
-			FVector TargetLoc = PlayerCharacter->GetActorLocation();
-			FVector Dir = TargetLoc - StartLoc;
-			Dir.Z = 0.0f; // 上下の高低差は無視して水平の向きを出す
-			float HorizontalDistance = Dir.Size();
-			Dir.Normalize();
-
-			//アニメーションの時間を取得
-			float AnimationTime = EnemyCharacter->GetPlayJumpAttackMontageTime();
-			if (AnimationTime <= 0.0f) AnimationTime = 1.0f; // 安全対策
-
-			//水平方向と垂直方向（ジャンプの高さ）の速度を計算
-			// アニメーションの時間内にプレイヤーの元へ届く水平速度
-			float HorizontalVelocity = HorizontalDistance / AnimationTime;
-			FVector LaunchVelocity = Dir * HorizontalVelocity;
-
-			//上方向への飛び上がり速度（ここの数値（例: 800.f）でジャンプの高さを調整してください）
-			LaunchVelocity.Z = 800.0f;
-
-			EnemyCharacter->LaunchCharacter(LaunchVelocity,false,false);
 		}
 
 		//Blackboardの値をセット
@@ -95,6 +73,47 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 }
 
+//Notifyを受け取る関数
+void UJumpAttackTask::OnHitNotifyReceived(UBehaviorTreeComponent* OwnerComp, ABossEnemyCharacter* EnemyChar)
+{
+	if (!OwnerComp || !EnemyChar) return;
+
+	// 1. 重要：二重発火やメモリ残存を防ぐため真っ先にUnbind（解除）する
+	EnemyChar->OnJumpAttackNotify.Remove(NotifyHandle);
+
+	// 2. ヒット判定やダメージ適用処理（例: TraceやDamageの呼び出し）
+	// UE_LOG(LogTemp, Log, TEXT("C++: Attack Hit Notify Received!"));
+
+	// 3. Behavior Tree に Task 完了を伝える (Success)
+	FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
+}
+
+//プレイヤーへ飛びつく処理
+void UJumpAttackTask::JumpOn(ACharacter* PlayerCharacter)
+{
+	
+	//プレイヤーへの方向ベクトルを計算（水平方向のみ）
+	FVector StartLoc = EnemyCharacter->GetActorLocation();
+	FVector TargetLoc = PlayerCharacter->GetActorLocation();
+	FVector Dir = TargetLoc - StartLoc;
+	Dir.Z = 0.0f; // 上下の高低差は無視して水平の向きを出す
+	float HorizontalDistance = Dir.Size();
+	Dir.Normalize();
+
+	//アニメーションの時間を取得
+	float AnimationTime = EnemyCharacter->GetPlayJumpAttackMontageTime();
+	if (AnimationTime <= 0.0f) AnimationTime = 1.0f; // 安全対策
+
+	//水平方向と垂直方向（ジャンプの高さ）の速度を計算
+	// アニメーションの時間内にプレイヤーの元へ届く水平速度
+	float HorizontalVelocity = HorizontalDistance / AnimationTime;
+	FVector LaunchVelocity = Dir * HorizontalVelocity;
+
+	//上方向への飛び上がり速度（ここの数値（例: 800.f）でジャンプの高さを調整してください）
+	LaunchVelocity.Z = 800.0f;
+
+	EnemyCharacter->LaunchCharacter(LaunchVelocity, false, false);
+}
 
 EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -104,13 +123,16 @@ EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp
 		//注視を解除
 		AIController->ClearFocus(EAIFocusPriority::Gameplay);
 
-		ACharacter* BossEnemyCharacter = Cast<ACharacter>(AIController->GetPawn());
-		if (BossEnemyCharacter && BossEnemyCharacter->GetMesh())
+		if (EnemyCharacter && EnemyCharacter->GetMesh())
 		{
-			if (UAnimInstance* AnimInstance = BossEnemyCharacter->GetMesh()->GetAnimInstance())
+			if (UAnimInstance* AnimInstance = EnemyCharacter->GetMesh()->GetAnimInstance())
 			{
+				// 安全のためデリゲート解除 & アニメーション停止
+				EnemyCharacter->OnJumpAttackNotify.Remove(NotifyHandle);
+
 				// 割込みが入ったら現在再生中の攻撃モンタージュを即座に停止する
 				AnimInstance->Montage_Stop(0.1f, nullptr); // 0.1秒でブレンドアウト
+
 			}
 		}
 	}
@@ -147,3 +169,4 @@ void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 		BBComp->SetValueAsBool(CanJumpAttackkey.SelectedKeyName, false);
 	}
 }
+
