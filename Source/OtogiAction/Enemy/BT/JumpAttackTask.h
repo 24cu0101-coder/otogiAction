@@ -50,6 +50,9 @@ private:
 	//Notifyを受け取るコールバック関数
 	void OnHitNotifyReceived(UBehaviorTreeComponent* OwnerComp, ABossEnemyCharacter* EnemyChar);
 
+	//飛びつく処理
+	void JumpOn(ACharacter* PlayerCharacter);
+
 	// 現在実行中のタスクコンポーネントを保持
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;

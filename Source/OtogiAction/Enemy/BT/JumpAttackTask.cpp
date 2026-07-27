@@ -57,31 +57,6 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 			EnemyController->SetFocus(TargetActor);
 		}
 
-		//プレイヤーへ飛びつく処理
-		{
-			//プレイヤーへの方向ベクトルを計算（水平方向のみ）
-			FVector StartLoc = EnemyCharacter->GetActorLocation();
-			FVector TargetLoc = PlayerCharacter->GetActorLocation();
-			FVector Dir = TargetLoc - StartLoc;
-			Dir.Z = 0.0f; // 上下の高低差は無視して水平の向きを出す
-			float HorizontalDistance = Dir.Size();
-			Dir.Normalize();
-
-			//アニメーションの時間を取得
-			float AnimationTime = EnemyCharacter->GetPlayJumpAttackMontageTime();
-			if (AnimationTime <= 0.0f) AnimationTime = 1.0f; // 安全対策
-
-			//水平方向と垂直方向（ジャンプの高さ）の速度を計算
-			// アニメーションの時間内にプレイヤーの元へ届く水平速度
-			float HorizontalVelocity = HorizontalDistance / AnimationTime;
-			FVector LaunchVelocity = Dir * HorizontalVelocity;
-
-			//上方向への飛び上がり速度（ここの数値（例: 800.f）でジャンプの高さを調整してください）
-			LaunchVelocity.Z = 800.0f;
-
-			EnemyCharacter->LaunchCharacter(LaunchVelocity,false,false);
-		}
-
 		//Blackboardの値をセット
 		BBComp->SetValueAsBool(CanJumpAttackkey.SelectedKeyName, true);
 
@@ -111,6 +86,33 @@ void UJumpAttackTask::OnHitNotifyReceived(UBehaviorTreeComponent* OwnerComp, ABo
 
 	// 3. Behavior Tree に Task 完了を伝える (Success)
 	FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
+}
+
+//プレイヤーへ飛びつく処理
+void UJumpAttackTask::JumpOn(ACharacter* PlayerCharacter)
+{
+	
+	//プレイヤーへの方向ベクトルを計算（水平方向のみ）
+	FVector StartLoc = EnemyCharacter->GetActorLocation();
+	FVector TargetLoc = PlayerCharacter->GetActorLocation();
+	FVector Dir = TargetLoc - StartLoc;
+	Dir.Z = 0.0f; // 上下の高低差は無視して水平の向きを出す
+	float HorizontalDistance = Dir.Size();
+	Dir.Normalize();
+
+	//アニメーションの時間を取得
+	float AnimationTime = EnemyCharacter->GetPlayJumpAttackMontageTime();
+	if (AnimationTime <= 0.0f) AnimationTime = 1.0f; // 安全対策
+
+	//水平方向と垂直方向（ジャンプの高さ）の速度を計算
+	// アニメーションの時間内にプレイヤーの元へ届く水平速度
+	float HorizontalVelocity = HorizontalDistance / AnimationTime;
+	FVector LaunchVelocity = Dir * HorizontalVelocity;
+
+	//上方向への飛び上がり速度（ここの数値（例: 800.f）でジャンプの高さを調整してください）
+	LaunchVelocity.Z = 800.0f;
+
+	EnemyCharacter->LaunchCharacter(LaunchVelocity, false, false);
 }
 
 EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

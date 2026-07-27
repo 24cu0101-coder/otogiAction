@@ -8,6 +8,7 @@ void UStartJumpAttackNotify::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
 {
 	if (!MeshComp) return;
 
+	//BossEnemyクラスのdelegate関数を実行
 	ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(MeshComp->GetOwner());
 	EnemyCharacter->TriggerJumpAttack();
 }
