@@ -164,9 +164,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> PlayerHPWidgetClass;
 
-	//ターゲット
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target", meta = (AllowPrivateAccess = "true"))
-	UPlayerTargetComponent* TargetComp;
+	////ターゲット
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target", meta = (AllowPrivateAccess = "true"))
+	//UPlayerTargetComponent* TargetComp;
 
 	UPROPERTY()
 	UPlayerHPWidget* PlayerHPWidget;

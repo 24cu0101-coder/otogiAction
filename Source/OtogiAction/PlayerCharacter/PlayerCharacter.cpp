@@ -111,7 +111,7 @@ APlayerCharacter::APlayerCharacter()
 	HitStopComp = CreateDefaultSubobject<UHitStopComponent>(TEXT("HitStopComp"));
 
 	//ターゲットコンポーネント
-	TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
+	//TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
 
 	//ヒットリアクションコンポーネント
 	HitReactionComp = CreateDefaultSubobject<UHitReactionComponent>(TEXT("HitReactionComp"));
