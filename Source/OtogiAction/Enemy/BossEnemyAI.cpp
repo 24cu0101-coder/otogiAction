@@ -68,44 +68,7 @@ void ABossEnemyAI::Tick(float DeltaTime)
 {
 }
 
+//プレイヤーが視界内に入ったら動く関数
 void ABossEnemyAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	IsSightRangePlayerFlg = true;
-
-	// 検知したアクターがプレイヤーキャラクターか判定
-	ACharacter* PlayerCharacter = Cast<ACharacter>(Actor);
-	if (!PlayerCharacter || !PlayerCharacter->IsPlayerControlled()) return;
-
-	//親クラスからBlackboardを取得
-	UBlackboardComponent* BBComp = GetBlackboardComponent();
-	if (!BBComp) return;
-
-	//今操作している敵の本体を取得
-	EnemyCharacter = Cast<ABossEnemyCharacter>(GetPawn());
-
-
-	//視界に入ったかどうか
-	if (Stimulus.WasSuccessfullySensed())
-	{
-		//プレイヤーキャラクターをメンバ変数に保存
-		TargetActor = PlayerCharacter;
-
-		//プレイヤーを発見したら、そのアクター注視する
-		SetFocus(TargetActor);
-
-		//Blackboardにプレイヤーを登録
-		BBComp->SetValueAsObject(BBKeys::PlayerActor, TargetActor);
-
-	}
-	//視界外に出たら
-	else
-	{
-		//注視を解除
-		ClearFocus(EAIFocusPriority::Gameplay);
-
-		BBComp->ClearValue(BBKeys::PlayerActor);
-
-		TargetActor = nullptr;
-	}
-
 }
