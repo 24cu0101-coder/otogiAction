@@ -35,8 +35,10 @@ bool UAttackDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerC
 	UObject* TargetObject = BBComp->GetValueAsObject(FName("PlayerActor"));
 	AActor* TargetActor = Cast<AActor>(TargetObject);
 
+	//プレイヤーとの距離を算出
 	float Distance = FVector::Dist(EnemyCharacter->GetActorLocation(), PlayerCharacter->GetActorLocation());
 
+	//プレイヤーとの距離を判定
 	bool bInAttackRange = (Distance <= EnemyCharacter->AttackRange);
 
 	return bInAttackRange;
