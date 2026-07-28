@@ -13,7 +13,8 @@ UJumpAttackTask::UJumpAttackTask()
 
 	//時間を要するタスクであることを示すフラグを立てる
 	bNotifyTick = false;
-
+	//メンバ変数(CachedOwnerComp)に状態を保存するために必要
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -21,7 +22,7 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	AAIController* EnemyController = OwnerComp.GetAIOwner();
 
 	//AIControllerからBlackboardコンポーネントを取得
-	BBComp = EnemyController->GetBlackboardComponent();
+	UBlackboardComponent* BBComp = EnemyController->GetBlackboardComponent();
 	if (!BBComp) return EBTNodeResult::Failed;
 
 	if (!AttackClass) return EBTNodeResult::Failed;
@@ -29,7 +30,7 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	APawn* EnemyPawn = EnemyController ? EnemyController->GetPawn() : nullptr;
 	if (!EnemyPawn) return EBTNodeResult::Failed;
 
-	EnemyCharacter = Cast<ABossEnemyCharacter>(OwnerComp.GetAIOwner()->GetPawn());
+	ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(EnemyPawn);
 	if (!EnemyCharacter) return EBTNodeResult::Failed;
 
 	//BBKeys::PlayerActorからObjectを取得してキャスト
@@ -42,7 +43,7 @@ EBTNodeResult::Type UJumpAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	NotifyHandle = EnemyCharacter->OnJumpAttackNotify.AddUObject(this, &UJumpAttackTask::OnHitNotifyReceived, &OwnerComp, EnemyCharacter);
 
 	//コンポーネントを動的に生成して、Pawnにアタッチする
-	UEnemyAttackBaseComponent* NewAttack = NewObject<UEnemyAttackBaseComponent>(EnemyPawn, AttackClass);
+	UEnemyAttackBaseComponent* NewAttack = EnemyCharacter->FindComponentByClass<UEnemyAttackBaseComponent>();
 	if (NewAttack)
 	{
 		NewAttack->RegisterComponent();
@@ -78,20 +79,35 @@ void UJumpAttackTask::OnHitNotifyReceived(UBehaviorTreeComponent* OwnerComp, ABo
 {
 	if (!OwnerComp || !EnemyChar) return;
 
-	// 1. 重要：二重発火やメモリ残存を防ぐため真っ先にUnbind（解除）する
+	AAIController* EnemyController = CachedOwnerComp->GetAIOwner();
+
+	//AIControllerからBlackboardコンポーネントを取得
+	UBlackboardComponent* BBComp = EnemyController->GetBlackboardComponent();
+	if (!BBComp) return;
+
+	//二重発火やメモリ残存を防ぐため真っ先に解除する
 	EnemyChar->OnJumpAttackNotify.Remove(NotifyHandle);
 
-	// 2. ヒット判定やダメージ適用処理（例: TraceやDamageの呼び出し）
-	// UE_LOG(LogTemp, Log, TEXT("C++: Attack Hit Notify Received!"));
+	//BBKeys::PlayerActorからObjectを取得してキャスト
+	ACharacter* PlayerCharacter = Cast<ACharacter>(BBComp->GetValueAsObject(FName("PlayerActor")));
 
-	// 3. Behavior Tree に Task 完了を伝える (Success)
+	//ヒット判定やダメージ適用処理（例: TraceやDamageの呼び出し）
+	JumpOn(PlayerCharacter);
+
+	//Behavior Tree に Task 完了を伝える (Success)
 	FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
 }
 
 //プレイヤーへ飛びつく処理
 void UJumpAttackTask::JumpOn(ACharacter* PlayerCharacter)
 {
-	
+	AAIController* EnemyController = CachedOwnerComp->GetAIOwner();
+	APawn* EnemyPawn = EnemyController ? EnemyController->GetPawn() : nullptr;
+	if (!EnemyPawn) return;
+
+	ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(EnemyPawn);
+	if (!EnemyCharacter) return;
+
 	//プレイヤーへの方向ベクトルを計算（水平方向のみ）
 	FVector StartLoc = EnemyCharacter->GetActorLocation();
 	FVector TargetLoc = PlayerCharacter->GetActorLocation();
@@ -117,11 +133,21 @@ void UJumpAttackTask::JumpOn(ACharacter* PlayerCharacter)
 
 EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	AAIController* AIController = OwnerComp.GetAIOwner();
-	if (AIController)
+	AAIController* EnemyController = OwnerComp.GetAIOwner();
+
+	UBlackboardComponent* BBComp = EnemyController->GetBlackboardComponent();
+	if (!BBComp) return EBTNodeResult::Failed;
+
+	APawn* EnemyPawn = EnemyController ? EnemyController->GetPawn() : nullptr;
+	if (!EnemyPawn) return EBTNodeResult::Failed;
+
+	ABossEnemyCharacter* EnemyCharacter = Cast<ABossEnemyCharacter>(EnemyPawn);
+	if (!EnemyCharacter) return EBTNodeResult::Failed;
+
+	if (EnemyController)
 	{
 		//注視を解除
-		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+		EnemyController->ClearFocus(EAIFocusPriority::Gameplay);
 
 		if (EnemyCharacter && EnemyCharacter->GetMesh())
 		{
@@ -151,15 +177,19 @@ EBTNodeResult::Type UJumpAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp
 
 void UJumpAttackTask::OnAttackCompleted(bool bSuccess)
 {
+	AAIController* EnemyController = CachedOwnerComp->GetAIOwner();
+
+	UBlackboardComponent* BBComp = EnemyController->GetBlackboardComponent();
+	if (!BBComp) return;
+
 	//BTにタスクが完了したことを通知
 	EBTNodeResult::Type Result = bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 	FinishLatentTask(*CachedOwnerComp, Result);
 
-	AAIController* AIController = CachedOwnerComp->GetAIOwner();
-	if (AIController)
+	if (EnemyController)
 	{
 		//注視を解除
-		AIController->ClearFocus(EAIFocusPriority::Gameplay);
+		EnemyController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
 
 	if (BBComp)

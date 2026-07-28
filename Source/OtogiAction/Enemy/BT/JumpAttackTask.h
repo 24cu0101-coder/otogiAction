@@ -57,9 +57,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
 
-	UBlackboardComponent* BBComp;
-
-	ABossEnemyCharacter* EnemyCharacter;
 	//MaxWalkSpeedの初期値を設定
 	float DefaultSpeed;
 
