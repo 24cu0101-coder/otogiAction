@@ -122,12 +122,6 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 	SetIsHitFlg(true);
 
 
-	/* HitReaction開始
-	if (HitReactionComponent)
-	{
-		HitReactionComponent->PlayHitReaction(Damage);
-	}
-	*/
 	// 被弾音
 	if (CharacterAudioComponent)
 	{
@@ -144,76 +138,6 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 	// ダメージに応じたOrb生成
 	OrbSpawnComponent->SpawnOrbs(this,Damage);
 }
-/*void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
-{
-	//被弾音
-	if (CharacterAudioComponent)
-	{
-		CharacterAudioComponent->PlayCharacterSound(
-			ECharacterSoundType::Damage
-		);
-	}
-	if (!StatusComponent || !OrbSpawnComponent)
-	{
-		return;
-	}
-
-
-	// ダメージを受ける前のHP
-	float CurrentHP = StatusComponent->GetCurrentHP();
-
-
-	// 実際に減るHP以上のOrbを出さない
-	float ActualDamage = FMath::Min(Damage, CurrentHP);
-
-
-	// 10ダメージにつきOrb1個
-	int32 OrbCount = FMath::FloorToInt(ActualDamage / 10.f);
-
-
-	// 10未満のダメージでも最低1個
-	if (OrbCount <= 0)
-	{
-		OrbCount = 1;
-	}
-
-
-	// 最大Orb数を超えないように制限
-	int32 RemainingOrbCount = MaxOrbCount - SpawnedOrbCount;
-
-	OrbCount = FMath::Min(
-		OrbCount,
-		RemainingOrbCount
-	);
-
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("Minion Damage:%f CurrentHP:%f SpawnOrb:%d MaxOrb:%d"),
-		Damage,
-		CurrentHP,
-		OrbCount,
-		MaxOrbCount);
-
-
-	for (int32 i = 0; i < OrbCount; i++)
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("Spawn Orb %d"),
-			i);
-
-
-		AOrbActor* Orb = OrbSpawnComponent->SpawnOrb(10.f);
-
-		if (Orb)
-		{
-			// このMinionが出したOrbとして登録
-			Orb->SetOwnerEnemy(this);
-
-			// 出した数を加算
-			SpawnedOrbCount++;
-		}
-	}
-}*/
 
 //HPWidget
 void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
