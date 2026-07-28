@@ -17,8 +17,6 @@ bool UJumpAttackDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& Ow
     float TargetTime = BBComp->GetValueAsFloat(TargetTimeKey.SelectedKeyName);
     float CurrentTime = GetWorld()->GetTimeSeconds();
 
-    UE_LOG(LogTemp, Log, TEXT("TargetTime: %f, CurrentTime: %f"), TargetTime, CurrentTime);
-
     // タイマーが未設定（初期値 0.0f）なら条件不成立
     if (TargetTime <= 0.0f)
     {
