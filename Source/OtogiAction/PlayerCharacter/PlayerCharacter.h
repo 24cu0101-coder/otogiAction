@@ -35,6 +35,7 @@ class UUHitReactionBaseComponent;
 class UPlayerHPWidget;
 class USkillGaugeWidget;
 class UPlayerDeathComponent;
+class UPlayerTargetComponent;
 
 
 UCLASS()
@@ -163,6 +164,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> PlayerHPWidgetClass;
 
+	//ターゲット
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target", meta = (AllowPrivateAccess = "true"))
+	UPlayerTargetComponent* TargetComp;
+
 	UPROPERTY()
 	UPlayerHPWidget* PlayerHPWidget;
 
@@ -219,6 +224,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* AbsorbAction;
 
+	//ターゲット
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* TargetInput;
+
 	//げんざいのHP 
 	float PreviousHP;
 
@@ -242,6 +251,9 @@ protected:
 	void OnSkill4Pressed();
 
 	void OnAbsorb();
+
+	//ターゲット
+	void OnTarget();
 
 	//ハンドル関数
 	UFUNCTION()

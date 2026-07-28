@@ -110,6 +110,9 @@ APlayerCharacter::APlayerCharacter()
 	//ヒットストップコンポーネント
 	HitStopComp = CreateDefaultSubobject<UHitStopComponent>(TEXT("HitStopComp"));
 
+	//ターゲットコンポーネント
+	TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
+
 	//ヒットリアクションコンポーネント
 	HitReactionComp = CreateDefaultSubobject<UHitReactionComponent>(TEXT("HitReactionComp"));
 	//Audioコンポーネント
@@ -224,6 +227,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//オーブ吸う
 		EnhancedInputComponent->BindAction(AbsorbAction, ETriggerEvent::Started, this, &APlayerCharacter::OnAbsorb);
+
+		//ターゲット
+		EnhancedInputComponent->BindAction(TargetInput, ETriggerEvent::Started, this, &APlayerCharacter::OnTarget);
+
 	}
 
 }
@@ -402,6 +409,11 @@ void APlayerCharacter::OnAbsorb()
 			Orb->StartAbsorb(this);
 		}
 	}
+}
+
+void APlayerCharacter::OnTarget()
+{
+	TargetComp->ToggleTargetLock();
 }
 
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
