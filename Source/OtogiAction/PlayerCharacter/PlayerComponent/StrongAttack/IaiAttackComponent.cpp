@@ -61,7 +61,6 @@ void UIaiAttackComponent::ExecuteIaiAttackAbility()
 		//強攻撃アビリティがあるなら
 		if (IaiAttackAbility)
 		{
-			MCC->StartWarping(600.f);
 			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
 			//アビリティ実行
 			IaiAttackASC->TryActivateAbilityByClass(IaiAttackAbility);

@@ -10,7 +10,7 @@
 
 //クラス前方宣言
 class APlayerCharacter;
-
+class UPlayerTargetComponent;
 
 /**
  * 
@@ -65,17 +65,22 @@ protected:
 	UFUNCTION()
 	void RestartMontage();
 
-
-
-
 	UFUNCTION()
 	void Iaistep();
 
 	UFUNCTION()
-	void Rotate();
+	void Rotate(FVector TargetLocation);
 
 	UFUNCTION()
 	void Sheathing(FGameplayEventData Payload);
+
+
+	UFUNCTION()
+	//居合攻撃専用のワーピング処理
+	void IaiWarping();
+
+	UPROPERTY()
+	UPlayerTargetComponent* PlayerTargetComp;
 
 
 private:
@@ -95,6 +100,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "IaiAttackParameter", meta = (AllowPrivateAccess = "true"))
 	float IaiDelayTiem;
 
+	UPROPERTY()
+	AActor* WarpTargetActor = nullptr;
+
+
+	//このコンポーネントの持ち主
+	UPROPERTY()
+	ACharacter* OwnerCharacter;
 
 
 };

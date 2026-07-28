@@ -26,7 +26,10 @@ void UGASkillUrasima::ActivateAbility(
 
 	Super::ActivateAbility(TheWorld, playerActorInfo, AvtivationInfo, DodgeTriggerEvent);
 
+	//アビリティシステムコンポーネントを取得
 	UrasimaASC = GetAbilitySystemComponentFromActorInfo();
+
+
 
 	//アビリティシステムコンポーネントと、ゲームエフェクトがあるなら
 	if (UrasimaASC && TimeStopEffect)

@@ -31,13 +31,78 @@ void UGANormalAttack::ActivateAbility(
 
 	//アビリティシステムコンポーネントを取得
 	NAttackASC = GetAbilitySystemComponentFromActorInfo();
-			
 
+	//アビリティシステムコンポーネントがあれば
+	if (NAttackASC)
+	{
+		//アニメーションを再生する関数を呼ぶ
+		PlayNAttackMontage();
+
+
+		//アニメーションのループをカウントする処理を実行(対応アニメーションの場合だけ実行するように修正予定  本アニメーション次第では廃止)
+		SetLoopCountTask();
+
+		//アニメーションをスローにする処理を実行(本アニメーション次第では廃止)
+		SloawMontageTaskSet();
+	}
+	//アビリティシステムコンポーネントが無ければ
+	else
+	{
+		//return
+		return;
+	}
+}
+
+//アニメーション再生
+void UGANormalAttack::PlayNAttackMontage()
+{
+	//通常攻撃のモンタージュがあれば
+	if (NAttackMontages)
+	{
+		//ループのカウントを0に
+		Count = 0;
+
+		//アニメーション再生タスク
+		NAttackMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
+			(this, NAME_None, NAttackMontages);
+
+		//タスクがあれば
+		if (NAttackMontageTask)
+		{
+			//終了時に自動で呼ぶ
+			if (!NAttackMontageTask->OnCancelled.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
+			{
+				NAttackMontageTask->OnCompleted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+				NAttackMontageTask->OnInterrupted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+				NAttackMontageTask->OnCancelled.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+			}
+			if (!NAttackMontageTask->OnCompleted.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
+			{
+				NAttackMontageTask->OnCompleted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+				NAttackMontageTask->OnInterrupted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+				NAttackMontageTask->OnCancelled.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+			}
+			if (!NAttackMontageTask->OnInterrupted.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
+			{
+				NAttackMontageTask->OnCompleted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+				NAttackMontageTask->OnInterrupted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+				NAttackMontageTask->OnCancelled.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
+			}
+		}
+		//アニメーション再生
+		NAttackMontageTask->ReadyForActivation();
+
+	}
+}
+
+//loopをcountするタスクを設定する関数
+void UGANormalAttack::SetLoopCountTask()
+{
 	//モンタージュのloopをcountするためのタグ
 	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("LoopCounter"));
 
 	//四段目のイベント
-	UAbilityTask_WaitGameplayEvent* SheathingEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	SheathingEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
 		TargetTag,
 		nullptr,
@@ -48,66 +113,15 @@ void UGANormalAttack::ActivateAbility(
 	//アニメーションloopの際のイベントのタスクがあれば
 	if (SheathingEvent)
 	{
+		//ループをカウントする処理を実行するように設定
 		SheathingEvent->EventReceived.AddDynamic(this, &UGANormalAttack::LoopCount);
 
 		//UE_LOG(LogTemp, Warning, TEXT("yy"));
 
+		//実行
 		SheathingEvent->ReadyForActivation();
 
 	}
-
-
-	//アニメーションを再生する関数を呼ぶ
-	PlayNAttackMontage();
-}
-
-//アニメーション再生
-void UGANormalAttack::PlayNAttackMontage()
-{
-
-	if (NAttackMontages)
-	{
-
-		//アニメーション再生タスク
-		UAbilityTask_PlayMontageAndWait* NAttackMontageTask =
-			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-			(this, NAME_None, NAttackMontages);
-
-		//タスクがあれば
-		if (NAttackMontageTask)
-		{
-			//終了時に自動で呼ぶ
-			if (!NAttackMontageTask->OnCancelled.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
-			{
-				NAttackMontageTask->OnCancelled.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
-			}
-			if (!NAttackMontageTask->OnCompleted.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
-			{
-				NAttackMontageTask->OnCompleted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
-			}
-			if (!NAttackMontageTask->OnInterrupted.IsAlreadyBound(this, &UGANormalAttack::NAttackMontageEnd))
-			{
-				NAttackMontageTask->OnInterrupted.AddDynamic(this, &UGANormalAttack::NAttackMontageEnd);
-			}
-		}
-
-		//アニメーション再生
-		NAttackMontageTask->ReadyForActivation();
-
-	}
-}
-
-//モンタージュ終了時に呼び出す
-void UGANormalAttack::NAttackMontageEnd()
-{
-
-	NAttackAbilityEnd();
-}
-
-//アビリティ終了を終了する
-void UGANormalAttack::NAttackAbilityEnd()
-{
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 //loopのcountと脱出
@@ -140,9 +154,87 @@ void UGANormalAttack::LoopCount(FGameplayEventData Payload)
 					AnimInstance->Montage_SetNextSection(FName("roop1"), FName("roop2"), CurrentMontage);
 
 					//countを初期化
-					Count = 0;
+					Count = 0;			
+					SheathingEvent->EndTask();
 				}
 			}
 		}
 	}
 }
+
+//モンタージュの速度を遅くするイベントタスクを設定する関数
+void UGANormalAttack::SloawMontageTaskSet()
+{
+	//モンタージュの速度を遅くするためのタグ
+	FGameplayTag SlowTag = FGameplayTag::RequestGameplayTag(FName("SlowMontage"));
+
+	//slowになるイベント
+	SlowMontageEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		SlowTag,
+		nullptr,
+		false,
+		false
+	);
+
+	//アニメーションloopの際のイベントのタスクがあれば
+	if (SlowMontageEvent)
+	{
+
+		//SlowMontageEvent->EventReceived.AddDynamic(this, &UGANormalAttack::SloawMontage);
+
+
+		//SlowMontageEvent->ReadyForActivation();
+
+	}
+}
+
+//モンタージュの速度を下げる
+void UGANormalAttack::SloawMontage(FGameplayEventData Payload)
+{
+
+	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		//アニメーションインスタンスを取得
+		if (UAnimInstance* SAttackAnimInstance = Char->GetMesh()->GetAnimInstance())
+		{
+			//通常攻撃のアニメーションを再生するタスクがすでになければ
+			if (!NAttackMontageTask)
+			{					
+				//returnする	
+				return;
+			}
+
+			//アニメーションを止める
+			if (SAttackAnimInstance) {
+				SAttackAnimInstance->Montage_SetPlayRate(NAttackMontages, 0.01f);
+			}
+		}
+	}
+
+	//再生速度を下げるタスクがあるなら
+	if (SlowMontageEvent)
+	{
+		//タスクを終わらせる
+		SlowMontageEvent->EndTask();
+	}
+}
+
+void UGANormalAttack::EventTaskEnd(UAbilityTask_WaitGameplayEvent* EventTask)
+{
+	EventTask->EndTask();
+}
+
+
+//モンタージュ終了時に呼び出す
+void UGANormalAttack::NAttackMontageEnd()
+{
+	NAttackAbilityEnd();
+}
+
+//アビリティ終了を終了する
+void UGANormalAttack::NAttackAbilityEnd()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+

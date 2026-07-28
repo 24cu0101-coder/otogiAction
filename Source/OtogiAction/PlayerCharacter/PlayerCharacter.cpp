@@ -339,6 +339,9 @@ void APlayerCharacter::OnIaiAttack()
 	//居合攻撃コンポーネントがあったら
 	if (IaiAttackComp)
 	{
+
+		UE_LOG(LogTemp, Warning, TEXT("yfdsday"));
+
 		IaiAttackComp->ExecuteIaiAttackAbility();
 	}
 
