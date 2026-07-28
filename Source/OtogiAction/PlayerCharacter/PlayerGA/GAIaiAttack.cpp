@@ -5,6 +5,7 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "../PlayerComponent/PlayerTargetComponent.h"
 
 void UGAIaiAttack::ActivateAbility(const FGameplayAbilitySpecHandle IaiAttack,
 	const FGameplayAbilityActorInfo* playerActorInfo,
@@ -16,13 +17,19 @@ void UGAIaiAttack::ActivateAbility(const FGameplayAbilitySpecHandle IaiAttack,
 	//アビリティ取得
 	ASC = GetAbilitySystemComponentFromActorInfo();
 
+	//プレイヤーのキャラクターをキャスト
 	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	if (!ASC || !SheathingMontage || !IaiAttackMontage)
-	{
+	OwnerCharacter = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+
+
+	//	アビリティシステムコンポーネントとモンタージュ二つのどれか一つでもなかったら
+	if (!ASC || !SheathingMontage || !IaiAttackMontage)	{
+
 		//リターン
 		return;
 	}
+
 
 	//納刀時のタグ
 	FGameplayTag SheathingTag = FGameplayTag::RequestGameplayTag(FName("Iai.Sheathing"));
@@ -87,7 +94,7 @@ void UGAIaiAttack::PlayIaiAttackMontage()
 				IaiMontageTask->ReadyForActivation();
 
 				//アニメーションを止める
-				SAttackAnimInstance->Montage_SetPlayRate(IaiAttackMontage, 0.0001f);
+				SAttackAnimInstance->Montage_SetPlayRate(IaiAttackMontage, 0.001f);
 			}
 		}
 	}
@@ -98,11 +105,11 @@ void UGAIaiAttack::PlayIaiAttackMontage()
 void UGAIaiAttack::Iaistep()
 {
 	//世界からtimerをもらう
-	GetWorld()->GetTimerManager().SetTimer(IaiTimer, this, &UGAIaiAttack::RestartIaiAttackMontage, 0.001f, true);
+	//GetWorld()->GetTimerManager().SetTimer(IaiTimer, this, &UGAIaiAttack::RestartIaiAttackMontage, 0.001f, true);
 
 	FTimerHandle Timer;
 	//0.2秒後回転
-	GetWorld()->GetTimerManager().SetTimer(Timer, this, &UGAIaiAttack::Rotate, IaiTime, false);
+	GetWorld()->GetTimerManager().SetTimer(Timer, this, &UGAIaiAttack::IaiWarping, IaiTime, false);
 
 
 }
@@ -113,11 +120,9 @@ void UGAIaiAttack::RestartIaiAttackMontage()
 
 	//プレイヤーの情報と再生タスクが在れば
 	if (PlayerActor)
-	{
-		if (UCapsuleComponent* CapsuleComp = PlayerActor->GetCapsuleComponent())
-		{
-			CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		}
+	{	
+		UE_LOG(LogTemp, Warning, TEXT("dd"));
+
 
 		//プレイヤーの正面を取得
 		FVector IaiForward = PlayerActor->GetActorForwardVector();
@@ -139,16 +144,10 @@ void UGAIaiAttack::RestartIaiAttackMontage()
 
 }
 
-void UGAIaiAttack::Rotate()
+void UGAIaiAttack::Rotate(FVector TargetLocation)
 {
 	//タイマー停止
 	GetWorld()->GetTimerManager().ClearTimer(IaiTimer);
-
-	if (UCapsuleComponent* CapsuleComp = PlayerActor->GetCapsuleComponent())
-	{
-		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	}
-
 	//アニメーション再生タスク
 	UAbilityTask_PlayMontageAndWait* SheathingMontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
@@ -162,8 +161,6 @@ void UGAIaiAttack::Rotate()
 		SheathingMontageTask->OnCancelled.AddDynamic(this, &UGAIaiAttack::IaiAttackAbilityEnd);
 	}
 
-
-
 	//どちらかのタスクが無かったら
 	if (!SheathingMontageTask)
 	{
@@ -173,18 +170,46 @@ void UGAIaiAttack::Rotate()
 	//納刀アニメーション再生
 	SheathingMontageTask->ReadyForActivation();
 
+	RestartIaiAttackMontage();
 
-	//プレイヤーの角度を取得
-	FRotator IaiRotate = PlayerActor->GetActorRotation();
+	if (OwnerCharacter) {
 
-	//180度加算
-	IaiRotate.Yaw += 180.f;
-
-	//回転を加える
-	PlayerActor->SetActorRotation(IaiRotate);
-
+		//コリジョンを一瞬消す
+		if (UCapsuleComponent* CapsuleComp = PlayerActor->GetCapsuleComponent())
+		{
+			CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		}
 
 
+
+		//相手のアクターの角度を取得
+		FVector MyLoc = OwnerCharacter->GetActorLocation();
+		FVector Direction = TargetLocation - MyLoc;
+		Direction.Z = 0.f;
+		Direction.Normalize();
+
+		FRotator TargetRot = Direction.Rotation();
+
+		//アクターを回転
+		OwnerCharacter->SetActorRotation(TargetRot);
+
+
+	}
+
+	else
+	{
+
+
+
+		////プレイヤーの角度を取得
+		//FRotator IaiRotate = PlayerActor->GetActorRotation();
+
+		////180度加算
+		//IaiRotate.Yaw += 180.f;
+
+		////回転を加える
+		//PlayerActor->SetActorRotation(IaiRotate);
+	}
 }
 
 
@@ -199,7 +224,7 @@ void UGAIaiAttack::Sheathing(FGameplayEventData Payload)
 		if (UAnimInstance* SheathingAnimInstance = Char->GetMesh()->GetAnimInstance())
 		{
 			//再生速度を0にして止める
-			SheathingAnimInstance->Montage_SetPlayRate(SheathingMontage, 0.0001f);
+			SheathingAnimInstance->Montage_SetPlayRate(SheathingMontage, 0.001f);
 
 			FTimerHandle SheathingTimer;
 			//0.5秒後再生
@@ -207,6 +232,28 @@ void UGAIaiAttack::Sheathing(FGameplayEventData Payload)
 		}
 	}
 }
+
+//専用のワーピング処理をする
+void UGAIaiAttack::IaiWarping()
+{
+	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		PlayerTargetComp = Char->FindComponentByClass<UPlayerTargetComponent>();
+		if (PlayerTargetComp)
+		{
+			WarpTargetActor = PlayerTargetComp->GetSoftLockTarget(600.f);
+			if (WarpTargetActor)
+			{
+				Rotate(WarpTargetActor->GetActorLocation());
+			}
+			else
+			{
+				IaiAttackMontageEnd();
+			}
+		}
+	}
+}
+
 
 void UGAIaiAttack::RestartMontage()
 {
@@ -216,11 +263,7 @@ void UGAIaiAttack::RestartMontage()
 		//アニメーションインスタンスを取得
 		if (UAnimInstance* SheathingAnimInstance = Char->GetMesh()->GetAnimInstance())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("yy"));
-
-
-			//アニメーション速度を1にして再生
-			SheathingAnimInstance->Montage_SetPlayRate(SheathingMontage, 1.0f);
+			IaiAttackMontageEnd();
 		}
 	}
 }
@@ -240,5 +283,4 @@ void UGAIaiAttack::IaiAttackAbilityEnd()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 
 }
-
 

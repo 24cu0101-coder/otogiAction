@@ -55,9 +55,14 @@ public:
 	void TriggerJumpAttack();
 
 
-	//“G‚ÌHP
+	//“G‚ÌÅ‘åHP
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
-	float HP;
+	float MaxHP;
+	//“G‚ÌŒ»İHP
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "AI|Param")
+	float CurrentHP;
+
+
 
 	//“G‚ÌUŒ‚”ÍˆÍ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")

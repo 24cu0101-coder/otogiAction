@@ -125,7 +125,7 @@ void UJumpAttackTask::JumpOn(ACharacter* PlayerCharacter)
 	float HorizontalVelocity = HorizontalDistance / AnimationTime;
 	FVector LaunchVelocity = Dir * HorizontalVelocity;
 
-	//上方向への飛び上がり速度（ここの数値（例: 800.f）でジャンプの高さを調整してください）
+	//上方向への飛び上がり速度
 	LaunchVelocity.Z = 800.0f;
 
 	EnemyCharacter->LaunchCharacter(LaunchVelocity, false, false);

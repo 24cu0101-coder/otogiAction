@@ -14,7 +14,7 @@
 // Sets default values
 ABossEnemyCharacter::ABossEnemyCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationYaw = false;
@@ -34,7 +34,9 @@ ABossEnemyCharacter::ABossEnemyCharacter()
 void ABossEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	CurrentHP = MaxHP;
+
 }
 
 //パンチアタックMontageの再生時間を返す
@@ -154,12 +156,12 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	IsHit = true;
 
 	//ダメージをHPから差し引く
-	HP = FMath::Clamp(HP - ActualDamage, 0.0f, 100.0f);
+	CurrentHP = FMath::Clamp(CurrentHP - ActualDamage, 0.0f, MaxHP);
 
-	UE_LOG(LogTemp, Warning, TEXT("CurrentHP: %f"), HP);
+	UE_LOG(LogTemp, Warning, TEXT("CurrentHP: %f"), CurrentHP);
 
 	//HPが0になったら死亡処理などを呼ぶ
-	if (HP <= 0.0f)
+	if (CurrentHP <= 0.0f)
 	{
 		IsHit = false;
 		//死亡処理（Ragdoll化やデストロイなど）

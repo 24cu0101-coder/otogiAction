@@ -102,6 +102,8 @@ AActor* UPlayerTargetComponent::GetCloseEnemyInRadius(float Radius)
 	//スキャンに引っかかったEnemyをターゲットに暫定
 	if (bHit)
 	{
+
+
 		for (const FHitResult& Hit : HitResults)
 		{
 			AActor* HitActor = Hit.GetActor();
