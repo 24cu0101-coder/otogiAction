@@ -16,15 +16,16 @@ UEnemyAttackBaseComponent::UEnemyAttackBaseComponent()
 //攻撃開始時に呼ばれる関数
 void UEnemyAttackBaseComponent::ExecuteAttack()
 {
-	//通知を発火
-	OnReceiveCustomAttackNotify(TEXT("PunchAttack"));
+	//delegateの発火
+	if (StartAttackHandle.IsBound())
+	{
+		StartAttackHandle.Broadcast();
+	}
 }
 
 //攻撃終了時に呼ばれる関数
 void UEnemyAttackBaseComponent::FinishAttack(bool bSuccess)
 {
-	// イベントを発行して、待っているBTTask等に知らせる
-	OnAttackFinished.Broadcast(bSuccess);
 
 	// コンポーネント自身をオーナーから削除してメモリから解放する
 	DestroyComponent();

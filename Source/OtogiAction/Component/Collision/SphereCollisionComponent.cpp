@@ -9,6 +9,7 @@
 #include "../../PlayerCharacter/PlayerCharacter.h"
 #include "../../HitStopComponent.h"
 #include "../UHitReactionBaseComponent.h"
+#include "../../Enemy/EnemyAttackBaseComponent.h"
 
 // Sets default values for this component's properties
 USphereCollisionComponent::USphereCollisionComponent()
@@ -29,6 +30,19 @@ void USphereCollisionComponent::BeginPlay()
 
 	// ...
 	
+	//親クラス取得
+	AActor* OwnerActor = GetOwner();
+
+	if (OwnerActor)
+	{
+		UEnemyAttackBaseComponent* AttackBaseComp = OwnerActor->FindComponentByClass<UEnemyAttackBaseComponent>();
+
+		if (AttackBaseComp)
+		{
+			//関数をバインド
+			//AttackBaseComp->StartAttackHandle.AddUObject(this, &USphereCollisionComponent::ExcuteAreaAttack);
+		}
+	}
 }
 
 
@@ -39,6 +53,7 @@ void USphereCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 	// ...
 }
+
 
 void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage,float StunPoint, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset)
 {

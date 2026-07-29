@@ -16,11 +16,6 @@ class UBehaviorTree;
 class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 
-namespace BBKeys
-{
-	const FName PlayerActor = TEXT("PlayerActor");
-}
-
 UCLASS()
 class OTOGIACTION_API ABossEnemyAI : public AAIController
 {

@@ -6,8 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "EnemyAttackBaseComponent.generated.h"
 
-// 攻撃終了をBTTaskなどに通知するためのデリゲート
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttackFinishedSignature, bool, bSuccess);
+//攻撃開始時に発火するdelegate
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FExecuteAttackDelegate);
 
 UCLASS(Blueprintable, BlueprintType, meta = (BlueprintSpawnableComponent))
 class OTOGIACTION_API UEnemyAttackBaseComponent : public UActorComponent
@@ -26,9 +26,9 @@ public:
 	UFUNCTION(Blueprintcallable, Category = "Attack")
 	void FinishAttack(bool bSuccess);
 
-	//外部が終了を検知するためのイベント
+	//攻撃開始を外部に伝えるためのハンドル
 	UPROPERTY(BlueprintAssignable, Category = "Attack")
-	FAttackFinishedSignature OnAttackFinished;
+	FExecuteAttackDelegate StartAttackHandle;
 
 protected:
 	// Called when the game starts
@@ -41,8 +41,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	// Blueprint側でイベントとして実装（赤ノード化）できる関数
-	UFUNCTION(BlueprintImplementableEvent, Category = "Enemy|Attack")
-	void OnReceiveCustomAttackNotify(FName NotifyTag);
 };
