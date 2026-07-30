@@ -54,9 +54,9 @@ protected:
 	UFUNCTION()
 	void LoopCount(FGameplayEventData Payload);
 
-	//slowにするタスクを設定する
-	UFUNCTION()
-	void SloawMontageTaskSet();
+	////slowにするタスクを設定する
+	//UFUNCTION()
+	//void SloawMontageTaskSet();
 
 	UFUNCTION()
 	void SloawMontage(FGameplayEventData Payload);

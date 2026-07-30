@@ -8,6 +8,9 @@
 #include "OtogiAction/PlayerCharacter/PlayerComponent/BaseAttackComponent.h"
 #include "IaiAttackComponent.generated.h"
 
+class UInputBufferComponent;
+
+
 /**
  * 
  */
@@ -39,15 +42,25 @@ public:
 	//アビリティのハンドル
 	FGameplayAbilitySpecHandle IaiHandle;
 
+	UFUNCTION()
 	//強攻撃アビリティを実行する
 	void ExecuteIaiAttackAbility();
 
-
 private:
+	
+
+	UFUNCTION()
+
+	void ExecuteIaiAttackAbility2();
+
+
 	//キャラ移動コンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "IaiAttack.MovementComp", meta = (AllowPrivateAccess = "true"))
 	UMoveComponent* MCC;
 
+	//先行入力のコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "IaiAttack.InputBufferComp", meta = (AllowPrivateAccess = "true"))
+	UInputBufferComponent* IaiAttackInputBufferComp;
 
 
 };
