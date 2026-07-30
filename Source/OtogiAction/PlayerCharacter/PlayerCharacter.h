@@ -36,7 +36,7 @@ class UPlayerHPWidget;
 class USkillGaugeWidget;
 class UPlayerDeathComponent;
 class UPlayerTargetComponent;
-
+class USkillCircle;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -180,6 +180,13 @@ private:
 
 	UPROPERTY()
 	USkillGaugeWidget* SkillGaugeWidget;
+
+	//SKillCircle
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf < USkillCircle > SkillCircleClass;
+
+	UPROPERTY()
+	USkillCircle* SkillCircle;
 
 
 	//-------------------------
