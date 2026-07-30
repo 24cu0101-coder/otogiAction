@@ -95,7 +95,8 @@ private:
 	//回避時間
 	FTimerHandle DodgeTimer;
 
-
+	UFUNCTION()
+	void StickRotate();
 
 	
 };

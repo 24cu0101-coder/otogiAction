@@ -43,7 +43,7 @@ void UGANormalAttack::ActivateAbility(
 		SetLoopCountTask();
 
 		//アニメーションをスローにする処理を実行(本アニメーション次第では廃止)
-		SloawMontageTaskSet();
+		//SloawMontageTaskSet();
 	}
 	//アビリティシステムコンポーネントが無ければ
 	else
@@ -163,31 +163,31 @@ void UGANormalAttack::LoopCount(FGameplayEventData Payload)
 }
 
 //モンタージュの速度を遅くするイベントタスクを設定する関数
-void UGANormalAttack::SloawMontageTaskSet()
-{
-	//モンタージュの速度を遅くするためのタグ
-	FGameplayTag SlowTag = FGameplayTag::RequestGameplayTag(FName("SlowMontage"));
-
-	//slowになるイベント
-	SlowMontageEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-		this,
-		SlowTag,
-		nullptr,
-		false,
-		false
-	);
-
-	//アニメーションloopの際のイベントのタスクがあれば
-	if (SlowMontageEvent)
-	{
-
-		//SlowMontageEvent->EventReceived.AddDynamic(this, &UGANormalAttack::SloawMontage);
-
-
-		//SlowMontageEvent->ReadyForActivation();
-
-	}
-}
+//void UGANormalAttack::SloawMontageTaskSet()
+//{
+//	//モンタージュの速度を遅くするためのタグ
+//	FGameplayTag SlowTag = FGameplayTag::RequestGameplayTag(FName("SlowMontage"));
+//
+//	//slowになるイベント
+//	SlowMontageEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+//		this,
+//		SlowTag,
+//		nullptr,
+//		false,
+//		false
+//	);
+//
+//	//アニメーションloopの際のイベントのタスクがあれば
+//	if (SlowMontageEvent)
+//	{
+//
+//		//SlowMontageEvent->EventReceived.AddDynamic(this, &UGANormalAttack::SloawMontage);
+//
+//
+//		//SlowMontageEvent->ReadyForActivation();
+//
+//	}
+//}
 
 //モンタージュの速度を下げる
 void UGANormalAttack::SloawMontage(FGameplayEventData Payload)
