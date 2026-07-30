@@ -18,7 +18,6 @@ void UMinionsIsHitService::TickNode(
 	uint8* NodeMemory,
 	float DeltaSeconds)
 {
-	UE_LOG(LogTemp, Warning, TEXT("========== SERVICE RUN =========="));
 
 	Super::TickNode(
 		OwnerComp,
@@ -50,8 +49,8 @@ void UMinionsIsHitService::TickNode(
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Service Tick"));
-	UE_LOG(LogTemp, Warning, TEXT("IsHit = %d"), Minions->GetIsHitFlg());
+	/*UE_LOG(LogTemp, Warning, TEXT("Service Tick"));
+	UE_LOG(LogTemp, Warning, TEXT("IsHit = %d"), Minions->GetIsHitFlg());*/
 
 	BBComp->SetValueAsBool(
 		IsHitKey.SelectedKeyName,

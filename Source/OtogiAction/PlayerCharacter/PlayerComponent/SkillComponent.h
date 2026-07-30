@@ -62,4 +62,6 @@ public:
 	//押したボタンによってスキルを発動する
 	void RequestSkillTrigger(int32 ButtonIndex);
 
+	int32 GetCurrentGroupPointer() const { return CurrentGroupPointer; }
+
 };

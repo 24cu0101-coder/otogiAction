@@ -2,6 +2,9 @@
 
 
 #include "GAPlayerDodge.h"
+#include "EnhancedInputSubsystems.h"
+#include "GameFramework/PlayerController.h"
+#include "EnhancedInputComponent.h"
 #include "AbilitySystemComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
@@ -38,6 +41,7 @@ void UGAPlayerDodge::ActivateAbility(
 	//タグ登録
 	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));	
 
+	StickRotate();
 
 	//回避開始までのタイマー
 	FTimerHandle DodgeDelayTimer;
@@ -114,8 +118,6 @@ void UGAPlayerDodge::IsDodge()
 //回避終了時の処理
 void UGAPlayerDodge::DodgeEnd()
 {
-
-
 	//timer破棄
 	GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
 
@@ -123,14 +125,57 @@ void UGAPlayerDodge::DodgeEnd()
 	DodgeMontageEnd();
 }
 
-
-
 //モンタージュ終了
 void UGAPlayerDodge::DodgeMontageEnd()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
- 
+
+void UGAPlayerDodge::StickRotate()
+{
+	APlayerController* PC = Cast<APlayerController>(PlayerActor->GetController());
+	if (!PC) return;
+
+	// スティックの入力状態を取得
+	float X = PC->GetInputAnalogKeyState(EKeys::Gamepad_LeftX);
+	float Y = PC->GetInputAnalogKeyState(EKeys::Gamepad_LeftY);
+
+	// キーボード（WASD）フォールバック
+	if (FMath::IsNearlyZero(X) && FMath::IsNearlyZero(Y))
+	{
+		if (PC->IsInputKeyDown(EKeys::D)) X += 1.f;
+		if (PC->IsInputKeyDown(EKeys::A)) X -= 1.f;
+		if (PC->IsInputKeyDown(EKeys::W)) Y += 1.f;
+		if (PC->IsInputKeyDown(EKeys::S)) Y -= 1.f;
+	}
+
+	FVector2D MovementVector(X, Y);
+
+	if (!MovementVector.IsNearlyZero())
+	{
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+		FRotator CameraYawRotation(0.f, CameraRotation.Yaw, 0.f);
+
+		FVector CameraForward = CameraYawRotation.Vector(); // カメラの正面方向
+		FVector CameraRight = FRotationMatrix(CameraYawRotation).GetScaledAxis(EAxis::Y); // カメラの右方向
+
+		FVector WorldDirection = (CameraForward * Y) + (CameraRight * X);
+		WorldDirection.Z = 0.f; 
+
+		FRotator TargetRotation = WorldDirection.Rotation();
+
+		PlayerActor->SetActorRotation(TargetRotation, ETeleportType::TeleportPhysics);
+
+		if (UCharacterMovementComponent* MoveComp = PlayerActor->GetCharacterMovement())
+		{
+			MoveComp->UpdatedComponent->SetWorldRotation(TargetRotation);
+		}
+	}
+}
+
  
  
 //-----------------------------------------------------------------------------------------------------

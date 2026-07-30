@@ -86,7 +86,9 @@ protected:
 private:
 
 	FTimerHandle IaiTimer;
-
+	
+	//キャラクターのアクター変数
+	ACharacter* Char;
 
 	//stepの距離
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "IaiAttackParameter", meta = (AllowPrivateAccess = "true"))
@@ -110,5 +112,8 @@ private:
 
 	UFUNCTION()
 	void PlayerVisible(bool Visible);
+
+	UFUNCTION()
+	void IaiVisible();
 
 };

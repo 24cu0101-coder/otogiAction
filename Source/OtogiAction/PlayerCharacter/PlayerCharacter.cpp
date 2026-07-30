@@ -26,6 +26,7 @@
 #include "../Component/UHitReactionBaseComponent.h"
 #include "OtogiAction/UI/PlayerHPWidget.h"
 #include "OtogiAction/UI/SkillGaugeWidget.h"
+#include "OtogiAction/UI/SkillCircle.h"
 #include"PlayerDeathComponent.h"
 
 //コンストラクタ
@@ -187,6 +188,18 @@ void APlayerCharacter::BeginPlay()
 		}
 	}
 
+	//SkillCircle表示
+	if (SkillCircleClass)
+	{
+		SkillCircle = CreateWidget<USkillCircle>(
+			GetWorld(),
+			SkillCircleClass);
+
+		if (SkillCircle)
+		{
+			SkillCircle->AddToViewport();
+		}
+	}
 	if (StatusComp)
 	{
 		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::OnPlayerDamaged);
@@ -359,13 +372,23 @@ void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 {
 	if (SkillComp)
 	{
-		//スキルの切り替え
 		float AxsisValue = Value.Get<float>();
+
 		int32 Direction = AxsisValue > 0.f ? 1 : -1;
+
+		//スキル選択を変更
 		SkillComp->SwitchSkillGroup(Direction);
+
+
+		//CIrcleを回す
+		if (SkillCircle)
+		{
+			SkillCircle->UpdateSkillCircle(
+				SkillComp->GetCurrentGroupPointer()
+			);
+		}
 	}
 }
-
 //スキルの発動
 void APlayerCharacter::OnSkill1Pressed()
 {

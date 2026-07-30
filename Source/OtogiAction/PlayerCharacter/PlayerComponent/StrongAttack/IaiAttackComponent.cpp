@@ -7,12 +7,17 @@
 #include "Kismet/GameplayStatics.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "../Move/MoveComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
+
 
 UIaiAttackComponent::UIaiAttackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("SAMC"));
+
+	IaiAttackInputBufferComp = CreateDefaultSubobject<UInputBufferComponent>(TEXT("IaiAttacksInputBufferComp"));
+
 }
 
 
@@ -43,9 +48,20 @@ void UIaiAttackComponent::BeginPlay()
 	}
 
 }
-
-
 void UIaiAttackComponent::ExecuteIaiAttackAbility()
+{
+	if (IaiAttackInputBufferComp)
+	{
+		IaiAttackInputBufferComp->KeepOrExeFunction([this]()
+			{
+				ExecuteIaiAttackAbility2();
+			});
+	}
+
+}
+
+
+void UIaiAttackComponent::ExecuteIaiAttackAbility2()
 {
 	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
 

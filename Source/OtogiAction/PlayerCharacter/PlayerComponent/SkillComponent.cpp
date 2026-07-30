@@ -48,6 +48,7 @@ void USkillComponent::SwitchSkillGroup(int32 Direction)
 
 	//現在のスキル群をログで出力
 	UE_LOG(LogTemp, Log, TEXT("Current Skill Group pointer %d"), CurrentGroupPointer);
+
 }
 
 void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
