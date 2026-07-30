@@ -6,9 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "EnemyAttackBaseComponent.generated.h"
 
-//攻撃開始時に発火するdelegate
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FExecuteAttackDelegate);
-
 UCLASS(Blueprintable, BlueprintType, meta = (BlueprintSpawnableComponent))
 class OTOGIACTION_API UEnemyAttackBaseComponent : public UActorComponent
 {
@@ -24,11 +21,7 @@ public:
 
 	//攻撃が終了したときに呼び出す関数
 	UFUNCTION(Blueprintcallable, Category = "Attack")
-	void FinishAttack(bool bSuccess);
-
-	//攻撃開始を外部に伝えるためのハンドル
-	UPROPERTY(BlueprintAssignable, Category = "Attack")
-	FExecuteAttackDelegate StartAttackHandle;
+	virtual void FinishAttack(bool bSuccess);
 
 protected:
 	// Called when the game starts

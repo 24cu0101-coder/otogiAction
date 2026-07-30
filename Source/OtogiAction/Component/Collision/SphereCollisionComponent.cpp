@@ -31,18 +31,6 @@ void USphereCollisionComponent::BeginPlay()
 	// ...
 	
 	//親クラス取得
-	AActor* OwnerActor = GetOwner();
-
-	if (OwnerActor)
-	{
-		UEnemyAttackBaseComponent* AttackBaseComp = OwnerActor->FindComponentByClass<UEnemyAttackBaseComponent>();
-
-		if (AttackBaseComp)
-		{
-			//関数をバインド
-			//AttackBaseComp->StartAttackHandle.AddUObject(this, &USphereCollisionComponent::ExcuteAreaAttack);
-		}
-	}
 }
 
 
