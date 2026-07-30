@@ -22,6 +22,7 @@ void UGAIaiAttack::ActivateAbility(const FGameplayAbilitySpecHandle IaiAttack,
 
 	OwnerCharacter = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 
+	Char = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 
 	//	アビリティシステムコンポーネントとモンタージュ二つのどれか一つでもなかったら
 	if (!ASC || !SheathingMontage || !IaiAttackMontage)
@@ -51,16 +52,10 @@ void UGAIaiAttack::ActivateAbility(const FGameplayAbilitySpecHandle IaiAttack,
 
 		//UE_LOG(LogTemp, Warning, TEXT("yy"));
 
-
 		SheathingEvent->ReadyForActivation();
-
 	}
-
-
-
 	//アニメーション再生
 	PlayIaiAttackMontage();
-
 }
 
 void UGAIaiAttack::PlayIaiAttackMontage()
@@ -86,7 +81,7 @@ void UGAIaiAttack::PlayIaiAttackMontage()
 		}
 
 
-		if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+		if (Char)
 		{
 			//アニメーションインスタンスを取得
 			if (UAnimInstance* SAttackAnimInstance = Char->GetMesh()->GetAnimInstance())
@@ -108,10 +103,13 @@ void UGAIaiAttack::Iaistep()
 	//世界からtimerをもらう
 	//GetWorld()->GetTimerManager().SetTimer(IaiTimer, this, &UGAIaiAttack::RestartIaiAttackMontage, 0.001f, true);
 
-	FTimerHandle Timer;
-	//0.2秒後回転
-	GetWorld()->GetTimerManager().SetTimer(Timer, this, &UGAIaiAttack::IaiWarping, IaiTime, false);
+	FTimerHandle VisibleTimer;
+	//0.2秒後、消える
+	GetWorld()->GetTimerManager().SetTimer(VisibleTimer, this, &UGAIaiAttack::IaiVisible, IaiTime, false);
 
+	FTimerHandle WarpingTimer;
+	//1秒後現れる
+	GetWorld()->GetTimerManager().SetTimer(WarpingTimer, this, &UGAIaiAttack::IaiWarping, IaiTime + 0.1f, false);
 
 }
 
@@ -189,10 +187,7 @@ void UGAIaiAttack::Rotate(FVector TargetLocation)
 		Direction.Normalize();
 
 		FRotator TargetRot = Direction.Rotation();
-
-		//アクターを回転
-		OwnerCharacter->SetActorRotation(TargetRot);
-
+		TargetRot.Yaw += 180.f;
 
 		//RestartIaiAttackMontage();
 
@@ -200,6 +195,9 @@ void UGAIaiAttack::Rotate(FVector TargetLocation)
 		IaiLocation.Z = MyLoc.Z;
 
 		OwnerCharacter->SetActorLocation(IaiLocation, false);
+
+		//アクターを回転
+		OwnerCharacter->SetActorRotation(TargetRot);
 
 	}
 
@@ -225,7 +223,7 @@ void UGAIaiAttack::Rotate(FVector TargetLocation)
 void UGAIaiAttack::Sheathing(FGameplayEventData Payload)
 {
 
-	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	if (Char)
 	{
 		//アニメーションインスタンスを取得
 		if (UAnimInstance* SheathingAnimInstance = Char->GetMesh()->GetAnimInstance())
@@ -243,7 +241,9 @@ void UGAIaiAttack::Sheathing(FGameplayEventData Payload)
 //専用のワーピング処理をする
 void UGAIaiAttack::IaiWarping()
 {
-	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	PlayerVisible(true);
+
+	if (Char)
 	{
 		PlayerTargetComp = Char->FindComponentByClass<UPlayerTargetComponent>();
 		if (PlayerTargetComp)
@@ -266,7 +266,7 @@ void UGAIaiAttack::IaiWarping()
 //プレイヤーの姿を切り替える
 void UGAIaiAttack::PlayerVisible(bool Visible)
 {
-	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	if (Char)
 	{
 		if (USkeletalMeshComponent* Mesh = Char->GetMesh())
 		{
@@ -275,11 +275,16 @@ void UGAIaiAttack::PlayerVisible(bool Visible)
 	}
 }
 
+//姿を消す関数
+void UGAIaiAttack::IaiVisible()
+{
+	PlayerVisible(false);
+}
+
 
 void UGAIaiAttack::RestartMontage()
 {
-
-	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	if (Char)
 	{
 		//アニメーションインスタンスを取得
 		if (UAnimInstance* SheathingAnimInstance = Char->GetMesh()->GetAnimInstance())
