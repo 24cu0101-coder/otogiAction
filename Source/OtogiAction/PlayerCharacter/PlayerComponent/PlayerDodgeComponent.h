@@ -10,6 +10,8 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "PlayerDodgeComponent.generated.h"
 
+class UInputBufferComponent;
+;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UPlayerDodgeComponent : public UActorComponent
@@ -54,8 +56,16 @@ public:
 	//アビリティを呼び出す関数
 	void ExecuteAbility();
 
+	void ExecuteAbility2();
+
 	//AbilitySystemInterfaceのゲッター関数
 	UAbilitySystemComponent* GetDodgeAbilirtSystemComponent();
+
+private:
+
+	//先行入力のコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge.InputBufferComp", meta = (AllowPrivateAccess = "true"))
+	UInputBufferComponent* DodgeInputBufferComp;
 
 		
 };

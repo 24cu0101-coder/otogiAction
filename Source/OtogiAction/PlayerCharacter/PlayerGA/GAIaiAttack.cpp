@@ -24,7 +24,8 @@ void UGAIaiAttack::ActivateAbility(const FGameplayAbilitySpecHandle IaiAttack,
 
 
 	//	アビリティシステムコンポーネントとモンタージュ二つのどれか一つでもなかったら
-	if (!ASC || !SheathingMontage || !IaiAttackMontage)	{
+	if (!ASC || !SheathingMontage || !IaiAttackMontage)
+	{
 
 		//リターン
 		return;
@@ -120,8 +121,7 @@ void UGAIaiAttack::RestartIaiAttackMontage()
 
 	//プレイヤーの情報と再生タスクが在れば
 	if (PlayerActor)
-	{	
-		UE_LOG(LogTemp, Warning, TEXT("dd"));
+	{
 
 
 		//プレイヤーの正面を取得
@@ -170,9 +170,9 @@ void UGAIaiAttack::Rotate(FVector TargetLocation)
 	//納刀アニメーション再生
 	SheathingMontageTask->ReadyForActivation();
 
-	RestartIaiAttackMontage();
 
-	if (OwnerCharacter) {
+	if (OwnerCharacter)
+	{
 
 		//コリジョンを一瞬消す
 		if (UCapsuleComponent* CapsuleComp = PlayerActor->GetCapsuleComponent())
@@ -193,6 +193,13 @@ void UGAIaiAttack::Rotate(FVector TargetLocation)
 		//アクターを回転
 		OwnerCharacter->SetActorRotation(TargetRot);
 
+
+		//RestartIaiAttackMontage();
+
+		FVector IaiLocation = TargetLocation - (Direction * IaiDistance);
+		IaiLocation.Z = MyLoc.Z;
+
+		OwnerCharacter->SetActorLocation(IaiLocation, false);
 
 	}
 
@@ -244,12 +251,26 @@ void UGAIaiAttack::IaiWarping()
 			WarpTargetActor = PlayerTargetComp->GetSoftLockTarget(600.f);
 			if (WarpTargetActor)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+
 				Rotate(WarpTargetActor->GetActorLocation());
 			}
 			else
 			{
 				IaiAttackMontageEnd();
 			}
+		}
+	}
+}
+
+//プレイヤーの姿を切り替える
+void UGAIaiAttack::PlayerVisible(bool Visible)
+{
+	if (ACharacter* Char = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		if (USkeletalMeshComponent* Mesh = Char->GetMesh())
+		{
+			Mesh->SetVisibility(Visible, true);
 		}
 	}
 }

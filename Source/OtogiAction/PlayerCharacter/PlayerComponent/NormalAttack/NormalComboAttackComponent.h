@@ -14,7 +14,7 @@
 class APlayerCharacter;
 class UMoveComponent;
 class UAttackCollisionComponent;
-
+class UInputBufferComponent;
 
 /**
  * 
@@ -77,8 +77,11 @@ protected:
 public:
 	// Called every frame
 
-	//通常攻撃アビリティ起動関数
+	//通常攻撃アビリティ起動を呼び出す関数
 	void ExecuteNormalAttackAbility();
+
+	//アビリティを起動する関数
+	void ExectueNormalAttackAbility2();
 
 	//ノーティファイにASCを渡す関数(多分辞めた方がいい)
 	UAbilitySystemComponent* GetNAttackACS()const { return AbilitySystemComponent; }
@@ -89,6 +92,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.MovementComp", meta = (AllowPrivateAccess = "true"))
 	UMoveComponent* MCC;
 
+	//先行入力のコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.InputBufferComp", meta = (AllowPrivateAccess = "true"))
+	UInputBufferComponent* NAInputBufferComp;
 
 
 

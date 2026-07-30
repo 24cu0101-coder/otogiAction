@@ -13,13 +13,13 @@ class APlayerCharacter;
 class UPlayerTargetComponent;
 
 /**
- * 
+ *
  */
 UCLASS()
 class OTOGIACTION_API UGAIaiAttack : public UGameplayAbility
 {
 	GENERATED_BODY()
-	
+
 public:
 
 	virtual void ActivateAbility(
@@ -108,5 +108,7 @@ private:
 	UPROPERTY()
 	ACharacter* OwnerCharacter;
 
+	UFUNCTION()
+	void PlayerVisible(bool Visible);
 
 };

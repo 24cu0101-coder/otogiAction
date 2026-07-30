@@ -4,6 +4,8 @@
 #include "NormalComboAttackComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/Move/MoveComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
+
 
 //コンストラクタ
 UNormalComboAttackComponent::UNormalComboAttackComponent()
@@ -13,6 +15,8 @@ UNormalComboAttackComponent::UNormalComboAttackComponent()
 
 	//キャラクター移動コンポーネント生成
 	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("NAMC"));
+
+	NAInputBufferComp = CreateDefaultSubobject<UInputBufferComponent>(TEXT("NormalAttacksInputBufferComp"));
 }
 
 void UNormalComboAttackComponent::BeginPlay()
@@ -85,6 +89,18 @@ void UNormalComboAttackComponent::BeginPlay()
 
 //通常攻撃アビリティ実行(プレイヤーキャラクターで呼ばれる)
 void UNormalComboAttackComponent::ExecuteNormalAttackAbility()
+{
+	if (NAInputBufferComp)
+	{
+		NAInputBufferComp->KeepOrExeFunction([this]()
+			{
+				ExectueNormalAttackAbility2();
+			});
+	}
+
+}
+
+void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 {
 	//タグ
 	//入力が可能かどうかのタグ

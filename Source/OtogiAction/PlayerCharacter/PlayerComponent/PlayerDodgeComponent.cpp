@@ -5,13 +5,16 @@
 #include "PlayerDodgeComponent.h"
 #include "GameplayTagContainer.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
-
+#include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
 
 
 
 UPlayerDodgeComponent::UPlayerDodgeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;	
+
+	DodgeInputBufferComp = CreateDefaultSubobject<UInputBufferComponent>(TEXT("DodgeInputBufferComp"));
+
 }
 
 
@@ -64,6 +67,18 @@ void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
 
 void UPlayerDodgeComponent::ExecuteAbility()
 {
+	if (DodgeInputBufferComp)
+	{
+		DodgeInputBufferComp->KeepOrExeFunction([this]()
+			{
+				ExecuteAbility2();
+			});
+	}
+
+}
+
+void UPlayerDodgeComponent::ExecuteAbility2()
+{
 	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
 
 	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
@@ -74,7 +89,7 @@ void UPlayerDodgeComponent::ExecuteAbility()
 		return;
 	}
 
-	else 
+	else
 	{
 		//回避アビリティがあるなら
 		if (DodgeAbility)
@@ -85,6 +100,7 @@ void UPlayerDodgeComponent::ExecuteAbility()
 			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
 		}
 	}
+
 }
 
 UAbilitySystemComponent* UPlayerDodgeComponent::GetDodgeAbilirtSystemComponent()
