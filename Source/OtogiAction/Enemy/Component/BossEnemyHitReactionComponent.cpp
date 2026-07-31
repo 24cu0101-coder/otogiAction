@@ -4,7 +4,7 @@
 #include "BossEnemyHitReactionComponent.h"
 #include "TimerManager.h"
 #include "GameFramework/Character.h"
-#include "BossEnemyCharacter.h"
+#include "../BossEnemyCharacter.h"
 
 UBossEnemyHitReactionComponent::UBossEnemyHitReactionComponent()
 {

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Component/UHitReactionBaseComponent.h"
+#include "../../Component/UHitReactionBaseComponent.h"
 #include "BossEnemyHitReactionComponent.generated.h"
 
 /**

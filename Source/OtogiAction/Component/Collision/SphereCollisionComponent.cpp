@@ -9,7 +9,7 @@
 #include "../../PlayerCharacter/PlayerCharacter.h"
 #include "../../HitStopComponent.h"
 #include "../UHitReactionBaseComponent.h"
-#include "../../Enemy/EnemyAttackBaseComponent.h"
+#include "../../Enemy/Component/EnemyAttackBaseComponent.h"
 
 // Sets default values for this component's properties
 USphereCollisionComponent::USphereCollisionComponent()

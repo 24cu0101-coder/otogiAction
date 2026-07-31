@@ -9,7 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../Component/UHitReactionBaseComponent.h"
-#include "BossEnemyHitReactionComponent.h"
+#include "../Enemy/Component/BossEnemyHitReactionComponent.h"
 
 // Sets default values
 ABossEnemyCharacter::ABossEnemyCharacter()

@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
+#include "../../Component/AttackBuildComponent.h"
 
 UAttackBuildTask::UAttackBuildTask() 
 {
@@ -21,20 +22,19 @@ EBTNodeResult::Type UAttackBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	ACharacter* EnemyCharacter = EnemyController ? Cast<ACharacter>(EnemyController->GetPawn()) : nullptr;
 	if (!EnemyController || !PlayMontage) return EBTNodeResult::Failed;
 
-	UAnimInstance* AnimInstance = EnemyCharacter->GetMesh()->GetAnimInstance();
-	if (!AnimInstance) return EBTNodeResult::Failed;
+	UAttackBuildComponent* EnemyAttackComp = EnemyCharacter->FindComponentByClass<UAttackBuildComponent>();
+	if (!EnemyAttackComp) return EBTNodeResult::Failed;
 
-	// NodeMemory に再生状態を保存
-	FBTPlayAnimationTaskMemory* MyMemory = CastInstanceNodeMemory<FBTPlayAnimationTaskMemory>(NodeMemory);
-	MyMemory->AnimInstance = AnimInstance;
-	MyMemory->PlayingMontage = PlayMontage;
+	//AttackBuildComponentで攻撃処理を呼ぶ
+	EnemyAttackComp->ExecuteAttack();
+	bool IsAttack = EnemyAttackComp->StartAttackBuild();
 
-	// モンタージュ再生を開始
-	float Duration = AnimInstance->Montage_Play(PlayMontage);
-	if (Duration <= 0.0f)
+	//攻撃アニメーションが終わるまで待機
+	if (IsAttack)
 	{
-		return EBTNodeResult::Failed;
+		return EBTNodeResult::InProgress;
 	}
+	
 
 	return EBTNodeResult::Succeeded;
 }
@@ -43,20 +43,20 @@ void UAttackBuildTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	FBTPlayAnimationTaskMemory* MyMemory = CastInstanceNodeMemory<FBTPlayAnimationTaskMemory>(NodeMemory);
-
-	if (!MyMemory->AnimInstance.IsValid() || !MyMemory->PlayingMontage.IsValid())
+	AAIController* EnemyController = OwnerComp.GetAIOwner();
+	ACharacter* EnemyCharacter = EnemyController ? Cast<ACharacter>(EnemyController->GetPawn()) : nullptr;
+	if (!EnemyCharacter)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 
-	// 対象のモンタージュがまだ再生中かチェック
-	const bool bIsPlaying = MyMemory->AnimInstance->Montage_IsPlaying(MyMemory->PlayingMontage.Get());
+	UAttackBuildComponent* EnemyAttackComp = EnemyCharacter->FindComponentByClass<UAttackBuildComponent>();
 
-	if (!bIsPlaying)
+	// Component側で bIsAttacking が false（再生終了）になったらタスク完了を通知
+	if (EnemyAttackComp && !EnemyAttackComp->IsAttacking())
 	{
-		// 再生が完了（または中断）したらタスク成功として終了をエンジンに通知
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 }
+

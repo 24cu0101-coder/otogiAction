@@ -11,6 +11,7 @@ UEnemyAttackBaseComponent::UEnemyAttackBaseComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+
 }
 
 //攻撃開始時に呼ばれる関数
@@ -20,6 +21,15 @@ void UEnemyAttackBaseComponent::ExecuteAttack()
 
 //攻撃終了時に呼ばれる関数
 void UEnemyAttackBaseComponent::FinishAttack(bool bSuccess)
+{
+}
+
+float UEnemyAttackBaseComponent::CalculateScore(AAIController* Controller, APawn* ControlledPawn)
+{
+	return 0.0f;
+}
+
+void UEnemyAttackBaseComponent::SetEnemyState()
 {
 }
 
