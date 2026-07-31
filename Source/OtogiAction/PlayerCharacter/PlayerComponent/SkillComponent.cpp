@@ -53,17 +53,42 @@ void USkillComponent::SwitchSkillGroup(int32 Direction)
 
 void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 {
-	if (!OwnerASC || SkillGroups.Num() == 0) return;
-
+	//呼ばれてるかのログ
+	UE_LOG(LogTemp, Warning, TEXT(" Called RequestSkillTrigger(ButtonIndex: % d)"), ButtonIndex);	
+	if (!OwnerASC || SkillGroups.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed: OwnerASC is NULL or SkillGroups is Empty!"));
+		return;
+	}
 	FSkillSet CurrentSet = SkillGroups[CurrentGroupPointer];
 
-	if (!CurrentSet.SkillAbility) return;
+	if (!CurrentSet.SkillAbility)
+	{
+		UE_LOG(LogTemp, Error, TEXT("× Failed: CurrentSet.SkillAbility is NULL!"));
+		return;
+	}
 
 	//重複発動を防ぐ
 	FGameplayTag ExcuteSkillTag = FGameplayTag::RequestGameplayTag(FName("State.Attacking.Skill"));
 	FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(FName("State.Attacking"));
 	FGameplayTag KintaroSkillTag = FGameplayTag::RequestGameplayTag(FName("State.Skill.Kintaro"));
-	if (OwnerASC->HasMatchingGameplayTag(ExcuteSkillTag) || OwnerASC->HasMatchingGameplayTag(KintaroSkillTag) || OwnerASC->HasMatchingGameplayTag(AttackTag)) return;
+	//if (OwnerASC->HasMatchingGameplayTag(ExcuteSkillTag) || OwnerASC->HasMatchingGameplayTag(KintaroSkillTag) || OwnerASC->HasMatchingGameplayTag(AttackTag)) return;
+
+	if (OwnerASC->HasMatchingGameplayTag(ExcuteSkillTag))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ErrorSkillExcuteTagNameExcute"));
+		return;
+	}
+	if (OwnerASC->HasMatchingGameplayTag(KintaroSkillTag))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ErrorSkillExcuteTagNameKintaro"));
+		return;
+	}
+	if (OwnerASC->HasMatchingGameplayTag(AttackTag))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ErrorSkillExcuteTagNameAttack"));
+		return;
+	}
 
 	//スキルゲージのチェックと消費
 	if (USkillGaugeComponent* GaugeComp = GetOwner()->FindComponentByClass<USkillGaugeComponent>())
@@ -71,15 +96,17 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 		//ゲージが足りているか
 		if (GaugeComp->CanUseSkill(CurrentSet.Cost))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("OkSkillGauge"));
 			//消費に成功したらアビリティを発動
 			if (GaugeComp->ConsumeGauge(CurrentSet.Cost))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("ExcuteSkill"));
 				OwnerASC->TryActivateAbilityByClass(CurrentSet.SkillAbility);
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp,Warning, TEXT("スキルゲージ不足"));
+			UE_LOG(LogTemp,Warning, TEXT("NoSkillGauge"));
 		}
 	}
 }

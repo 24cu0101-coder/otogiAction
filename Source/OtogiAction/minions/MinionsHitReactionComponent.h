@@ -152,6 +152,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* StunKnockdownMontage;
 
+	// 起き上がりMontage
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* GetUpMontage = nullptr;
+
 	// 軽いHit発生確率
 	UPROPERTY(EditAnywhere, Category = "Reaction")
 	float LightHitChance = 0.35f;
@@ -163,5 +167,11 @@ private:
 
 	// 攻撃キャンセル用
 	void CancelAttack();
+
+	private:
+
+		void FinishRecover();
+
+		FTimerHandle GetUpTimerHandle;
 
 };
