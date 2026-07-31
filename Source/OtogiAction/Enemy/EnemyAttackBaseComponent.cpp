@@ -16,19 +16,11 @@ UEnemyAttackBaseComponent::UEnemyAttackBaseComponent()
 //攻撃開始時に呼ばれる関数
 void UEnemyAttackBaseComponent::ExecuteAttack()
 {
-	//delegateの発火
-	if (StartAttackHandle.IsBound())
-	{
-		StartAttackHandle.Broadcast();
-	}
 }
 
 //攻撃終了時に呼ばれる関数
 void UEnemyAttackBaseComponent::FinishAttack(bool bSuccess)
 {
-
-	// コンポーネント自身をオーナーから削除してメモリから解放する
-	DestroyComponent();
 }
 
 
