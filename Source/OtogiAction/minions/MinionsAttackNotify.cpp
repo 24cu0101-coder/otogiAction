@@ -1,7 +1,6 @@
 #include "MinionsAttackNotify.h"
 
 #include "MinionsCharacter.h"
-
 #include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
 
 
@@ -9,24 +8,44 @@ void UMinionsAttackNotify::Notify(
 	USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation)
 {
+
 	if (!MeshComp)
 	{
 		return;
 	}
 
 
-	AMinionsCharacter* Minions =
-		Cast<AMinionsCharacter>(MeshComp->GetOwner());
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			MeshComp->GetOwner());
 
 
-	if (!Minions)
+	if (!Minion)
 	{
 		return;
 	}
 
 
+
+	//========================
+	// 攻撃中チェック
+	//========================
+	// 攻撃キャンセルされた後に
+	// Notifyだけ残って攻撃判定が出るのを防ぐ
+
+	if (!Minion->IsAttacking())
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("Attack Notify Cancelled"));
+
+		return;
+	}
+
+
+
 	USphereCollisionComponent* SphereCollision =
-		Minions->FindComponentByClass<USphereCollisionComponent>();
+		Minion->FindComponentByClass
+		<USphereCollisionComponent>();
 
 
 	if (!SphereCollision)
@@ -38,18 +57,25 @@ void UMinionsAttackNotify::Notify(
 	}
 
 
+
+	//========================
+	// 攻撃判定
+	//========================
+
 	SphereCollision->ExcuteAreaAttack(
 		Radius,
 		FName("Player"),
 		Damage,
-		StunPoint, 
+		StunPoint,
 		0.f,
-		1.f,             
+		1.f,
 		ForwardOffset,
 		SideOffset
 	);
 
 
+
 	UE_LOG(LogTemp, Warning,
-		TEXT("Minions Attack Notify"));
+		TEXT("Minions Attack Hit"));
+
 }

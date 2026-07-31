@@ -1,5 +1,6 @@
 #include "GA_minionsAttack_Normal.h"
 
+#include "OtogiAction/minions/MinionsCharacter.h"
 
 #include "Engine/OverlapResult.h"
 
@@ -39,7 +40,18 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 		Warning,
 		TEXT("GA NORMAL START"));
 
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
 
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(true);
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("Minion Attack Start"));
+	}
 
 	// Montage再生
 
@@ -83,6 +95,21 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 void UGA_minionsAttack_Normal::OnMontageCompleted()
 {
 
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(false);
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("Minion Attack End"));
+	}
+
+
+
 	EndAbility(
 		CurrentSpecHandle,
 		CurrentActorInfo,
@@ -93,10 +120,24 @@ void UGA_minionsAttack_Normal::OnMontageCompleted()
 }
 
 
-
 // Montage中断
 void UGA_minionsAttack_Normal::OnMontageInterrupted()
 {
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(false);
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("Minion Attack Interrupted"));
+	}
+
+
 
 	EndAbility(
 		CurrentSpecHandle,

@@ -77,6 +77,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UMinionsHitReactionComponent* HitReactionComponent;
 
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsAttacking = false;
+
+
+public:
+
+	void CancelAttack();
+	void SetIsAttacking(bool Value)
+	{
+		bIsAttacking = Value;
+	}
+
+
+	bool IsAttacking() const
+	{
+		return bIsAttacking;
+	}
 	//====================
 	// Orb
 	//====================

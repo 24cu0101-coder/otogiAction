@@ -59,6 +59,7 @@ public:
 
 	void ExecuteAttackHit();
 
+	void SetShowDebug(bool bEnable);
 private:
 	//ASC取得
 	UAbilitySystemComponent* GetASC()const;
