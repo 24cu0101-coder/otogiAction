@@ -392,6 +392,8 @@ void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 //ƒXƒLƒ‹‚Ì”­“®
 void APlayerCharacter::OnSkill1Pressed()
 {
+	UE_LOG(LogTemp, Warning, TEXT("š PlayerCharacter: OnSkill1Pressed ŽÀs!"));
+
 	if (SkillComp)
 	{
 		SkillComp->RequestSkillTrigger(0);
