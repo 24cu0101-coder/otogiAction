@@ -155,8 +155,15 @@ void APlayerCharacter::BeginPlay()
 		StatusComp->OnDead.AddDynamic(this, &APlayerCharacter::OnDeath);
 	}
 
+	// 現在のレベル名取得
+	FString LevelName = GetWorld()->GetMapName();
+
+	// OtogiKantrikyokuではUIを出さない
+	bool bShowUI = !LevelName.Contains(TEXT("OtogiKantrikyoku"));
+
+
 	//PlayerのHP表示
-	if (PlayerHPWidgetClass)
+	if (bShowUI && PlayerHPWidgetClass)
 	{
 		PlayerHPWidget = CreateWidget<UPlayerHPWidget>(
 			GetWorld(),
@@ -172,8 +179,9 @@ void APlayerCharacter::BeginPlay()
 		}
 	}
 
+
 	//SkillGauge表示
-	if (SkillGaugeWidgetClass)
+	if (bShowUI && SkillGaugeWidgetClass)
 	{
 		SkillGaugeWidget = CreateWidget<USkillGaugeWidget>(
 			GetWorld(),
@@ -188,8 +196,9 @@ void APlayerCharacter::BeginPlay()
 		}
 	}
 
+
 	//SkillCircle表示
-	if (SkillCircleClass)
+	if (bShowUI && SkillCircleClass)
 	{
 		SkillCircle = CreateWidget<USkillCircle>(
 			GetWorld(),
@@ -199,7 +208,7 @@ void APlayerCharacter::BeginPlay()
 		{
 			SkillCircle->AddToViewport();
 		}
-	}
+	}	
 	if (StatusComp)
 	{
 		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::OnPlayerDamaged);
@@ -392,6 +401,8 @@ void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 //スキルの発動
 void APlayerCharacter::OnSkill1Pressed()
 {
+	UE_LOG(LogTemp, Warning, TEXT("★ PlayerCharacter: OnSkill1Pressed 実行!"));
+
 	if (SkillComp)
 	{
 		SkillComp->RequestSkillTrigger(0);
