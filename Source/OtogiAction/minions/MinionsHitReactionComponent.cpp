@@ -249,19 +249,35 @@ void UMinionsHitReactionComponent::OnStunMax()
 
 void UMinionsHitReactionComponent::RecoverFromStun()
 {
+	ACharacter* Character =
+		Cast<ACharacter>(GetOwner());
 
-	ResetStun();
+	if (!Character)
+	{
+		return;
+	}
 
+	// 起き上がりモーションがある場合
+	if (GetUpMontage)
+	{
+		Character->PlayAnimMontage(GetUpMontage);
 
-	RestartAI();
+		float MontageLength =
+			GetUpMontage->GetPlayLength();
 
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("STUN RECOVER"));
-
+		GetWorld()->GetTimerManager().SetTimer(
+			GetUpTimerHandle,
+			this,
+			&UMinionsHitReactionComponent::FinishRecover,
+			MontageLength,
+			false);
+	}
+	else
+	{
+		// モンタージュが無ければ即復帰
+		FinishRecover();
+	}
 }
-
-
 
 //==============================
 // 移動停止
@@ -320,6 +336,7 @@ void UMinionsHitReactionComponent::StopAI()
 
 			if (AI->BrainComponent)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("StopLogic"));
 				AI->BrainComponent->StopLogic(
 					TEXT("Stun"));
 			}
@@ -338,40 +355,38 @@ void UMinionsHitReactionComponent::StopAI()
 
 void UMinionsHitReactionComponent::RestartAI()
 {
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
-	ACharacter* Character =
-		Cast<ACharacter>(GetOwner());
-
-
-	if (Character)
+	if (!Character)
 	{
-
-		UCharacterMovementComponent* Move =
-			Character->GetCharacterMovement();
-
-
-		if (Move)
-		{
-			Move->SetMovementMode(
-				MOVE_Walking);
-		}
-
-
-
-		AAIController* AI =
-			Cast<AAIController>(
-				Character->GetController());
-
-
-		if (AI && AI->BrainComponent)
-		{
-			AI->BrainComponent->RestartLogic();
-		}
-
+		return;
 	}
 
-}
+	if (UCharacterMovementComponent* Move =
+		Character->GetCharacterMovement())
+	{
+		Move->SetMovementMode(MOVE_Walking);
+	}
 
+	AAIController* AI =
+		Cast<AAIController>(Character->GetController());
+
+	if (!AI)
+	{
+		return;
+	}
+
+	AI->StopMovement();
+
+	if (AI->BrainComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("RestartLogic"));
+
+		AI->BrainComponent->RestartLogic();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("RestartAI End"));
+}
 
 
 //==============================
@@ -507,4 +522,14 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 bool UMinionsHitReactionComponent::IsStanceBroken() const
 {
 	return bStanceBroken;
+}
+
+void UMinionsHitReactionComponent::FinishRecover()
+{
+	ResetStun();
+
+	RestartAI();
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("STUN RECOVER"));
 }

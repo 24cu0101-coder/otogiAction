@@ -1,6 +1,7 @@
 #include "MinionsCharacter.h"
 #include "minionsAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "Ability/GA_minionsAttack_Normal.h"
 #include "Ability/GA_minionsAttack_Middle.h"
@@ -47,6 +48,11 @@ AMinionsCharacter::AMinionsCharacter()
 	HPWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
 
 	HPWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
+	bUseControllerRotationYaw = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 }
 
 UAbilitySystemComponent* AMinionsCharacter::GetAbilitySystemComponent() const

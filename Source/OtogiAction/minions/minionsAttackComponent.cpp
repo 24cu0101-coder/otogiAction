@@ -1,4 +1,5 @@
 #include "minionsAttackComponent.h"
+#include "AIController.h"
 #include "MinionsCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,7 +27,40 @@ void UminionsAttackComponent::TickComponent(
 	ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::TickComponent(
+		DeltaTime,
+		TickType,
+		ThisTickFunction);
+
+	//--------------------------------
+	// AttackRange内ならPlayerを見る
+	//--------------------------------
+
+	APawn* Pawn = Cast<APawn>(GetOwner());
+
+	if (Pawn)
+	{
+		AAIController* AI =
+			Cast<AAIController>(Pawn->GetController());
+
+		APlayerCharacter* Player = GetPlayer();
+
+		if (AI && Player)
+		{
+			if (CanAttack())
+			{
+				AI->SetFocus(Player);
+			}
+			else
+			{
+				AI->ClearFocus(EAIFocusPriority::Gameplay);
+			}
+		}
+	}
+
+	//--------------------------------
+	// デバッグ表示
+	//--------------------------------
 
 	if (!bShowDebug)
 	{
@@ -35,7 +69,7 @@ void UminionsAttackComponent::TickComponent(
 
 	DebugTimer += DeltaTime;
 
-	// 0.2秒ごとに更新（軽量化）
+	//0.1秒ごとに更新
 	if (DebugTimer < 0.1f)
 	{
 		return;
@@ -45,7 +79,6 @@ void UminionsAttackComponent::TickComponent(
 
 	DrawAttackRange();
 }
-
 void UminionsAttackComponent::DrawAttackRange()
 {
 	DrawDebugCircle(
