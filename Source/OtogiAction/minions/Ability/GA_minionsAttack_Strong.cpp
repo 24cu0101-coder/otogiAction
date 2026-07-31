@@ -1,5 +1,7 @@
 #include "GA_minionsAttack_Strong.h"
 
+#include "OtogiAction/minions/MinionsCharacter.h"
+
 #include "AbilitySystemComponent.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -86,6 +88,18 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 void UGA_minionsAttack_Strong::OnMontageCompleted()
 {
 
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(false);
+	}
+
+
+
 	EndAbility(
 		CurrentSpecHandle,
 		CurrentActorInfo,
@@ -96,10 +110,21 @@ void UGA_minionsAttack_Strong::OnMontageCompleted()
 }
 
 
-
 // Montage中断
 void UGA_minionsAttack_Strong::OnMontageInterrupted()
 {
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(false);
+	}
+
+
 
 	EndAbility(
 		CurrentSpecHandle,

@@ -1,8 +1,9 @@
 #include "GA_minionsAttack_Middle.h"
 
+#include "OtogiAction/minions/MinionsCharacter.h"
+
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-
 
 UGA_minionsAttack_Middle::UGA_minionsAttack_Middle()
 {
@@ -71,22 +72,49 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 // Montage終了
 void UGA_minionsAttack_Middle::OnMontageCompleted()
 {
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(false);
+	}
+
+
+
 	EndAbility(
 		CurrentSpecHandle,
 		CurrentActorInfo,
 		CurrentActivationInfo,
 		true,
 		false);
-}
 
+}
 
 // Montage中断
 void UGA_minionsAttack_Middle::OnMontageInterrupted()
 {
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(false);
+	}
+
+
+
 	EndAbility(
 		CurrentSpecHandle,
 		CurrentActorInfo,
 		CurrentActivationInfo,
 		true,
 		false);
+
 }

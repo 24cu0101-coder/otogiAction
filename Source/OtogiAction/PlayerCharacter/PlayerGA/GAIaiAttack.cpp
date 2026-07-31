@@ -90,7 +90,7 @@ void UGAIaiAttack::PlayIaiAttackMontage()
 				IaiMontageTask->ReadyForActivation();
 
 				//アニメーションを止める
-				SAttackAnimInstance->Montage_SetPlayRate(IaiAttackMontage, 0.001f);
+				//SAttackAnimInstance->Montage_SetPlayRate(IaiAttackMontage, 0.001f);
 			}
 		}
 	}
@@ -252,6 +252,15 @@ void UGAIaiAttack::IaiWarping()
 			if (WarpTargetActor)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+
+
+
 
 				Rotate(WarpTargetActor->GetActorLocation());
 			}

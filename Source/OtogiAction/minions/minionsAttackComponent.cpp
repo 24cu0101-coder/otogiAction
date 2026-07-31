@@ -1,4 +1,5 @@
 #include "minionsAttackComponent.h"
+#include "AIController.h"
 #include "MinionsCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,7 +27,40 @@ void UminionsAttackComponent::TickComponent(
 	ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::TickComponent(
+		DeltaTime,
+		TickType,
+		ThisTickFunction);
+
+	//--------------------------------
+	// AttackRange内ならPlayerを見る
+	//--------------------------------
+
+	APawn* Pawn = Cast<APawn>(GetOwner());
+
+	if (Pawn)
+	{
+		AAIController* AI =
+			Cast<AAIController>(Pawn->GetController());
+
+		APlayerCharacter* Player = GetPlayer();
+
+		if (AI && Player)
+		{
+			if (CanAttack())
+			{
+				AI->SetFocus(Player);
+			}
+			else
+			{
+				AI->ClearFocus(EAIFocusPriority::Gameplay);
+			}
+		}
+	}
+
+	//--------------------------------
+	// デバッグ表示
+	//--------------------------------
 
 	if (!bShowDebug)
 	{
@@ -35,7 +69,7 @@ void UminionsAttackComponent::TickComponent(
 
 	DebugTimer += DeltaTime;
 
-	// 0.2秒ごとに更新（軽量化）
+	//0.1秒ごとに更新
 	if (DebugTimer < 0.1f)
 	{
 		return;
@@ -45,7 +79,6 @@ void UminionsAttackComponent::TickComponent(
 
 	DrawAttackRange();
 }
-
 void UminionsAttackComponent::DrawAttackRange()
 {
 	DrawDebugCircle(
@@ -111,70 +144,165 @@ bool UminionsAttackComponent::CanAttack() const
 
 void UminionsAttackComponent::Attack()
 {
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(GetOwner());
+
+
 	APlayerCharacter* Player = GetPlayer();
+
 	if (!Player)
 	{
 		return;
 	}
 
-	// らんダムで攻撃タイプの決定 (Normal: 60%, Middle: 30%, Strong: 10%)
-	int32 RandomAttack = FMath::RandRange(0, 99);
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("Attack() Called"));
+
+
+	// 攻撃距離チェック
+	if (!CanAttack())
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("CanAttack = FALSE"));
+
+		if (Minion)
+		{
+			Minion->SetIsAttacking(false);
+		}
+
+		return;
+	}
+
+
+	UAbilitySystemComponent* ASC = GetASC();
+
+	if (!ASC)
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("ASC is NULL"));
+
+		if (Minion)
+		{
+			Minion->SetIsAttacking(false);
+		}
+
+		return;
+	}
+
+
+
+	//=========================
+	// 攻撃タイプ抽選
+	//=========================
+
+	int32 RandomAttack =
+		FMath::RandRange(0, 99);
+
+
 	if (RandomAttack < 60)
 	{
-		AttackType = EMinionsAttackType::Normal;
+		AttackType =
+			EMinionsAttackType::Normal;
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("Normal Attack"));
 	}
 	else if (RandomAttack < 90)
 	{
-		AttackType = EMinionsAttackType::middle;
+		AttackType =
+			EMinionsAttackType::middle;
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("Middle Attack"));
 	}
 	else
 	{
-		AttackType = EMinionsAttackType::Strong;
+		AttackType =
+			EMinionsAttackType::Strong;
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("Strong Attack"));
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Attack() Called"));
 
-	if (!CanAttack())
-	{
-		UE_LOG(LogTemp, Error, TEXT("CanAttack = FALSE"));
-		return;
-	}
 
-	UE_LOG(LogTemp, Warning, TEXT("CanAttack = TRUE"));
+	//=========================
+	// GameplayTag作成
+	//=========================
 
-	UAbilitySystemComponent* ASC = GetASC();
-	if (!ASC)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ASC is NULL"));
-		return;
-	}
-
-	// 発動したいアビリティのタグを入れる変数
 	FGameplayTagContainer TargetTagContainer;
+
 
 	switch (AttackType)
 	{
+
 	case EMinionsAttackType::Normal:
-		UE_LOG(LogTemp, Warning, TEXT("Normal Attack"));
-		TargetTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Normal")));
+
+		TargetTagContainer.AddTag(
+			FGameplayTag::RequestGameplayTag(
+				FName("Ability.Attack.Normal")));
+
 		break;
+
+
 
 	case EMinionsAttackType::middle:
-		UE_LOG(LogTemp, Warning, TEXT("Middle Attack"));
-		TargetTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Middle")));
+
+		TargetTagContainer.AddTag(
+			FGameplayTag::RequestGameplayTag(
+				FName("Ability.Attack.Middle")));
+
 		break;
+
+
 
 	case EMinionsAttackType::Strong:
-		UE_LOG(LogTemp, Warning, TEXT("Strong Attack"));
-		TargetTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Strong")));
+
+		TargetTagContainer.AddTag(
+			FGameplayTag::RequestGameplayTag(
+				FName("Ability.Attack.Strong")));
+
 		break;
+
 	}
 
-	// タグを使ってアビリティを発動
-	if (TargetTagContainer.IsValid())
+
+
+	//=========================
+	// GAS発動
+	//=========================
+
+	bool bActivated =
+		ASC->TryActivateAbilitiesByTag(
+			TargetTagContainer);
+
+
+
+	//=========================
+	// 攻撃中フラグ
+	//=========================
+
+	if (Minion)
 	{
-		ASC->TryActivateAbilitiesByTag(TargetTagContainer);
+
+		if (bActivated)
+		{
+			Minion->SetIsAttacking(true);
+
+			UE_LOG(LogTemp, Warning,
+				TEXT("Minion Attack Activated"));
+		}
+		else
+		{
+			Minion->SetIsAttacking(false);
+
+			UE_LOG(LogTemp, Warning,
+				TEXT("Minion Attack Failed"));
+		}
+
 	}
+
 }
 void UminionsAttackComponent::ExecuteAttackHit()
 {
@@ -244,4 +372,8 @@ void UminionsAttackComponent::ExecuteAttackHit()
 			UE_LOG(LogTemp, Warning, TEXT("Notify Damage"));
 		}
 	}
+}
+void UminionsAttackComponent::SetShowDebug(bool bEnable)
+{
+	bShowDebug = bEnable;
 }

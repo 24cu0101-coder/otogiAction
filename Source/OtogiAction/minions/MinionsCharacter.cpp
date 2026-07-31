@@ -1,6 +1,7 @@
 #include "MinionsCharacter.h"
 #include "minionsAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "Ability/GA_minionsAttack_Normal.h"
 #include "Ability/GA_minionsAttack_Middle.h"
@@ -47,6 +48,11 @@ AMinionsCharacter::AMinionsCharacter()
 	HPWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
 
 	HPWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
+	bUseControllerRotationYaw = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 }
 
 UAbilitySystemComponent* AMinionsCharacter::GetAbilitySystemComponent() const
@@ -116,11 +122,24 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		}
 	}
 }
-void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
+void AMinionsCharacter::OnDamage(
+	AActor* DamagedActor,
+	float Damage,
+	const UDamageType* DamageType,
+	AController* InstigatedBy,
+	AActor* DamageCauser)
 {
-	//Hitフラグ
+
 	SetIsHitFlg(true);
 
+	//========================
+	// 攻撃中断
+	//========================
+
+	if (IsAttacking())
+	{
+		CancelAttack();
+	}
 
 	// 被弾音
 	if (CharacterAudioComponent)
@@ -129,16 +148,78 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 			ECharacterSoundType::Damage);
 	}
 
-	// 必要なComponentがなければ終了
+
+
 	if (!StatusComponent || !OrbSpawnComponent)
 	{
 		return;
 	}
 
-	// ダメージに応じたOrb生成
-	OrbSpawnComponent->SpawnOrbs(this,Damage);
-}
 
+
+	if (HitReactionComponent && DamageCauser)
+	{
+
+		//--------------------------------
+		// 攻撃方向保存
+		//--------------------------------
+
+		HitReactionComponent->SetHitDirection(
+			DamageCauser);
+
+
+
+		//--------------------------------
+		// 姿勢値を削る
+		//--------------------------------
+
+		if (!HitReactionComponent->IsStanceBroken())
+		{
+			HitReactionComponent->AddStance(Damage);
+		}
+
+
+		//--------------------------------
+		// 姿勢崩壊チェック
+		//--------------------------------
+
+		if (HitReactionComponent->IsStanceBreak())
+		{
+
+			UE_LOG(LogTemp, Warning,
+				TEXT("MINION STANCE BREAK"));
+
+
+			//--------------------------------
+			// 大きい怯み
+			//--------------------------------
+
+			HitReactionComponent->PlayHitReaction(
+				Damage);
+
+
+
+			//--------------------------------
+			// 姿勢リセット
+			//--------------------------------
+			HitReactionComponent->SetStanceBroken(true);
+			HitReactionComponent->ResetStance();
+
+		}
+
+	}
+
+
+
+	//--------------------------------
+	// オーブ生成
+	//--------------------------------
+
+	OrbSpawnComponent->SpawnOrbs(
+		this,
+		Damage);
+
+}
 //HPWidget
 void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
 {
@@ -170,9 +251,14 @@ void AMinionsCharacter::Dead()
 	//コリジョン停止
 	SetActorEnableCollision(false);
 
+	//消えてコリジョンなくす
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
 
-	//いったん仮でDestroy
-	Destroy();
+	if (AttackComponent)
+	{
+		AttackComponent->SetShowDebug(false);
+	}
 }
 
 
@@ -188,3 +274,43 @@ void AMinionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 }
 
+void AMinionsCharacter::CancelAttack()
+{
+
+	bIsAttacking = false;
+
+
+	// GAS攻撃停止
+	if (AbilitySystemComponent)
+	{
+
+		FGameplayTagContainer AttackTags;
+
+
+		AttackTags.AddTag(
+			FGameplayTag::RequestGameplayTag(
+				FName("Ability.Attack.Normal")));
+
+
+		AttackTags.AddTag(
+			FGameplayTag::RequestGameplayTag(
+				FName("Ability.Attack.Middle")));
+
+
+		AttackTags.AddTag(
+			FGameplayTag::RequestGameplayTag(
+				FName("Ability.Attack.Strong")));
+
+
+
+		AbilitySystemComponent
+			->CancelAbilities(
+				&AttackTags);
+
+	}
+
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("MINION ATTACK CANCEL"));
+
+}
