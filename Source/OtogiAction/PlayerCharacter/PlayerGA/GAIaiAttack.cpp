@@ -252,6 +252,15 @@ void UGAIaiAttack::IaiWarping()
 			if (WarpTargetActor)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+				UE_LOG(LogTemp, Warning, TEXT("dd"));
+
+
+
 
 				Rotate(WarpTargetActor->GetActorLocation());
 			}
