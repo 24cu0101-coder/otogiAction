@@ -90,7 +90,7 @@ void UGAIaiAttack::PlayIaiAttackMontage()
 				IaiMontageTask->ReadyForActivation();
 
 				//アニメーションを止める
-				SAttackAnimInstance->Montage_SetPlayRate(IaiAttackMontage, 0.001f);
+				//SAttackAnimInstance->Montage_SetPlayRate(IaiAttackMontage, 0.001f);
 			}
 		}
 	}

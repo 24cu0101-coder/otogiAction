@@ -43,6 +43,26 @@ void UGAPlayerDodge::ActivateAbility(
 
 	StickRotate();
 
+
+	//再生のタスク
+	UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
+	(this, NAME_None, DodgeMontage);
+
+	//タスクなければリターン
+	if (!DodgeMontageTask) return;
+
+	//アニメーション再生
+	DodgeMontageTask->ReadyForActivation();
+
+	//タスクがあれば
+	if (DodgeMontageTask)
+	{
+		//終了時に自動で呼ぶ
+		DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+	}
+
+
 	//回避開始までのタイマー
 	FTimerHandle DodgeDelayTimer;
 	//エディタで設定した時間待ってから回避実行
@@ -77,17 +97,10 @@ void UGAPlayerDodge::DodgeStart()
 void UGAPlayerDodge::IsDodge()
 {
 
-	//再生のタスク
-	UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-	(this, NAME_None, DodgeMontage);
 
 	//プレイヤーの情報と再生タスクが在れば
-	if (PlayerActor && DodgeMontageTask)
+	if (PlayerActor)
 	{
-		//アニメーション再生
-		DodgeMontageTask->ReadyForActivation();
-
-
 		//プレイヤーの正面を取得
 		FVector DodgeForward = PlayerActor->GetActorForwardVector();
 
@@ -102,14 +115,6 @@ void UGAPlayerDodge::IsDodge()
 
 		//プレイヤーを移動
 		PlayerActor->SetActorLocation(DodgeLocation, true);
-	}
-
-	//タスクがあれば
-	if (DodgeMontageTask)
-	{
-		//終了時に自動で呼ぶ
-		DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
-		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
 	}
 }
 
