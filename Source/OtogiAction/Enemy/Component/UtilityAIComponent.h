@@ -27,7 +27,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//エディターで設定可能な行動リスト
-	UPROPERTY(EditAnywhere, Instanced, Category = "UtilityAI")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UtilityAI")
 	TArray<TObjectPtr<UEnemyAttackBaseComponent>> Actions;
 
 	//定期的に評価を実行するタイマー

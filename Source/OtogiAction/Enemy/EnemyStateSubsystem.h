@@ -14,8 +14,10 @@ enum class EEnemyState : uint8
 {
     Idle,
     AttackBuild,
+    AttackPress,
     MoveBuild,
-    MovePress
+    MovePress,
+    MoveRecover
 };
 
 UCLASS()

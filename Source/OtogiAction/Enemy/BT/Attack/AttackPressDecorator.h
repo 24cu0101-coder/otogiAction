@@ -9,9 +9,19 @@
 /**
  * 
  */
+
+class UEnemyStateSubsystem;
+
 UCLASS()
 class OTOGIACTION_API UAttackPressDecorator : public UBTDecorator
 {
 	GENERATED_BODY()
 	
+public:
+	UAttackPressDecorator();
+
+protected:
+	//条件のTrue,Falseを判定する関数
+	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
+
 };

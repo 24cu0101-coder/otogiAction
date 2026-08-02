@@ -1,20 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AttackBuildComponent.h"
+#include "AttackPressComponent.h"
 #include "../EnemyStateSubsystem.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 
-UAttackBuildComponent::UAttackBuildComponent()
+UAttackPressComponent::UAttackPressComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	// 最初はTickを停止しておく
-	PrimaryComponentTick.bStartWithTickEnabled = false; 
+	PrimaryComponentTick.bStartWithTickEnabled = false;
 
 }
 
-void UAttackBuildComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UAttackPressComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -35,11 +34,11 @@ void UAttackBuildComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		bIsAttacking = false;
 		SetComponentTickEnabled(false); // TickをOFFにして負荷を減らす
 	}
+
 }
 
-
 //攻撃開始時に呼ばれる関数
-void UAttackBuildComponent::ExecuteAttack()
+void UAttackPressComponent::ExecuteAttack()
 {
 	//発火
 	//第一引数：半径、第二引数：対象のTag、第三引数：与ダメージ、第四引数：スタン値、第五引数：ヒットストップの時間
@@ -47,11 +46,10 @@ void UAttackBuildComponent::ExecuteAttack()
 	StartAttackHandle.Broadcast(Radius, TargetTag, Damage, StunPoint, HitStopDuration,
 		HitStopTimeScale, ForwardOffset, SideOffset);
 
-
 }
 
 //列挙型のEnemyStateをセットする関数
-void UAttackBuildComponent::SetEnemyState()
+void UAttackPressComponent::SetEnemyState()
 {
 	if (UWorld* World = GetWorld())
 	{
@@ -61,14 +59,15 @@ void UAttackBuildComponent::SetEnemyState()
 			if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
 			{
 				// 状態の変更
-				StateSubsystem->CurrentState = EEnemyState::AttackBuild;
+				StateSubsystem->CurrentState = EEnemyState::AttackPress;
 			}
 		}
 	}
 
 }
 
-bool UAttackBuildComponent::StartAttackBuild()
+
+bool UAttackPressComponent::StartAttackBuild()
 {
 	if (!AttackMontage) return false;
 

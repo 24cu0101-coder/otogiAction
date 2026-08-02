@@ -6,6 +6,7 @@
 #include "TimerManager.h"
 #include "EnemyAttackBaseComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "../EnemyStateSubsystem.h"
 
 // Sets default values for this component's properties
 UUtilityAIComponent::UUtilityAIComponent()
@@ -24,8 +25,27 @@ void UUtilityAIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (!OwnerPawn) return;
+
+	OwnerAIController = Cast<AAIController>(OwnerPawn->GetController());
+	if (!OwnerAIController) return;
+
+	// 自身がアタッチされている Pawn (Actor) を取得
+	if (AActor* OwnerActor = GetOwner())
+	{
+		// AIController の場合は ControlledPawn から取得
+		AActor* TargetActor = OwnerActor;
+		if (OwnerAIController && OwnerAIController->GetPawn())
+		{
+			TargetActor = OwnerAIController->GetPawn();
+		}
+
+		// Actor についている UEnemyAttackBaseComponent およびその派生クラスをすべて自動取得
+		TargetActor->GetComponents<UEnemyAttackBaseComponent>(Actions);
+	}
+
 	//タイマーをセット
-	OwnerAIController = Cast<AAIController>(GetOwner());
 	if (OwnerAIController)
 	{
 		//指定間隔ごとに評価関数を呼び出す
@@ -83,5 +103,20 @@ void UUtilityAIComponent::EvaluateAndExecute()
 	{
 		BestActions->SetEnemyState();
 	}
+
+
+	//デバッグログ
+	if (UWorld* World = GetWorld())
+	{
+		if (UGameInstance* GI = World->GetGameInstance())
+		{
+			//GameInstance を取得して Subsystem を呼び出す
+			if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("CurrentState:%s"), *UEnum::GetValueAsString(StateSubsystem->CurrentState));
+			}
+		}
+	}
+
 }
 

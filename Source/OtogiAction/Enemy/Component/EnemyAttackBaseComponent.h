@@ -46,6 +46,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Visual")
 	TObjectPtr<UAnimMontage> AttackMontage;
 
+	//評価用パラメータ
+
+	// スコアが1.0になり始める最小距離
+	UPROPERTY(EditAnywhere, Category = "UtilityAI|Range")
+	float MinRange = 0.0f;
+
+	// スコアが1.0であり続ける最大距離
+	UPROPERTY(EditAnywhere, Category = "UtilityAI|Range")
+	float MaxRange = 300.0f;
+
+	// スコアが完全に0.0になるフェードアウト距離（減衰範囲）
+	UPROPERTY(EditAnywhere, Category = "UtilityAI|Range")
+	float FadeOutRange = 500.0f;
+
+	// この行動の基礎的な優先度 (例: 通常追跡=0.3, 大技=0.9)
+	UPROPERTY(EditAnywhere, Category = "UtilityAI|Weight")
+	float BasePriority = 1.0f;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

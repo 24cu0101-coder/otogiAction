@@ -4,24 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "EnemyAttackBaseComponent.h"
-#include "AttackBuildComponent.generated.h"
+#include "AttackPressComponent.generated.h"
 
 //攻撃開始時にCollisionComponentの関数を発火するdelegate
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_EightParams(FExecuteAttackBuildDelegate, float, Radius, FName, TargetTag, float, Damage,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_EightParams(FExecuteAttackPressDelegate, float, Radius, FName, TargetTag, float, Damage,
 	float, StunPoint, float, HitStopDuration, float, HitStopTimeScale, float, ForwardOffset, float, SideOffset);
 
 /**
- *
+ * 
  */
 class UEnemyStateSubsystem;
 
-UCLASS(Blueprintable, BlueprintType, meta = (BlueprintSpawnableComponent))
-class OTOGIACTION_API UAttackBuildComponent : public UEnemyAttackBaseComponent
+UCLASS()
+class OTOGIACTION_API UAttackPressComponent : public UEnemyAttackBaseComponent
 {
 	GENERATED_BODY()
 
 public:
-	UAttackBuildComponent();
+	UAttackPressComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -38,7 +38,7 @@ public:
 
 	//攻撃開始を外部に伝えるためのハンドル
 	UPROPERTY(BlueprintAssignable, Category = "Attack")
-	FExecuteAttackBuildDelegate StartAttackHandle;
+	FExecuteAttackPressDelegate StartAttackHandle;
 
 	//攻撃半径を渡すための変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Comp|Param")
@@ -65,5 +65,5 @@ protected:
 	TWeakObjectPtr<UAnimInstance> CachedAnimInstance;
 	bool bIsAttacking = false;
 
-
+	
 };

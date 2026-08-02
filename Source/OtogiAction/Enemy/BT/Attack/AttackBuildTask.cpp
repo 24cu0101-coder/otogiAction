@@ -35,7 +35,6 @@ EBTNodeResult::Type UAttackBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::InProgress;
 	}
 	
-
 	return EBTNodeResult::Succeeded;
 }
 

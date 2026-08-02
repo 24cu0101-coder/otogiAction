@@ -69,23 +69,17 @@ void ABossEnemyAI::Tick(float DeltaTime)
 //プレイヤーが視界内に入ったら動く関数
 void ABossEnemyAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	// ターゲットがプレイヤーかどうかの判定（タグやキャストなどでチェック）
-	ACharacter* PlayerCharacter = Cast<ACharacter>(Actor);
-	if (!PlayerCharacter) return;
-
 	UBlackboardComponent* BBComp = GetBlackboardComponent();
 	if (!BBComp) return;
 
+	//視界に入ったら
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		BBComp->SetValueAsObject(TargetActorKeyName, Actor);
-		// 視界に入った時の処理（例: Blackboardの値を更新、追跡開始など）
-		UE_LOG(LogTemp, Log, TEXT("Player Sensed!: %s"), *Actor->GetName());
 	}
+	//視界外に出たら
 	else
 	{
 		BBComp->ClearValue(TargetActorKeyName);
-		// 視界から外れた時の処理（例: 追跡中断など）
-		UE_LOG(LogTemp, Log, TEXT("Player Lost!: %s"), *Actor->GetName());
 	}
 }

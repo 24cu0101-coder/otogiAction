@@ -12,31 +12,26 @@ UAttackBuildDecorator::UAttackBuildDecorator()
 	//デコレーターがBlackboardの値を監視して自動で中断（Abort）を実行できるようにする設定
 	bAllowAbortNone = true;
 	bAllowAbortLowerPri = true;
+
 }
 
 bool UAttackBuildDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-    //if (UWorld* World = GetWorld())
-    //{
-    //    if (UGameInstance* GI = World->GetGameInstance())
-    //    {
-    //        // 2. GameInstance を取得して Subsystem を呼び出す
-    //        if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
-    //        {
-    //            // 状態の参照
-    //            if (StateSubsystem->CurrentState == EEnemyState::Idle)
-    //            {
-    //                return true;
-    //            }
-    //        }
-    //    }
-    //}
+    if (UWorld* World = GetWorld())
+    {
+        if (UGameInstance* GI = World->GetGameInstance())
+        {
+            //GameInstance を取得して Subsystem を呼び出す
+            if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
+            {
+                // 状態の参照
+                if (StateSubsystem->CurrentState == EEnemyState::AttackBuild)
+                {
+                    return true;
+                }
+            }
+        }
+    }
 
-    UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-    if (!BlackboardComp) return false;
-
-    BlackboardComp->SetValueAsBool(DebugKey.SelectedKeyName, DebugKeyFlg);
-    bool IsFlg = BlackboardComp->GetValueAsBool(DebugKey.SelectedKeyName);
-
-	return IsFlg;
+	return false;
 }
