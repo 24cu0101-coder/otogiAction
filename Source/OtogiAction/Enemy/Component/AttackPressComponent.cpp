@@ -11,6 +11,12 @@ UAttackPressComponent::UAttackPressComponent()
 	// 最初はTickを停止しておく
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 
+	// 強攻撃は0～200のときに評価が高くなるよう設定
+	MinRange = 0.f;
+	MaxRange = 200.f;
+	FadeOutRange = 230.f;
+	BasePriority = 0.2f; // 通常移動より優先度を高く設定
+
 }
 
 void UAttackPressComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

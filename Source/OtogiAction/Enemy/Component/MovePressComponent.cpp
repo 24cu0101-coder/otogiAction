@@ -14,9 +14,9 @@ UMovePressComponent::UMovePressComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// ダッシュは遠距離（600〜1500）のときに評価が高くなるよう設定
-	MinRange = 600.0f;
-	MaxRange = 1500.0f;
-	FadeOutRange = 2500.0f;
+	MinRange = 600.f;
+	MaxRange = 1500.f;
+	FadeOutRange = 2500.f;
 	BasePriority = 0.8f; // 通常移動より優先度を高く設定
 }
 

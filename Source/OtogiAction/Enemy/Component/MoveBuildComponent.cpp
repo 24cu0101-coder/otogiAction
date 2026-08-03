@@ -14,9 +14,9 @@ UMoveBuildComponent::UMoveBuildComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// 通常追跡の標準レンジ設定（例: 中〜近距離で評価が高くなる）
-	MinRange = 200.0f;
-	MaxRange = 600.0f;
-	FadeOutRange = 1000.0f;
+	MinRange = 200.f;
+	MaxRange = 600.f;
+	FadeOutRange = 1000.f;
 	BasePriority = 0.5f; // ダッシュより優先度は低めに設定
 }
 

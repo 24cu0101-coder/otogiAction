@@ -40,15 +40,15 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Attack")
 	FExecuteAttackPressDelegate StartAttackHandle;
 
-	//攻撃半径を渡すための変数
+	//攻撃半径のサイズを渡すための変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Comp|Param")
-	float Radius = 0.f;
+	float Radius = 200.f;
 	//与ダメージを渡すための変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Comp|Param")
-	float Damage = 0.f;
+	float Damage = 20.f;
 	//前にどれだけ出すかの値を渡すための変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Comp|Param")
-	float ForwardOffset = 0.f;
+	float ForwardOffset = 80.f;
 	//横にどれだけ出すかの値を渡すための変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Comp|Param")
 	float SideOffset = 0.f;

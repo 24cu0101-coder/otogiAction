@@ -8,7 +8,6 @@
 #include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "../Component/UHitReactionBaseComponent.h"
 #include "../Enemy/Component/BossEnemyHitReactionComponent.h"
 
 // Sets default values
@@ -25,7 +24,12 @@ ABossEnemyCharacter::ABossEnemyCharacter()
 		GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);	//旋回速度（度/秒）
 	}
 
-	//ヒットリアクションコンポーネント
+	//敵キャラクターのBPにコンポーネントを追加
+	AttackBuildComp = CreateDefaultSubobject<UAttackBuildComponent>(TEXT("AttackBuildComp"));
+	AttackPressComp = CreateDefaultSubobject<UAttackPressComponent>(TEXT("AttackPressComp"));
+	MoveBuildComp = CreateDefaultSubobject<UMoveBuildComponent>(TEXT("MoveBuildComp"));
+	MovePressComp = CreateDefaultSubobject<UMovePressComponent>(TEXT("MovePressComp"));
+	UtilityAIComp = CreateDefaultSubobject<UUtilityAIComponent>(TEXT("UtilityAIComp"));
 	HitReactionComp = CreateDefaultSubobject<UBossEnemyHitReactionComponent>(TEXT("HitReactionComp"));
 
 }
