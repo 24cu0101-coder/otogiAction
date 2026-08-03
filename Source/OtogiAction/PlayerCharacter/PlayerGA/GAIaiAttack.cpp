@@ -251,17 +251,6 @@ void UGAIaiAttack::IaiWarping()
 			WarpTargetActor = PlayerTargetComp->GetSoftLockTarget(600.f);
 			if (WarpTargetActor)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("dd"));
-				UE_LOG(LogTemp, Warning, TEXT("dd"));
-
-				UE_LOG(LogTemp, Warning, TEXT("dd"));
-				UE_LOG(LogTemp, Warning, TEXT("dd"));
-				UE_LOG(LogTemp, Warning, TEXT("dd"));
-				UE_LOG(LogTemp, Warning, TEXT("dd"));
-
-
-
-
 				Rotate(WarpTargetActor->GetActorLocation());
 			}
 			else

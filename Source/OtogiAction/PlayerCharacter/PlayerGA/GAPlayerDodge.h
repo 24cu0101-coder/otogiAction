@@ -65,6 +65,14 @@ protected:
 
 	void DodgeMontageEnd();
 
+	UFUNCTION()
+	void JustDodgeWindow();
+
+	UFUNCTION()
+	void PlayJustDodge();
+
+	UFUNCTION()
+	void EndJustDodge();
 
 	//-------------------
 	//-------------------
@@ -91,6 +99,20 @@ private:
 	//回避のディレイの時間
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DodgeParameter", meta = (AllowPrivateAccess = "true"))
 	float DelayTiem;
+
+	//just回避のフレーム
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DodgeParameter", meta = (AllowPrivateAccess = "true"))
+	float JustFrame;
+
+	//just回避時のスロー倍率
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DodgeParameter", meta = (AllowPrivateAccess = "true"))
+	float SlowMagnification;
+
+
+private:
+
+	//just回避している
+	bool JustDodge = false;
 
 	//回避時間
 	FTimerHandle DodgeTimer;

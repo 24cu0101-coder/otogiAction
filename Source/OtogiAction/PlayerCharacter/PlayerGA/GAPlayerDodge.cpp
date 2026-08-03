@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
 //コンストラクタ
@@ -44,31 +45,34 @@ void UGAPlayerDodge::ActivateAbility(
 
 	StickRotate();
 	
+	//just回避でなければ
+	if (!JustDodge) {
 
-	//再生のタスク
-	UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-	(this, NAME_None, DodgeMontage);
+		//再生のタスク
+		UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
+		(this, NAME_None, DodgeMontage);
 
-	//タスクなければリターン
-	if (!DodgeMontageTask) return;
+		//タスクなければリターン
+		if (!DodgeMontageTask) return;
 
-	//アニメーション再生
-	DodgeMontageTask->ReadyForActivation();
+		//アニメーション再生
+		DodgeMontageTask->ReadyForActivation();
 
-	//タスクがあれば
-	if (DodgeMontageTask)
-	{
-		//終了時に自動で呼ぶ
-		DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
-		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+		//タスクがあれば
+		if (DodgeMontageTask)
+		{
+			//終了時に自動で呼ぶ
+			DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+			DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+		}
+
+
+
+		//回避開始までのタイマー
+		//FTimerHandle DodgeDelayTimer;
+		//エディタで設定した時間待ってから回避実行
+		GetWorld()->GetTimerManager().SetTimer(DodgeTimer, this, &UGAPlayerDodge::DodgeStart, DelayTiem, false);
 	}
-
-
-
-	//回避開始までのタイマー
-	FTimerHandle DodgeDelayTimer;
-	//エディタで設定した時間待ってから回避実行
-	GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGAPlayerDodge::DodgeStart, DelayTiem, false);
 
 }
 
@@ -83,14 +87,81 @@ void UGAPlayerDodge::ActivateAbility(
 //回避開始の処理
 void UGAPlayerDodge::DodgeStart()
 {
-	//世界からtimerをもらう
-	//回避処理開始
-	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, this, &UGAPlayerDodge::IsDodge, 0.001f, true);
+	////世界からtimerをもらう
+	////回避処理開始(毎フレーム繰り返す)
+	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, this, &UGAPlayerDodge::IsDodge, 0.001, true);
+
+	//IsDodge();
+
+	//just回避受付開始
+	//JustDodgeWindow();
+	////just回避flagをture
+	//JustDodge = true;
+
+	//PlayJustDodge();
+
+	////数秒後処理終了
+	FTimerHandle EndDodgeTimer;
+	//指定した時間後終了
+	GetWorld()->GetTimerManager().SetTimer(EndDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, DodgeTime, false);	
+}
+
+
+//just回避受付の処理
+void UGAPlayerDodge::JustDodgeWindow()
+{
+
+	FTimerHandle JustDodgeTime;
+	//just回避受付
+	GetWorld()->GetTimerManager().SetTimer(JustDodgeTime, this, &UGAPlayerDodge::PlayJustDodge, GetWorld()->GetDeltaSeconds(), true);
+
 
 	//数秒後処理終了
-	FTimerHandle EndDodgeTimer;
-	//0.2秒後終了
-	GetWorld()->GetTimerManager().SetTimer(EndDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, DodgeTime, false);	
+	FTimerHandle JustDodgeWindTime;
+	//指定したフレーム後にjust回避受付終了
+	GetWorld()->GetTimerManager().SetTimer(JustDodgeWindTime, this, &UGAPlayerDodge::EndJustDodge, JustFrame, false);
+
+
+}
+
+//ジャスト回避開始
+void UGAPlayerDodge::PlayJustDodge()
+{
+	//ワールドの情報の取得
+	UWorld* World = GetWorld();
+	//ワールドが無ければ
+	if (!World) return;
+
+	//世界をスローに
+	UGameplayStatics::SetGlobalTimeDilation(World, SlowMagnification);
+
+	//if (AActor* Avatar = GetAvatarActorFromActorInfo())
+	//{
+	//	//プレイヤーの速度は少し早めに
+	//	Avatar->CustomTimeDilation = 0.6 / SlowMagnification;
+	//}
+
+
+
+		//数秒後処理終了
+	FTimerHandle dd;
+	//指定したフレーム後にjust回避受付終了
+	GetWorld()->GetTimerManager().SetTimer(dd, this, &UGAPlayerDodge::EndJustDodge, 0.5f / 20 , false);
+}
+
+//just回避終了
+void UGAPlayerDodge::EndJustDodge()
+{
+	UE_LOG(LogTemp, Warning, TEXT("dd"));
+
+	//ワールドの情報の取得
+	UWorld* World = GetWorld();
+	//ワールドが無ければ
+	if (!World) return;
+
+	//世界をスローに
+	UGameplayStatics::SetGlobalTimeDilation(World, 1);
+
 }
 
 
@@ -98,7 +169,6 @@ void UGAPlayerDodge::DodgeStart()
 //回避の処理
 void UGAPlayerDodge::IsDodge()
 {
-
 
 	//プレイヤーの情報と再生タスクが在れば
 	if (PlayerActor)
@@ -138,6 +208,7 @@ void UGAPlayerDodge::DodgeMontageEnd()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
+
 
 void UGAPlayerDodge::StickRotate()
 {
