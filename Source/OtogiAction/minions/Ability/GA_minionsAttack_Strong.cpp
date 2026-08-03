@@ -4,6 +4,8 @@
 
 #include "AbilitySystemComponent.h"
 
+#include "NiagaraFunctionLibrary.h"
+
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
 
@@ -40,11 +42,20 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 		Warning,
 		TEXT("GA STRONG START"));
 
+	//エフェクト
+	if (AttackEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
+			AttackEffect,
+			GetAvatarActorFromActorInfo()->GetRootComponent(),
+			NAME_None,
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::SnapToTarget,
+			true);
+	}
 
-
-	//=========================
 	// Montage再生
-	//=========================
 
 	if (AttackMontage)
 	{

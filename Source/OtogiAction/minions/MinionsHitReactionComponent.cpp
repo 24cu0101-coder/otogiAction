@@ -20,9 +20,7 @@ UMinionsHitReactionComponent::UMinionsHitReactionComponent()
 
 
 
-//==============================
 // Stance追加
-//==============================
 
 void UMinionsHitReactionComponent::AddStance(float Value)
 {
@@ -53,9 +51,7 @@ void UMinionsHitReactionComponent::AddStance(float Value)
 }
 
 
-//==============================
 // Stance Break
-//==============================
 
 bool UMinionsHitReactionComponent::IsStanceBreak() const
 {
@@ -64,9 +60,7 @@ bool UMinionsHitReactionComponent::IsStanceBreak() const
 
 
 
-//==============================
 // Stance Reset
-//==============================
 
 void UMinionsHitReactionComponent::ResetStance()
 {
@@ -79,17 +73,12 @@ void UMinionsHitReactionComponent::ResetStance()
 }
 
 
-//==============================
 // 大きい怯み
-//==============================
 
 void UMinionsHitReactionComponent::PlayHitReaction(
 	float DamageAmount)
 {
-
-	//==============================
 	// 攻撃キャンセル処理
-	//==============================
 
 	AMinionsCharacter* Minion =
 		Cast<AMinionsCharacter>(GetOwner());
@@ -179,10 +168,7 @@ void UMinionsHitReactionComponent::PlayHitReaction(
 }
 
 
-//==============================
 // FearMax
-// ※今回は使わない
-//==============================
 
 void UMinionsHitReactionComponent::OnFearMax()
 {
@@ -197,9 +183,7 @@ void UMinionsHitReactionComponent::OnFearMax()
 
 
 
-//==============================
 // Stun
-//==============================
 
 void UMinionsHitReactionComponent::OnStunMax()
 {
@@ -243,9 +227,7 @@ void UMinionsHitReactionComponent::OnStunMax()
 
 
 
-//==============================
 // Stun復帰
-//==============================
 
 void UMinionsHitReactionComponent::RecoverFromStun()
 {
@@ -279,9 +261,7 @@ void UMinionsHitReactionComponent::RecoverFromStun()
 	}
 }
 
-//==============================
 // 移動停止
-//==============================
 
 void UMinionsHitReactionComponent::StopMovement()
 {
@@ -309,9 +289,7 @@ void UMinionsHitReactionComponent::StopMovement()
 
 
 
-//==============================
 // AI停止
-//==============================
 
 void UMinionsHitReactionComponent::StopAI()
 {
@@ -349,9 +327,7 @@ void UMinionsHitReactionComponent::StopAI()
 
 
 
-//==============================
 // AI復帰
-//==============================
 
 void UMinionsHitReactionComponent::RestartAI()
 {
@@ -389,9 +365,7 @@ void UMinionsHitReactionComponent::RestartAI()
 }
 
 
-//==============================
 // 攻撃方向
-//==============================
 
 void UMinionsHitReactionComponent::SetHitDirection(
 	AActor* Attacker)

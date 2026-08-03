@@ -49,8 +49,6 @@ void UMinionsIsHitService::TickNode(
 		return;
 	}
 
-	/*UE_LOG(LogTemp, Warning, TEXT("Service Tick"));
-	UE_LOG(LogTemp, Warning, TEXT("IsHit = %d"), Minions->GetIsHitFlg());*/
 
 	BBComp->SetValueAsBool(
 		IsHitKey.SelectedKeyName,

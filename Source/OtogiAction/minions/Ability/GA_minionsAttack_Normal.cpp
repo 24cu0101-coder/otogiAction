@@ -6,6 +6,9 @@
 
 #include "AbilitySystemComponent.h"
 
+#include "NiagaraFunctionLibrary.h"
+
+
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
 UGA_minionsAttack_Normal::UGA_minionsAttack_Normal()
@@ -52,6 +55,21 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 		UE_LOG(LogTemp, Warning,
 			TEXT("Minion Attack Start"));
 	}
+
+
+	//エフェクト
+	if (AttackEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
+			AttackEffect,
+			GetAvatarActorFromActorInfo()->GetRootComponent(),
+			NAME_None,
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::SnapToTarget,
+			true);
+	}
+
 
 	// Montage再生
 
