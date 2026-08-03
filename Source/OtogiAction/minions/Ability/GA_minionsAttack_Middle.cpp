@@ -3,6 +3,9 @@
 #include "OtogiAction/minions/MinionsCharacter.h"
 
 #include "AbilitySystemComponent.h"
+
+#include "NiagaraFunctionLibrary.h"
+
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
 UGA_minionsAttack_Middle::UGA_minionsAttack_Middle()
@@ -32,10 +35,21 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 
 	UE_LOG(LogTemp, Warning, TEXT("GA MIDDLE START"));
 
+	//エフェクト
+	if (AttackEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
+			AttackEffect,
+			GetAvatarActorFromActorInfo()->GetRootComponent(),
+			NAME_None,
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::SnapToTarget,
+			true);
+	}
 
-	//=========================
+
 	// Montage再生
-	//=========================
 
 	if (AttackMontage)
 	{

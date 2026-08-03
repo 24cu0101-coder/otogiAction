@@ -32,9 +32,7 @@ void UminionsAttackComponent::TickComponent(
 		TickType,
 		ThisTickFunction);
 
-	//--------------------------------
 	// AttackRange内ならPlayerを見る
-	//--------------------------------
 
 	APawn* Pawn = Cast<APawn>(GetOwner());
 
@@ -57,11 +55,6 @@ void UminionsAttackComponent::TickComponent(
 			}
 		}
 	}
-
-	//--------------------------------
-	// デバッグ表示
-	//--------------------------------
-
 	if (!bShowDebug)
 	{
 		return;
@@ -190,11 +183,7 @@ void UminionsAttackComponent::Attack()
 		return;
 	}
 
-
-
-	//=========================
 	// 攻撃タイプ抽選
-	//=========================
 
 	int32 RandomAttack =
 		FMath::RandRange(0, 99);
@@ -227,9 +216,7 @@ void UminionsAttackComponent::Attack()
 
 
 
-	//=========================
 	// GameplayTag作成
-	//=========================
 
 	FGameplayTagContainer TargetTagContainer;
 
@@ -269,9 +256,7 @@ void UminionsAttackComponent::Attack()
 
 
 
-	//=========================
 	// GAS発動
-	//=========================
 
 	bool bActivated =
 		ASC->TryActivateAbilitiesByTag(
@@ -279,9 +264,7 @@ void UminionsAttackComponent::Attack()
 
 
 
-	//=========================
 	// 攻撃中フラグ
-	//=========================
 
 	if (Minion)
 	{
