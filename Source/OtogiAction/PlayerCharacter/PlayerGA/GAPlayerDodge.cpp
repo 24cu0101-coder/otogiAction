@@ -43,7 +43,7 @@ void UGAPlayerDodge::ActivateAbility(
 	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));	
 
 	StickRotate();
-
+	
 
 	//再生のタスク
 	UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
@@ -62,6 +62,7 @@ void UGAPlayerDodge::ActivateAbility(
 		DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
 		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
 	}
+
 
 
 	//回避開始までのタイマー
@@ -102,6 +103,7 @@ void UGAPlayerDodge::IsDodge()
 	//プレイヤーの情報と再生タスクが在れば
 	if (PlayerActor)
 	{
+
 		//プレイヤーの正面を取得
 		FVector DodgeForward = PlayerActor->GetActorForwardVector();
 

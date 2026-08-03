@@ -4,12 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Component/AttackBuildComponent.h"
+#include "Component/AttackPressComponent.h"
+#include "Component/MoveBuildComponent.h"
+#include "Component/MovePressComponent.h"
+#include "Component/UtilityAIComponent.h"
+#include "../Component/UHitReactionBaseComponent.h"
 
 #include "BossEnemyCharacter.generated.h"
 
 
 class UBossEnemyHitReactionComponent;
 class UUHitReactionBaseComponent;
+class UBossEnemyAttackBaseComponent;
 
 //ジャンプアタックMontageでNotifyが作動したときのdelegate
 DECLARE_MULTICAST_DELEGATE(FOnJumpAttackNotifyDelegate);
@@ -18,6 +25,28 @@ UCLASS()
 class OTOGIACTION_API ABossEnemyCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
+protected:
+	//追加するコンポーネント変数
+
+	//敵の弱攻撃の派生クラス
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UAttackBuildComponent> AttackBuildComp;
+	//敵の強攻撃の派生クラス
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UAttackPressComponent> AttackPressComp;
+	//敵の通常追跡の派生クラス
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UMoveBuildComponent> MoveBuildComp;
+	//敵のダッシュ追跡の派生クラス
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UMovePressComponent> MovePressComp;
+	//敵のダッシュ追跡の派生クラス
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UBossEnemyHitReactionComponent> HitReactionComp;
+	//敵の状態遷移を管理する固有クラス
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UUtilityAIComponent> UtilityAIComp;
 
 public:
 	// Sets default values for this character's properties
@@ -80,10 +109,6 @@ public:
 
 	//敵が被弾したかどうか
 	bool IsHit = false;
-
-	//被ダメージコンポーネント
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReaction", meta = (AllowPrivateAccess = "true"))
-	UUHitReactionBaseComponent* HitReactionComp;
 
 	//JumpAttackTaskからバインドするための公開デリゲート
 	FOnJumpAttackNotifyDelegate OnJumpAttackNotify;

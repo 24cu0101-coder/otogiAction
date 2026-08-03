@@ -48,6 +48,9 @@ protected:
 
 	TObjectPtr<ABossEnemyCharacter> EnemyCharacter;
 
+	// Blackboardのキー名（デフォルト: "TargetActor"）
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName TargetActorKeyName = "PlayerActor";
 private:
 	//コンポーネントの保持
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI|Param", meta = (AllowPrivateAccess = "true"))

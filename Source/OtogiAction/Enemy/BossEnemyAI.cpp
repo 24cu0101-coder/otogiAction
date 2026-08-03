@@ -14,8 +14,6 @@ ABossEnemyAI::ABossEnemyAI()
 	//AIPerceptionコンポーネントを作成
 	AIPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComp"));
 
-	EnemyCharacter = CreateDefaultSubobject<ABossEnemyCharacter>(TEXT("EnemyCharacterComponent"));
-
 	//視覚設定の作成とパラメータ設定
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 	if (SightConfig)
@@ -71,4 +69,17 @@ void ABossEnemyAI::Tick(float DeltaTime)
 //プレイヤーが視界内に入ったら動く関数
 void ABossEnemyAI::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	UBlackboardComponent* BBComp = GetBlackboardComponent();
+	if (!BBComp) return;
+
+	//視界に入ったら
+	if (Stimulus.WasSuccessfullySensed())
+	{
+		BBComp->SetValueAsObject(TargetActorKeyName, Actor);
+	}
+	//視界外に出たら
+	else
+	{
+		BBComp->ClearValue(TargetActorKeyName);
+	}
 }
