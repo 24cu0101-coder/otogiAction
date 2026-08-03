@@ -523,6 +523,25 @@ void APlayerCharacter::OnDeath()
 	if (bIsDead) return;
 	bIsDead = true;
 
+	//UI‚ÌƒŠƒZƒbƒg
+	if (SkillCircle)
+	{
+		SkillCircle->RemoveFromParent();
+		SkillCircle = nullptr;
+	}
+
+	if (SkillGaugeWidget)
+	{
+		SkillGaugeWidget->RemoveFromParent();
+		SkillGaugeWidget = nullptr;
+	}
+
+	if (PlayerHPWidget)
+	{
+		PlayerHPWidget->RemoveFromParent();
+		PlayerHPWidget = nullptr;
+	}
+
 	// “ü—Í‚ðŽ~‚ß‚é
 	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
