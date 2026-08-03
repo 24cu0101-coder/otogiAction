@@ -8,6 +8,7 @@
 #include "Components/WidgetComponent.h"
 #include "OtogiAction/Orb/OrbSpawnComponent.h"
 #include "OtogiAction/Component/Audio/CharacterAudioComponent.h"
+#include "NiagaraSystem.h"
 #include "MinionsCharacter.generated.h"
 
 class UStatusComponent;
@@ -38,9 +39,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	//====================
 	// GAS
-	//====================
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;
@@ -49,10 +48,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
-
-	//====================
 	// Component
-	//====================
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStatusComponent* StatusComponent;
@@ -81,6 +77,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsAttacking = false;
 
+	UPROPERTY(EditAnywhere,category="Effect")
+	UNiagaraSystem* HitEffect;
 
 public:
 
@@ -95,18 +93,14 @@ public:
 	{
 		return bIsAttacking;
 	}
-	//====================
 	// Orb
-	//====================
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb")
 	int32 MaxOrbCount = 3;
 
 	int32 SpawnedOrbCount = 0;
 
-	//====================
 	// Event
-	//====================
 
 	UFUNCTION()
 	void OnDamage(

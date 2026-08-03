@@ -12,7 +12,10 @@
 #include "Components/WidgetComponent.h"
 #include "../UI/EnemyHPWidget.h"
 #include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 #include "OtogiAction/minions/MinionsHitReactionComponent.h"
+
 
 
 AMinionsCharacter::AMinionsCharacter()
@@ -132,9 +135,7 @@ void AMinionsCharacter::OnDamage(
 
 	SetIsHitFlg(true);
 
-	//========================
 	// 攻撃中断
-	//========================
 
 	if (IsAttacking())
 	{
@@ -147,7 +148,14 @@ void AMinionsCharacter::OnDamage(
 		CharacterAudioComponent->PlayCharacterSound(
 			ECharacterSoundType::Damage);
 	}
-
+	// 被弾エフェクト
+	if (HitEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			HitEffect,
+			GetActorLocation() + FVector(0, 0, 80.f));
+	}
 
 
 	if (!StatusComponent || !OrbSpawnComponent)
@@ -160,18 +168,14 @@ void AMinionsCharacter::OnDamage(
 	if (HitReactionComponent && DamageCauser)
 	{
 
-		//--------------------------------
 		// 攻撃方向保存
-		//--------------------------------
 
 		HitReactionComponent->SetHitDirection(
 			DamageCauser);
 
 
 
-		//--------------------------------
 		// 姿勢値を削る
-		//--------------------------------
 
 		if (!HitReactionComponent->IsStanceBroken())
 		{
@@ -179,9 +183,7 @@ void AMinionsCharacter::OnDamage(
 		}
 
 
-		//--------------------------------
 		// 姿勢崩壊チェック
-		//--------------------------------
 
 		if (HitReactionComponent->IsStanceBreak())
 		{
@@ -190,18 +192,14 @@ void AMinionsCharacter::OnDamage(
 				TEXT("MINION STANCE BREAK"));
 
 
-			//--------------------------------
 			// 大きい怯み
-			//--------------------------------
 
 			HitReactionComponent->PlayHitReaction(
 				Damage);
 
 
 
-			//--------------------------------
 			// 姿勢リセット
-			//--------------------------------
 			HitReactionComponent->SetStanceBroken(true);
 			HitReactionComponent->ResetStance();
 
@@ -211,9 +209,7 @@ void AMinionsCharacter::OnDamage(
 
 
 
-	//--------------------------------
 	// オーブ生成
-	//--------------------------------
 
 	OrbSpawnComponent->SpawnOrbs(
 		this,

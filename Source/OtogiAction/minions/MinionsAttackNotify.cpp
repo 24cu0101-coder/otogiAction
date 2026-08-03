@@ -27,11 +27,8 @@ void UMinionsAttackNotify::Notify(
 
 
 
-	//========================
 	// 攻撃中チェック
-	//========================
-	// 攻撃キャンセルされた後に
-	// Notifyだけ残って攻撃判定が出るのを防ぐ
+
 
 	if (!Minion->IsAttacking())
 	{
@@ -58,9 +55,7 @@ void UMinionsAttackNotify::Notify(
 
 
 
-	//========================
 	// 攻撃判定
-	//========================
 
 	SphereCollision->ExcuteAreaAttack(
 		Radius,

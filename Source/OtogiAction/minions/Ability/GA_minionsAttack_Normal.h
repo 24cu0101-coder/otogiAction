@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "Animation/AnimMontage.h"
+#include "NiagaraSystem.h"
+
 #include "GA_minionsAttack_Normal.generated.h"
 
 
@@ -40,6 +42,9 @@ protected:
 	UFUNCTION()
 	void OnMontageCompleted();
 
+	//エフェクト
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	UNiagaraSystem* AttackEffect = nullptr;
 
 	UFUNCTION()
 	void OnMontageInterrupted();

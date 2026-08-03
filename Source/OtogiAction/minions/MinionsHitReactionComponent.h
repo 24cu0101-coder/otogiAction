@@ -35,9 +35,7 @@ protected:
 
 public:
 
-	//====================
 	// Stance
-	//====================
 
 	void AddStance(float Value);
 
@@ -49,17 +47,12 @@ public:
 
 
 
-	//====================
 	// Hit方向
-	//====================
-
 	void SetHitDirection(AActor* Attacker);
 
 
 
-	//====================
 	// Stance状態
-	//====================
 
 	void SetStanceBroken(bool Value);
 
@@ -70,10 +63,7 @@ public:
 
 private:
 
-
-	//====================
 	// Stance
-	//====================
 
 	float CurrentStance = 100.f;
 
@@ -87,17 +77,13 @@ private:
 
 
 
-	//====================
 	// Hit Direction
-	//====================
 
 	FVector HitDirection;
 
 
 
-	//====================
 	// Stun
-	//====================
 
 	void StopMovement();
 
@@ -117,13 +103,11 @@ private:
 
 
 	UPROPERTY(EditAnywhere, Category = "Stun")
-	float StunDownDuration = 4.f;
+	float StunDownDuration = 8.f;
 
 
 
-	//====================
 	// Montage
-	//====================
 
 
 	// 大きい正面Hit

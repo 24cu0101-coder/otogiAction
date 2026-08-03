@@ -3,6 +3,7 @@
 
 #include "OtogiActionGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "OtogiAction/minions/MinionsCharacter.h"
 #include "GameFramework/Character.h"
 
 
@@ -23,6 +24,17 @@ void AOtogiActionGameModeBase::BeginPlay()
 	{
 		CurrentCheckpointTransform = PC->GetPawn()->GetActorTransform();
 	}
+
+	//Minionの初期位置保存
+	TArray<AActor*>Minions;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMinionsCharacter::StaticClass(), Minions);
+
+	MinionSpawnTransforms.Empty();
+	for (AActor* Actor : Minions)
+	{
+		MinionSpawnTransforms.Add(Actor->GetActorTransform());
+	}
 }
 
 //チェックポイントのアクターに触れたら呼ばれてスポーン地点が変わる
@@ -42,6 +54,30 @@ void AOtogiActionGameModeBase::RespawmPlayer(AController* TargetController)
 	if (OldPawn)
 	{
 		OldPawn->Destroy();
+	}
+
+	// 現在いるMinionを全て削除
+	TArray<AActor*> Minions;
+
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(),
+		AMinionsCharacter::StaticClass(),
+		Minions);
+
+	for (AActor* Actor : Minions)
+	{
+		if (Actor)
+		{
+			Actor->Destroy();
+		}
+	}
+
+	// 保存した位置にMinionを再生成
+	for (const FTransform& SpawnTransform : MinionSpawnTransforms)
+	{
+		GetWorld()->SpawnActor<AMinionsCharacter>(
+			MinionClass,
+			SpawnTransform);
 	}
 
 	//チェックポイントにプレイヤーを生成

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "OtogiAction/minions/MinionsCharacter.h"
 #include "OtogiActionGameModeBase.generated.h"
 
 /**
@@ -38,7 +39,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "GameMode")
 	FTransform CurrentCheckpointTransform;
 
+	// Minionのクラス
+	UPROPERTY(EditAnywhere, Category = "Respawn")
+	TSubclassOf<AMinionsCharacter> MinionClass;
 
-
-	
+	// Minionの初期スポーン位置
+	UPROPERTY()
+	TArray<FTransform> MinionSpawnTransforms;
 };
