@@ -35,6 +35,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Tracking")
 	virtual void FinishTracking();
 
+	bool IsTracking()const { return bIsTracking; }
 protected:
 	virtual void BeginPlay() override;
 
