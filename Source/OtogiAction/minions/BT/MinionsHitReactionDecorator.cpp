@@ -10,9 +10,7 @@ UMinionsHitReactionDecorator::UMinionsHitReactionDecorator()
 	NodeName = TEXT("Minions Hit Reaction");
 }
 
-bool UMinionsHitReactionDecorator::CalculateRawConditionValue(
-	UBehaviorTreeComponent& OwnerComp,
-	uint8* NodeMemory) const
+bool UMinionsHitReactionDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp,uint8* NodeMemory) const
 {
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	if (!AIController)
@@ -28,8 +26,7 @@ bool UMinionsHitReactionDecorator::CalculateRawConditionValue(
 		return false;
 	}
 
-	const UBlackboardComponent* BBComp =
-		OwnerComp.GetBlackboardComponent();
+	const UBlackboardComponent* BBComp =OwnerComp.GetBlackboardComponent();
 
 	if (!BBComp)
 	{

@@ -3,6 +3,7 @@
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/SkillGaugeComponent.h"
+#include "OrbSpawnComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AOrbActor::AOrbActor()
@@ -57,6 +58,7 @@ void AOrbActor::Tick(float DeltaTime)
             }
         }
     }
+
     // 吸われているならPlayerへ飛ぶ
     if (bIsAbsorbing)
     {
@@ -94,9 +96,6 @@ void AOrbActor::Tick(float DeltaTime)
                         {
                             // EnemyのHPを減らす
                             Status->TakeDamage(OrbDamage);
-                            UE_LOG(LogTemp, Warning,
-                                TEXT("Orb Damage Enemy : %s"),
-                                *OwnerEnemy->GetName());
                         }
                     }
                 }
@@ -105,26 +104,27 @@ void AOrbActor::Tick(float DeltaTime)
 
                 if (Player)
                 {
-                    UE_LOG(LogTemp, Warning, TEXT("Player Found"));
 
                     if (USkillGaugeComponent* Gauge = Player->FindComponentByClass<USkillGaugeComponent>())
                     {
-                        UE_LOG(LogTemp, Warning, TEXT("Gauge Found"));
 
                         Gauge->ModifyGauge(50.f);
 
                         Player->UpdateSkillGaugeUI();
-                        UE_LOG(LogTemp, Warning, TEXT("Current Gauge = %f"), Gauge->GetCurrentGauge());
                     }
                     else
                     {
-                        UE_LOG(LogTemp, Warning, TEXT("Gauge NOT Found"));
                     }
                 }
                 else
                 {
-                    UE_LOG(LogTemp, Warning, TEXT("Player NOT Found"));
                 }
+
+                if (SpawnComponent)
+                {
+                    SpawnComponent->ReturnOrb();
+                }
+
                 // オーブを消す
                 Destroy();
             }
@@ -146,4 +146,9 @@ void AOrbActor::Tick(float DeltaTime)
 void AOrbActor::SetOrbDamage(float InDamage)
 {
     OrbDamage = InDamage;
+}
+
+void AOrbActor::SetSpawnComponent(UOrbSpawnComponent* InComponent)
+{
+    SpawnComponent = InComponent;
 }

@@ -22,15 +22,9 @@ void UminionsAttackComponent::BeginPlay()
 
 }
 
-void UminionsAttackComponent::TickComponent(
-	float DeltaTime,
-	ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
+void UminionsAttackComponent::TickComponent(float DeltaTime,ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(
-		DeltaTime,
-		TickType,
-		ThisTickFunction);
+	Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
 
 	// AttackRange内ならPlayerを見る
 
@@ -38,8 +32,7 @@ void UminionsAttackComponent::TickComponent(
 
 	if (Pawn)
 	{
-		AAIController* AI =
-			Cast<AAIController>(Pawn->GetController());
+		AAIController* AI =Cast<AAIController>(Pawn->GetController());
 
 		APlayerCharacter* Player = GetPlayer();
 
@@ -92,8 +85,7 @@ void UminionsAttackComponent::DrawAttackRange()
 
 APlayerCharacter* UminionsAttackComponent::GetPlayer() const
 {
-	return Cast<APlayerCharacter>(
-		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	return Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 UStatusComponent* UminionsAttackComponent::GetStatusComponent() const
@@ -113,32 +105,21 @@ UAbilitySystemComponent* UminionsAttackComponent::GetASC() const
 }
 bool UminionsAttackComponent::CanAttack() const
 {
-	APlayerCharacter* Player = Cast<APlayerCharacter>(
-		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	if (!Player)
 	{
 		return false;
 	}
 
-	const float Distance =
-		FVector::Distance(
-			GetOwner()->GetActorLocation(),
-			Player->GetActorLocation());
-
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("Distance = %.1f  AttackRange = %.1f"),
-		Distance,
-		AttackRange);
+	const float Distance =FVector::Distance(GetOwner()->GetActorLocation(),Player->GetActorLocation());
 
 	return Distance <= AttackRange;
 }
 
 void UminionsAttackComponent::Attack()
 {
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(GetOwner());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetOwner());
 
 
 	APlayerCharacter* Player = GetPlayer();
@@ -185,8 +166,7 @@ void UminionsAttackComponent::Attack()
 
 	// 攻撃タイプ抽選
 
-	int32 RandomAttack =
-		FMath::RandRange(0, 99);
+	int32 RandomAttack =FMath::RandRange(0, 99);
 
 
 	if (RandomAttack < 60)
@@ -226,9 +206,7 @@ void UminionsAttackComponent::Attack()
 
 	case EMinionsAttackType::Normal:
 
-		TargetTagContainer.AddTag(
-			FGameplayTag::RequestGameplayTag(
-				FName("Ability.Attack.Normal")));
+		TargetTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Normal")));
 
 		break;
 
@@ -236,9 +214,7 @@ void UminionsAttackComponent::Attack()
 
 	case EMinionsAttackType::middle:
 
-		TargetTagContainer.AddTag(
-			FGameplayTag::RequestGameplayTag(
-				FName("Ability.Attack.Middle")));
+		TargetTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Middle")));
 
 		break;
 
@@ -246,9 +222,7 @@ void UminionsAttackComponent::Attack()
 
 	case EMinionsAttackType::Strong:
 
-		TargetTagContainer.AddTag(
-			FGameplayTag::RequestGameplayTag(
-				FName("Ability.Attack.Strong")));
+		TargetTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Strong")));
 
 		break;
 
@@ -258,9 +232,7 @@ void UminionsAttackComponent::Attack()
 
 	// GAS発動
 
-	bool bActivated =
-		ASC->TryActivateAbilitiesByTag(
-			TargetTagContainer);
+	bool bActivated =ASC->TryActivateAbilitiesByTag(TargetTagContainer);
 
 
 
@@ -338,8 +310,7 @@ void UminionsAttackComponent::ExecuteAttackHit()
 			TEXT("Hit Actor = %s"),
 			*Actor->GetName());
 
-		APlayerCharacter* Player =
-			Cast<APlayerCharacter>(Actor);
+		APlayerCharacter* Player =Cast<APlayerCharacter>(Actor);
 
 
 		if (Player)

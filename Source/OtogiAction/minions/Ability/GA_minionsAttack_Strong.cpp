@@ -12,8 +12,7 @@
 
 UGA_minionsAttack_Strong::UGA_minionsAttack_Strong()
 {
-	InstancingPolicy =
-		EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	InstancingPolicy =EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 
@@ -67,14 +66,10 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 				AttackMontage);
 
 
-		MontageTask->OnCompleted.AddDynamic(
-			this,
-			&UGA_minionsAttack_Strong::OnMontageCompleted);
+		MontageTask->OnCompleted.AddDynamic(this,&UGA_minionsAttack_Strong::OnMontageCompleted);
 
 
-		MontageTask->OnInterrupted.AddDynamic(
-			this,
-			&UGA_minionsAttack_Strong::OnMontageInterrupted);
+		MontageTask->OnInterrupted.AddDynamic(this,&UGA_minionsAttack_Strong::OnMontageInterrupted);
 
 
 		MontageTask->ReadyForActivation();
@@ -99,9 +94,7 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 void UGA_minionsAttack_Strong::OnMontageCompleted()
 {
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			GetAvatarActorFromActorInfo());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
 
 	if (Minion)
@@ -125,9 +118,7 @@ void UGA_minionsAttack_Strong::OnMontageCompleted()
 void UGA_minionsAttack_Strong::OnMontageInterrupted()
 {
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			GetAvatarActorFromActorInfo());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
 
 	if (Minion)

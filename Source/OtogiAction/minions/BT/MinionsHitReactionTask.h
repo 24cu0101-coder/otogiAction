@@ -17,14 +17,9 @@ public:
 
 protected:
 
-	virtual EBTNodeResult::Type ExecuteTask(
-		UBehaviorTreeComponent& OwnerComp,
-		uint8* NodeMemory) override;
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp,uint8* NodeMemory) override;
 
-	void OnMontageEnded(
-		UAnimMontage* Montage,
-		bool bInterrupted,
-		UBehaviorTreeComponent* OwnerComp);
+	void OnMontageEnded(UAnimMontage* Montage,bool bInterrupted,UBehaviorTreeComponent* OwnerComp);
 
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector IsHitKey;

@@ -6,8 +6,7 @@
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class OTOGIACTION_API UMinionsHitReactionComponent
-	: public UUHitReactionBaseComponent
+class OTOGIACTION_API UMinionsHitReactionComponent: public UUHitReactionBaseComponent
 {
 
 	GENERATED_BODY()

@@ -13,9 +13,7 @@ UMinionsHitReactionTask::UMinionsHitReactionTask()
 	NodeName = TEXT("Play Minions Hit Reaction");
 }
 
-EBTNodeResult::Type UMinionsHitReactionTask::ExecuteTask(
-	UBehaviorTreeComponent& OwnerComp,
-	uint8* NodeMemory)
+EBTNodeResult::Type UMinionsHitReactionTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp,uint8* NodeMemory)
 {
 	UE_LOG(LogTemp, Warning, TEXT("===== BT HIT REACTION TASK ====="));
 
@@ -25,8 +23,7 @@ EBTNodeResult::Type UMinionsHitReactionTask::ExecuteTask(
 		return EBTNodeResult::Failed;
 	}
 
-	AMinionsCharacter* Minions =
-		Cast<AMinionsCharacter>(AIController->GetPawn());
+	AMinionsCharacter* Minions =Cast<AMinionsCharacter>(AIController->GetPawn());
 
 	if (!Minions)
 	{
@@ -39,8 +36,7 @@ EBTNodeResult::Type UMinionsHitReactionTask::ExecuteTask(
 		return EBTNodeResult::Failed;
 	}
 
-	UMinionsHitReactionComponent* HitComponent =
-		Minions->FindComponentByClass<UMinionsHitReactionComponent>();
+	UMinionsHitReactionComponent* HitComponent =Minions->FindComponentByClass<UMinionsHitReactionComponent>();
 
 	if (!HitComponent)
 	{
@@ -98,16 +94,11 @@ EBTNodeResult::Type UMinionsHitReactionTask::ExecuteTask(
 				EBTNodeResult::Succeeded);
 		});
 
-	AnimInstance->Montage_SetEndDelegate(
-		EndDelegate,
-		CurrentMontage);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate,CurrentMontage);
 
 	return EBTNodeResult::InProgress;
 }
 
-void UMinionsHitReactionTask::OnMontageEnded(
-	UAnimMontage* Montage,
-	bool bInterrupted,
-	UBehaviorTreeComponent* OwnerComp)
+void UMinionsHitReactionTask::OnMontageEnded(UAnimMontage* Montage,bool bInterrupted,UBehaviorTreeComponent* OwnerComp)
 {
 }

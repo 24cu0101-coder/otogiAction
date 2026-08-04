@@ -53,21 +53,13 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 
 	if (AttackMontage)
 	{
-		UAbilityTask_PlayMontageAndWait* MontageTask =
-			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-				this,
-				NAME_None,
-				AttackMontage);
+		UAbilityTask_PlayMontageAndWait* MontageTask =UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,AttackMontage);
 
 
-		MontageTask->OnCompleted.AddDynamic(
-			this,
-			&UGA_minionsAttack_Middle::OnMontageCompleted);
+		MontageTask->OnCompleted.AddDynamic(this,&UGA_minionsAttack_Middle::OnMontageCompleted);
 
 
-		MontageTask->OnInterrupted.AddDynamic(
-			this,
-			&UGA_minionsAttack_Middle::OnMontageInterrupted);
+		MontageTask->OnInterrupted.AddDynamic(this,&UGA_minionsAttack_Middle::OnMontageInterrupted);
 
 
 		MontageTask->ReadyForActivation();
@@ -87,9 +79,7 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 void UGA_minionsAttack_Middle::OnMontageCompleted()
 {
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			GetAvatarActorFromActorInfo());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
 
 	if (Minion)
@@ -112,9 +102,7 @@ void UGA_minionsAttack_Middle::OnMontageCompleted()
 void UGA_minionsAttack_Middle::OnMontageInterrupted()
 {
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			GetAvatarActorFromActorInfo());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
 
 	if (Minion)

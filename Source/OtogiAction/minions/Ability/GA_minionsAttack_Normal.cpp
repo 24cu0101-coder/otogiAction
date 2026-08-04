@@ -13,8 +13,7 @@
 
 UGA_minionsAttack_Normal::UGA_minionsAttack_Normal()
 {
-	InstancingPolicy =
-		EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	InstancingPolicy =EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 
@@ -43,9 +42,7 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 		Warning,
 		TEXT("GA NORMAL START"));
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			GetAvatarActorFromActorInfo());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
 
 	if (Minion)
@@ -83,14 +80,10 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 				AttackMontage);
 
 
-		MontageTask->OnCompleted.AddDynamic(
-			this,
-			&UGA_minionsAttack_Normal::OnMontageCompleted);
+		MontageTask->OnCompleted.AddDynamic(this,&UGA_minionsAttack_Normal::OnMontageCompleted);
 
 
-		MontageTask->OnInterrupted.AddDynamic(
-			this,
-			&UGA_minionsAttack_Normal::OnMontageInterrupted);
+		MontageTask->OnInterrupted.AddDynamic(this,&UGA_minionsAttack_Normal::OnMontageInterrupted);
 
 
 		MontageTask->ReadyForActivation();
@@ -113,9 +106,7 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 void UGA_minionsAttack_Normal::OnMontageCompleted()
 {
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			GetAvatarActorFromActorInfo());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
 
 	if (Minion)
@@ -142,9 +133,7 @@ void UGA_minionsAttack_Normal::OnMontageCompleted()
 void UGA_minionsAttack_Normal::OnMontageInterrupted()
 {
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			GetAvatarActorFromActorInfo());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
 
 	if (Minion)
