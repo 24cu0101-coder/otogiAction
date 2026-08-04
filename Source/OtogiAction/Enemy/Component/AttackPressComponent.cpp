@@ -25,22 +25,12 @@ void UAttackPressComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (!bIsAttacking) return;
 
-	if (!CachedAnimInstance.IsValid())
+	// AnimInstance が無効、あるいはモンタージュが再生終了（またはキャンセル）されたか確認
+	if (!CachedAnimInstance.IsValid() || !CachedAnimInstance->Montage_IsPlaying(AttackMontage))
 	{
 		bIsAttacking = false;
-		SetComponentTickEnabled(false);
-		return;
+		SetComponentTickEnabled(false); // 監視TickをOFFにする
 	}
-
-	// 再生中かどうかチェック
-	const bool bIsPlaying = CachedAnimInstance->Montage_IsPlaying(AttackMontage);
-	if (!bIsPlaying)
-	{
-		// 再生終了時の処理
-		bIsAttacking = false;
-		SetComponentTickEnabled(false); // TickをOFFにして負荷を減らす
-	}
-
 }
 
 //攻撃開始時に呼ばれる関数
@@ -73,7 +63,7 @@ void UAttackPressComponent::SetEnemyState()
 }
 
 
-bool UAttackPressComponent::StartAttackBuild()
+bool UAttackPressComponent::StartAttackPress()
 {
 	if (!AttackMontage) return false;
 

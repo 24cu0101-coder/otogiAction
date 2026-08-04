@@ -20,10 +20,13 @@ EBTNodeResult::Type UMoveBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     ACharacter* EnemyCharacter = EnemyController ? Cast<ACharacter>(EnemyController->GetPawn()) : nullptr;
     if (!EnemyCharacter) return EBTNodeResult::Failed;
 
-    UMoveBuildComponent* PressComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
-    if (!PressComp) return EBTNodeResult::Failed;
+    UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
+    if (!BuildComp) return EBTNodeResult::Failed;
 
-    bool bStarted = PressComp->StartTracking();
+    //追跡を開始
+    bool bStarted = BuildComp->StartTracking();
+
+    //追跡が開始されていたらInProgressを返す
     if (bStarted)
     {
         return EBTNodeResult::InProgress;
@@ -44,10 +47,18 @@ void UMoveBuildTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
         return;
     }
 
-    UMoveBuildComponent* PressComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
+    UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
+    if (!BuildComp)
+    {
+        FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+        return;
+    }
+
+    //追跡状態の更新処理を呼ぶ
+    BuildComp->UpdateTrackingStatus();
 
     // 追跡完了判定（または目標到達時など）
-    if (PressComp && !PressComp->IsTracking())
+    if (!BuildComp->IsTracking())
     {
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
     }

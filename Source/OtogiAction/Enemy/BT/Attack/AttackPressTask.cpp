@@ -26,15 +26,16 @@ EBTNodeResult::Type UAttackPressTask::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	if (!EnemyAttackComp) return EBTNodeResult::Failed;
 
 	//AttackBuildComponentで攻撃処理を呼ぶ
-	EnemyAttackComp->ExecuteAttack();
-	bool IsAttack = EnemyAttackComp->StartAttackBuild();
+	bool IsAttack = EnemyAttackComp->StartAttackPress();
 
-	//攻撃アニメーションが終わるまで待機
 	if (IsAttack)
 	{
+		// アニメーション再生に成功したら攻撃発生（Hit判定発火など）を呼ぶ
+		EnemyAttackComp->ExecuteAttack();
+
+		// アニメーション再生終了まで TickTask で待機
 		return EBTNodeResult::InProgress;
 	}
-
 	return EBTNodeResult::Succeeded;
 }
 

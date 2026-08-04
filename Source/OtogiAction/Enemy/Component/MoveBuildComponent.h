@@ -21,21 +21,22 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//攻撃を開始する関数
-	virtual void ExecuteAttack()override;
-
 	//stateをセットする関数
 	virtual void SetEnemyState()override;
 
-	/** 追跡開始処理 */
+	//追跡開始処理
 	UFUNCTION(BlueprintCallable, Category = "Tracking")
 	virtual bool StartTracking();
 
-	/** 追跡終了処理 */
+	//追跡を更新する関数
+	void UpdateTrackingStatus();
+
+	//追跡終了処理
 	UFUNCTION(BlueprintCallable, Category = "Tracking")
 	virtual void FinishTracking();
 
 	bool IsTracking()const { return bIsTracking; }
+
 protected:
 	virtual void BeginPlay() override;
 
