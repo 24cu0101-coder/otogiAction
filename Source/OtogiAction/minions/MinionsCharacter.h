@@ -19,9 +19,7 @@ class UMinionsHitReactionComponent;
 
 
 UCLASS()
-class OTOGIACTION_API AMinionsCharacter
-	: public ACharacter
-	, public IAbilitySystemInterface
+class OTOGIACTION_API AMinionsCharacter: public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -40,7 +38,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// GAS
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* AbilitySystemComponent;
 
@@ -48,8 +45,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
+	
 	// Component
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStatusComponent* StatusComponent;
 
@@ -93,15 +90,8 @@ public:
 	{
 		return bIsAttacking;
 	}
-	// Orb
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb")
-	int32 MaxOrbCount = 3;
-
-	int32 SpawnedOrbCount = 0;
 
 	// Event
-
 	UFUNCTION()
 	void OnDamage(
 		AActor* DamagedActor,

@@ -1,5 +1,4 @@
 #include "OrbSpawnComponent.h"
-#include "OtogiAction/Component/Status/StatusComponent.h"
 #include "OrbActor.h"
 
 UOrbSpawnComponent::UOrbSpawnComponent()
@@ -12,60 +11,53 @@ void UOrbSpawnComponent::BeginPlay()
     Super::BeginPlay();
 }
 
-void UOrbSpawnComponent::SpawnOrbs(AActor* OwnerEnemy,float Damage)
+void UOrbSpawnComponent::SpawnOrbs(AActor* OwnerEnemy, float Damage)
 {
-    // OrbClassまたはOwnerEnemyが設定されていなければ終了
     if (!OrbClass || !OwnerEnemy)
     {
         return;
     }
 
-    // EnemyのStatusComponentを取得
-    UStatusComponent* StatusComponent =OwnerEnemy->FindComponentByClass<UStatusComponent>();
+    float RemainingDamage = Damage;
 
-    if (!StatusComponent)
+    while (RemainingDamage > 0.f &&
+        CurrentOrbCount < MaxOrbSpawn)
     {
-        return;
-    }
-
-    // ダメージを受ける前の現在HP
-    float CurrentHP = StatusComponent->GetCurrentHP();
-
-    // 現在HP以上のダメージではオーブを生成しない
-    float ActualDamage = FMath::Min(Damage, CurrentHP);
-
-    // まだオーブに変換していないダメージ
-    float RemainingDamage = ActualDamage;
-
-    // ダメージが残っている間オーブを生成
-    while (RemainingDamage > 0.f)
-    {
-        // オーブ1個が持つダメージ（最大10）
         float OrbDamage = FMath::Min(10.f, RemainingDamage);
 
-        // Enemyの位置を取得
-        FVector SpawnLocation = GetOwner()->GetActorLocation();
+        float Radius = 300.f;
 
-        // 少しランダムな位置にスポーン
-        SpawnLocation += FVector(
-            FMath::RandRange(-150.f, 150.f),
-            FMath::RandRange(-150.f, 150.f),
-            150.f);
+        FVector RandomOffset =
+            FMath::VRand() * FMath::RandRange(50.f, Radius);
 
-        // Orb生成
-        AOrbActor* SpawnedOrb =GetWorld()->SpawnActor<AOrbActor>(OrbClass,SpawnLocation, FRotator::ZeroRotator);
+        RandomOffset.Z = FMath::RandRange(50.f, 200.f);
 
-        // 生成できたらOwnerとダメージを設定
+        FVector SpawnLocation =
+            OwnerEnemy->GetActorLocation() + RandomOffset;
+
+        AOrbActor* SpawnedOrb =
+            GetWorld()->SpawnActor<AOrbActor>(
+                OrbClass,
+                SpawnLocation,
+                FRotator::ZeroRotator);
+
         if (SpawnedOrb)
         {
-            // このEnemyが出したOrbとして登録
             SpawnedOrb->SetOwnerEnemy(OwnerEnemy);
 
-            // Orbが持つダメージを設定
             SpawnedOrb->SetOrbDamage(OrbDamage);
+
+            // このコンポーネントをOrbへ渡す
+            SpawnedOrb->SetSpawnComponent(this);
+
+            CurrentOrbCount++;
         }
 
-        // オーブにした分のダメージを減らす
         RemainingDamage -= OrbDamage;
     }
+}
+
+void UOrbSpawnComponent::ReturnOrb()
+{
+    CurrentOrbCount = FMath::Max(0, CurrentOrbCount - 1);
 }

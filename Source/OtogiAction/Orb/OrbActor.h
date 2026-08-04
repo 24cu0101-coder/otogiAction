@@ -5,6 +5,7 @@
 #include "OrbActor.generated.h"
 
 class UStaticMeshComponent;
+class UOrbSpawnComponent;
 
 UCLASS()
 class OTOGIACTION_API AOrbActor : public AActor
@@ -23,12 +24,19 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     void StartAbsorb(AActor* Target);
+
+    void SetSpawnComponent(UOrbSpawnComponent* InComponent);
+
 private:
     UPROPERTY(VisibleAnywhere)
     UStaticMeshComponent* MeshComponent;
 
     UPROPERTY()
     AActor* OwnerEnemy = nullptr;
+
+    UPROPERTY()
+    UOrbSpawnComponent* SpawnComponent;
+
 private:
     FVector StartLocation;
     float FloatTime = 0.f;

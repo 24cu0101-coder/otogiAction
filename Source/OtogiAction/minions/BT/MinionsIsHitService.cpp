@@ -13,35 +13,26 @@ UMinionsIsHitService::UMinionsIsHitService()
 	RandomDeviation = 0.0f;
 }
 
-void UMinionsIsHitService::TickNode(
-	UBehaviorTreeComponent& OwnerComp,
-	uint8* NodeMemory,
-	float DeltaSeconds)
+void UMinionsIsHitService::TickNode(UBehaviorTreeComponent& OwnerComp,uint8* NodeMemory,float DeltaSeconds)
 {
 
-	Super::TickNode(
-		OwnerComp,
-		NodeMemory,
-		DeltaSeconds);
+	Super::TickNode(OwnerComp,NodeMemory,DeltaSeconds);
 
-	UBlackboardComponent* BBComp =
-		OwnerComp.GetBlackboardComponent();
+	UBlackboardComponent* BBComp =OwnerComp.GetBlackboardComponent();
 
 	if (!BBComp)
 	{
 		return;
 	}
 
-	AAIController* AIController =
-		OwnerComp.GetAIOwner();
+	AAIController* AIController =OwnerComp.GetAIOwner();
 
 	if (!AIController)
 	{
 		return;
 	}
 
-	AMinionsCharacter* Minions =
-		Cast<AMinionsCharacter>(AIController->GetPawn());
+	AMinionsCharacter* Minions =Cast<AMinionsCharacter>(AIController->GetPawn());
 
 	if (!Minions)
 	{
@@ -50,7 +41,5 @@ void UMinionsIsHitService::TickNode(
 	}
 
 
-	BBComp->SetValueAsBool(
-		IsHitKey.SelectedKeyName,
-		Minions->GetIsHitFlg());
+	BBComp->SetValueAsBool(IsHitKey.SelectedKeyName,Minions->GetIsHitFlg());
 }

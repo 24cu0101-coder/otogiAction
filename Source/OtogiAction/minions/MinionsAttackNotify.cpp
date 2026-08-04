@@ -4,9 +4,7 @@
 #include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
 
 
-void UMinionsAttackNotify::Notify(
-	USkeletalMeshComponent* MeshComp,
-	UAnimSequenceBase* Animation)
+void UMinionsAttackNotify::Notify(USkeletalMeshComponent* MeshComp,UAnimSequenceBase* Animation)
 {
 
 	if (!MeshComp)
@@ -15,9 +13,7 @@ void UMinionsAttackNotify::Notify(
 	}
 
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(
-			MeshComp->GetOwner());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(MeshComp->GetOwner());
 
 
 	if (!Minion)
@@ -40,9 +36,7 @@ void UMinionsAttackNotify::Notify(
 
 
 
-	USphereCollisionComponent* SphereCollision =
-		Minion->FindComponentByClass
-		<USphereCollisionComponent>();
+	USphereCollisionComponent* SphereCollision =Minion->FindComponentByClass<USphereCollisionComponent>();
 
 
 	if (!SphereCollision)

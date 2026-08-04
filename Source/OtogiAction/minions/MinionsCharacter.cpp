@@ -81,7 +81,6 @@ void AMinionsCharacter::BeginPlay()
 	}
 	if (!AbilitySystemComponent)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ASC is NULL"));
 		return;
 	}
 
@@ -94,9 +93,7 @@ void AMinionsCharacter::BeginPlay()
 	if (UEnemyHPWidget* HPWidget =
 		Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
 	{
-		HPWidget->SetHP(
-			StatusComponent->GetCurrentHP(),
-			StatusComponent->GetMaxHP());
+		HPWidget->SetHP(StatusComponent->GetCurrentHP(),StatusComponent->GetMaxHP());
 	}
 }
 
@@ -115,8 +112,7 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		{
 			if (AbilityClass)
 			{
-				AbilitySystemComponent->GiveAbility(
-					FGameplayAbilitySpec(AbilityClass, 1, InputID)
+				AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, InputID)
 				);
 
 				UE_LOG(LogTemp, Warning, TEXT("Ability Granted: %s"), *AbilityClass->GetName());
@@ -125,12 +121,7 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		}
 	}
 }
-void AMinionsCharacter::OnDamage(
-	AActor* DamagedActor,
-	float Damage,
-	const UDamageType* DamageType,
-	AController* InstigatedBy,
-	AActor* DamageCauser)
+void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
 {
 
 	SetIsHitFlg(true);
@@ -145,16 +136,12 @@ void AMinionsCharacter::OnDamage(
 	// 被弾音
 	if (CharacterAudioComponent)
 	{
-		CharacterAudioComponent->PlayCharacterSound(
-			ECharacterSoundType::Damage);
+		CharacterAudioComponent->PlayCharacterSound(ECharacterSoundType::Damage);
 	}
 	// 被弾エフェクト
 	if (HitEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
-			HitEffect,
-			GetActorLocation() + FVector(0, 0, 80.f));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitEffect,GetActorLocation() + FVector(0, 0, 80.f));
 	}
 
 
@@ -208,13 +195,7 @@ void AMinionsCharacter::OnDamage(
 	}
 
 
-
-	// オーブ生成
-
-	OrbSpawnComponent->SpawnOrbs(
-		this,
-		Damage);
-
+	OrbSpawnComponent->SpawnOrbs(this,Damage);
 }
 //HPWidget
 void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
@@ -224,12 +205,9 @@ void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
 		return;
 	}
 
-	if (UEnemyHPWidget* HPWidget =
-		Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
+	if (UEnemyHPWidget* HPWidget =Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
 	{
-		HPWidget->SetHP(
-			CurrentHP,
-			StatusComponent->GetMaxHP());
+		HPWidget->SetHP(CurrentHP,StatusComponent->GetMaxHP());
 	}
 }
 
@@ -283,25 +261,17 @@ void AMinionsCharacter::CancelAttack()
 		FGameplayTagContainer AttackTags;
 
 
-		AttackTags.AddTag(
-			FGameplayTag::RequestGameplayTag(
-				FName("Ability.Attack.Normal")));
+		AttackTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Normal")));
 
 
-		AttackTags.AddTag(
-			FGameplayTag::RequestGameplayTag(
-				FName("Ability.Attack.Middle")));
+		AttackTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Middle")));
 
 
-		AttackTags.AddTag(
-			FGameplayTag::RequestGameplayTag(
-				FName("Ability.Attack.Strong")));
+		AttackTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Strong")));
 
 
 
-		AbilitySystemComponent
-			->CancelAbilities(
-				&AttackTags);
+		AbilitySystemComponent->CancelAbilities(&AttackTags);
 
 	}
 

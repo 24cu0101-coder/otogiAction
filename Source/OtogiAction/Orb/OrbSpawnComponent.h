@@ -5,7 +5,6 @@
 #include "OrbSpawnComponent.generated.h"
 
 class AOrbActor;
-class UStatusComponent;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OTOGIACTION_API UOrbSpawnComponent : public UActorComponent
@@ -23,6 +22,16 @@ public:
     UPROPERTY(EditAnywhere, Category = "Orb")
     TSubclassOf<AOrbActor> OrbClass;
 
-    // ダメージ分のオーブを生成
-    void SpawnOrbs(AActor* OwnerEnemy,float Damage);
+    // 最大生成数
+    UPROPERTY(EditAnywhere, Category = "Orb")
+    int32 MaxOrbSpawn = 10;
+
+    // 現在生成されている数
+    UPROPERTY(VisibleAnywhere, Category = "Orb")
+    int32 CurrentOrbCount = 0;
+
+    void SpawnOrbs(AActor* OwnerEnemy, float Damage);
+
+    // Orbが消えた時に呼ぶ
+    void ReturnOrb();
 };
