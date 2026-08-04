@@ -15,7 +15,8 @@ void USkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	//ゲーム開始時に使用回数を初期化
+	ResetAllSkillUseCount();
 	
 }
 
@@ -60,11 +61,18 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 		UE_LOG(LogTemp, Error, TEXT("Failed: OwnerASC is NULL or SkillGroups is Empty!"));
 		return;
 	}
-	FSkillSet CurrentSet = SkillGroups[CurrentGroupPointer];
+	FSkillSet& CurrentSet = SkillGroups[CurrentGroupPointer];
 
 	if (!CurrentSet.SkillAbility)
 	{
 		UE_LOG(LogTemp, Error, TEXT("× Failed: CurrentSet.SkillAbility is NULL!"));
+		return;
+	}
+
+	//使用回数の判定
+	if (CurrentSet.MaxUseCount > 0 && CurrentSet.CurrentUseCount <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillUsedToInfinity"));
 		return;
 	}
 
@@ -100,8 +108,24 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 			//消費に成功したらアビリティを発動
 			if (GaugeComp->ConsumeGauge(CurrentSet.Cost))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("ExcuteSkill"));
+				/*UE_LOG(LogTemp, Warning, TEXT("ExcuteSkill"));
 				OwnerASC->TryActivateAbilityByClass(CurrentSet.SkillAbility);
+				*/
+				//ability発動したら使用回数を減算
+				bool bSuccess = OwnerASC->TryActivateAbilityByClass(CurrentSet.SkillAbility);
+
+				if (bSuccess)
+				{
+					if (CurrentSet.MaxUseCount > 0)
+					{
+						CurrentSet.CurrentUseCount--;
+						UE_LOG(LogTemp, Warning, TEXT("ExcuteSkill Succes.Remaining Count: %d"), CurrentSet.CurrentUseCount);
+					}
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Failed to Activate Ability!"));
+				}
 			}
 		}
 		else
@@ -109,5 +133,25 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 			UE_LOG(LogTemp,Warning, TEXT("NoSkillGauge"));
 		}
 	}
+}
+
+//スキルのリセット関数
+void USkillComponent::ResetAllSkillUseCount()
+{
+	//セットされてるスキルの個数分使用回数を最大値にリセットする
+	for (FSkillSet& Group : SkillGroups)
+	{
+		Group.CurrentUseCount = Group.MaxUseCount;
+	}
+}
+
+//現在のスキルの使用回数を取得
+int32 USkillComponent::GetSkillUseCount(int32 GroupIndex) const
+{
+	if (SkillGroups.IsValidIndex(GroupIndex))
+	{
+		return SkillGroups[GroupIndex].CurrentUseCount;
+	}
+	return 0;
 }
 

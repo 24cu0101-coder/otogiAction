@@ -24,6 +24,13 @@ struct FSkillSet
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
 	float Cost = 30.f;
 
+	//スキルの最大使用回数
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill|Limit")
+	int32 MaxUseCount = 0;
+
+	//現在のスキルの残り使用回数
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Skill|Limit")
+	int32 CurrentUseCount = 0;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -63,5 +70,13 @@ public:
 	void RequestSkillTrigger(int32 ButtonIndex);
 
 	int32 GetCurrentGroupPointer() const { return CurrentGroupPointer; }
+
+	//現在の選択中のスキルの使用回数をリセット
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	void ResetAllSkillUseCount();
+
+	//特定のスキルの使用回数を取得する関数
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	int32  GetSkillUseCount(int32 GroupIndex) const;
 
 };
