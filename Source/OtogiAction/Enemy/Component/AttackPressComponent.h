@@ -32,7 +32,7 @@ public:
 	virtual void SetEnemyState()override;
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	bool StartAttackBuild();
+	bool StartAttackPress();
 
 	bool IsAttacking() const { return bIsAttacking; }
 

@@ -16,7 +16,7 @@ UAttackBuildComponent::UAttackBuildComponent()
 	MinRange = 0.f;
 	MaxRange = 150.f;
 	FadeOutRange = 200.f;
-	BasePriority = .4f; // 通常移動より優先度を高く設定
+	BasePriority = 0.4f; // 通常移動より優先度を高く設定
 
 }
 
@@ -26,20 +26,11 @@ void UAttackBuildComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (!bIsAttacking) return;
 
-	if (!CachedAnimInstance.IsValid())
+	//AnimInstanceが無効、あるいはモンタージュが再生終了されたか確認
+	if (!CachedAnimInstance.IsValid() || !CachedAnimInstance->Montage_IsPlaying(AttackMontage))
 	{
 		bIsAttacking = false;
-		SetComponentTickEnabled(false);
-		return;
-	}
-
-	// 再生中かどうかチェック
-	const bool bIsPlaying = CachedAnimInstance->Montage_IsPlaying(AttackMontage);
-	if (!bIsPlaying)
-	{
-		// 再生終了時の処理
-		bIsAttacking = false;
-		SetComponentTickEnabled(false); // TickをOFFにして負荷を減らす
+		SetComponentTickEnabled(false); //監視TickをOFFにする
 	}
 }
 
@@ -84,13 +75,14 @@ bool UAttackBuildComponent::StartAttackBuild()
 	UAnimInstance* AnimInstance = Character->GetMesh() ? Character->GetMesh()->GetAnimInstance() : nullptr;
 	if (!AnimInstance) return false;
 
+	//モンタージュ再生を開始
 	float Duration = AnimInstance->Montage_Play(AttackMontage);
 	if (Duration <= 0.0f)
 	{
 		return false;
 	}
 
-	// 状態と参照を保持してTickを開始
+	//状態と参照を保持してTickを開始
 	CachedAnimInstance = AnimInstance;
 	bIsAttacking = true;
 	SetComponentTickEnabled(true);

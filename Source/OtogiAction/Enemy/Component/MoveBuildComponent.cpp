@@ -40,10 +40,6 @@ void UMoveBuildComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 }
 
-void UMoveBuildComponent::ExecuteAttack()
-{
-}
-
 void UMoveBuildComponent::SetEnemyState()
 {
 	if (UWorld* World = GetWorld())
@@ -84,10 +80,39 @@ bool UMoveBuildComponent::StartTracking()
 	EPathFollowingRequestResult::Type MoveResult = AIController->MoveToActor(TargetPawn, MinRange);
 	bIsTracking = (MoveResult != EPathFollowingRequestResult::Type::Failed);
 
+	// 失敗じゃなければ追跡中フラグを立てる
+	bIsTracking = (MoveResult != EPathFollowingRequestResult::Failed);
+
+	// すでに目的地にいる場合は追跡不要として false にする
+	if (MoveResult == EPathFollowingRequestResult::AlreadyAtGoal)
+	{
+		bIsTracking = false;
+	}
+
 	return bIsTracking;
+}
+
+void UMoveBuildComponent::UpdateTrackingStatus()
+{
+	if (!bIsTracking || !CachedAIController) return;
+
+	//AIControllerのPathFollowingComponentから現在の移動状態を取得
+	UPathFollowingComponent* PathComp = CachedAIController->GetPathFollowingComponent();
+	if (PathComp)
+	{
+		//移動が完了している場合
+		if (PathComp->GetStatus() == EPathFollowingStatus::Idle)
+		{
+			bIsTracking = false;
+		}
+	}
 }
 
 void UMoveBuildComponent::FinishTracking()
 {
+	if (CachedAIController)
+	{
+		CachedAIController->StopMovement();
+	}
 	bIsTracking = false;
 }
