@@ -22,6 +22,8 @@ void UPlayerTargetComponent::BeginPlay()
 //ターゲットロックオン開始解除
 void UPlayerTargetComponent::ToggleTargetLock()
 {
+	UE_LOG(LogTemp, Warning, TEXT("TagetSearchStart"));
+
 	//すでにターゲットしていたら解除する
 	if (IsTargeting())
 	{
