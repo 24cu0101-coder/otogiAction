@@ -494,8 +494,20 @@ void APlayerCharacter::UpdateSkillGaugeUI()
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	//ジャスト回避時のtag
+	FGameplayTag InvincibleTag = FGameplayTag::RequestGameplayTag(FName("Invincible"));
+
 	//死んでいたらリターン
 	if (bIsDead)return 0.f;
+
+	if (AbilitySystemComp->HasMatchingGameplayTag(InvincibleTag))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("ddyyy"));
+		//return 0.f;
+	}
+
+
+
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 

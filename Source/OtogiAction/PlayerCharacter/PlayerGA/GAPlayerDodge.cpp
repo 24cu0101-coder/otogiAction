@@ -2,7 +2,6 @@
 
 #include "GAPlayerDodge.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputComponent.h"
@@ -13,7 +12,6 @@
 //コンストラクタ
 UGAPlayerDodge::UGAPlayerDodge()
 {
-
 	////実行中のタグを登録
 	//AbilityTags.AddTag(IsDodgeTag);
 }
@@ -33,47 +31,21 @@ void UGAPlayerDodge::ActivateAbility(
 	//プレイヤーの情報を取得
 	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
 
-	
-	if (!PlayerActor || !DodgeMontage )
+	if (!PlayerActor || !DodgeMontage)
 	{
 		//リターン
 		return;
 	}
 
 	//タグ登録
-	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));	
+	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
 
 	StickRotate();
-	
-	//just回避でなければ
-	if (!JustDodge) {
 
-		//再生のタスク
-		UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-		(this, NAME_None, DodgeMontage);
+	//PlayDodge();
 
-		//タスクなければリターン
-		if (!DodgeMontageTask) return;
-
-		//アニメーション再生
-		DodgeMontageTask->ReadyForActivation();
-
-		//タスクがあれば
-		if (DodgeMontageTask)
-		{
-			//終了時に自動で呼ぶ
-			DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
-			DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
-		}
-
-
-
-		//回避開始までのタイマー
-		//FTimerHandle DodgeDelayTimer;
-		//エディタで設定した時間待ってから回避実行
-		GetWorld()->GetTimerManager().SetTimer(DodgeTimer, this, &UGAPlayerDodge::DodgeStart, DelayTiem, false);
-	}
-
+	//回避開始
+	DodgeStart();
 }
 
 
@@ -87,46 +59,122 @@ void UGAPlayerDodge::ActivateAbility(
 //回避開始の処理
 void UGAPlayerDodge::DodgeStart()
 {
-	////世界からtimerをもらう
-	////回避処理開始(毎フレーム繰り返す)
-	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, this, &UGAPlayerDodge::IsDodge, 0.001, true);
+	//再生のタスク
+	UAbilityTask_PlayMontageAndWait* DodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
+	(this, NAME_None, DodgeMontage);
 
-	//IsDodge();
+	//タスクなければリターン
+	if (!DodgeMontageTask) return;
 
-	//just回避受付開始
-	//JustDodgeWindow();
-	////just回避flagをture
-	//JustDodge = true;
+	//アニメーション再生
+	DodgeMontageTask->ReadyForActivation();
 
-	//PlayJustDodge();
+	//タスクがあれば
+	if (DodgeMontageTask)
+	{
+		//終了時に自動で呼ぶ
+		DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+	}
 
-	////数秒後処理終了
-	FTimerHandle EndDodgeTimer;
+	//通常回避
+	PlayDodge();
+}
+
+//通常回避の開始
+void UGAPlayerDodge::PlayDodge()
+{
+
+	//移動用の関数の引数に代入してバインド
+	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::SetLocation, DodgeDistance);
+
+	//回避処理開始(ほぼ毎フレーム繰り返す)
+	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
+
+	JustDodgeWindow();
+
+	////ジャスト回避受付終了
+	//GetWorld()->GetTimerManager().SetTimer(EndJustDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, 0.2, false);
+
 	//指定した時間後終了
-	GetWorld()->GetTimerManager().SetTimer(EndDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, DodgeTime, false);	
+	GetWorld()->GetTimerManager().SetTimer(EndDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, DodgeTime, false);
 }
 
 
 //just回避受付の処理
 void UGAPlayerDodge::JustDodgeWindow()
 {
+	UE_LOG(LogTemp, Warning, TEXT("kkkk"));
 
-	FTimerHandle JustDodgeTime;
-	//just回避受付
-	GetWorld()->GetTimerManager().SetTimer(JustDodgeTime, this, &UGAPlayerDodge::PlayJustDodge, GetWorld()->GetDeltaSeconds(), true);
-
-
-	//数秒後処理終了
-	FTimerHandle JustDodgeWindTime;
-	//指定したフレーム後にjust回避受付終了
-	GetWorld()->GetTimerManager().SetTimer(JustDodgeWindTime, this, &UGAPlayerDodge::EndJustDodge, JustFrame, false);
-
-
+	//tagを飛ばす
+	IsInvincible = FGameplayTag::RequestGameplayTag(FName("Invincible"));
+	if (ASC)
+	{
+		ASC->AddLooseGameplayTag(IsInvincible);
+	}
+	if (IsValid(PlayerActor) && IsValid(this))
+	{
+		PlayerActor->OnTakeAnyDamage.AddDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
+	}
 }
+
+
+void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (DamageCauser && DamageCauser->ActorHasTag(FName("Enemy")))
+	{
+
+		FTimerHandle EndJustDodgeTime;
+		GetWorld()->GetTimerManager().SetTimer(EndJustDodgeTime, this, &UGAPlayerDodge::EndJustDodgeWindow, DodgeTime, false);
+			
+
+		//timer破棄
+		GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
+		GetWorld()->GetTimerManager().ClearTimer(EndDodgeTimer);
+
+		//
+		PlayJustDodge();
+	}
+}
+
+void UGAPlayerDodge::EndJustDodgeWindow()
+{
+	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		Player->OnTakeAnyDamage.RemoveDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
+	}
+
+	ASC->RemoveLooseGameplayTag(IsInvincible);
+
+	GetWorld()->GetTimerManager().ClearTimer(EndJustDodgeTimer);
+}
+
 
 //ジャスト回避開始
 void UGAPlayerDodge::PlayJustDodge()
 {
+	UE_LOG(LogTemp, Warning, TEXT("yyyyy"));
+
+
+	//再生のタスク
+	UAbilityTask_PlayMontageAndWait* JustDodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
+	(this, NAME_None, JustDodgeMontage);
+
+	//タスクなければリターン
+	if (!JustDodgeMontageTask) return;
+
+	//アニメーション再生
+	JustDodgeMontageTask->ReadyForActivation();
+
+	//タスクがあれば
+	if (JustDodgeMontageTask)
+	{
+		//終了時に自動で呼ぶ
+		JustDodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+		JustDodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+	}
+
+
 	//ワールドの情報の取得
 	UWorld* World = GetWorld();
 	//ワールドが無ければ
@@ -141,35 +189,32 @@ void UGAPlayerDodge::PlayJustDodge()
 	//	Avatar->CustomTimeDilation = 0.6 / SlowMagnification;
 	//}
 
-
-
-		//数秒後処理終了
+	//数秒後処理終了
 	FTimerHandle dd;
 	//指定したフレーム後にjust回避受付終了
-	GetWorld()->GetTimerManager().SetTimer(dd, this, &UGAPlayerDodge::EndJustDodge, 0.5f / 20 , false);
+	GetWorld()->GetTimerManager().SetTimer(dd, this, &UGAPlayerDodge::EndJustDodge, SlowTime / 5, false);
 }
 
 //just回避終了
 void UGAPlayerDodge::EndJustDodge()
 {
-	UE_LOG(LogTemp, Warning, TEXT("dd"));
-
 	//ワールドの情報の取得
 	UWorld* World = GetWorld();
 	//ワールドが無ければ
 	if (!World) return;
 
-	//世界をスローに
+	DodgeEnd();
+
+	//世界をあるべき姿に
 	UGameplayStatics::SetGlobalTimeDilation(World, 1);
+
+
 
 }
 
-
-
-//回避の処理
-void UGAPlayerDodge::IsDodge()
+//回避時の移動
+void UGAPlayerDodge::SetLocation(float Distance)
 {
-
 	//プレイヤーの情報と再生タスクが在れば
 	if (PlayerActor)
 	{
@@ -191,13 +236,29 @@ void UGAPlayerDodge::IsDodge()
 	}
 }
 
+void UGAPlayerDodge::IsJustDodge()
+{
+
+}
+
 
 
 //回避終了時の処理
 void UGAPlayerDodge::DodgeEnd()
 {
+
+	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo()))
+	{
+		Player->OnTakeAnyDamage.RemoveDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
+	}
+
+	ASC->RemoveLooseGameplayTag(IsInvincible);
+
+
 	//timer破棄
 	GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
+	GetWorld()->GetTimerManager().ClearTimer(EndDodgeTimer);
+
 
 	//モンタージュ終了させる
 	DodgeMontageEnd();
@@ -209,7 +270,7 @@ void UGAPlayerDodge::DodgeMontageEnd()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-
+//即座に回転させる
 void UGAPlayerDodge::StickRotate()
 {
 	APlayerController* PC = Cast<APlayerController>(PlayerActor->GetController());
@@ -242,7 +303,7 @@ void UGAPlayerDodge::StickRotate()
 		FVector CameraRight = FRotationMatrix(CameraYawRotation).GetScaledAxis(EAxis::Y); // カメラの右方向
 
 		FVector WorldDirection = (CameraForward * Y) + (CameraRight * X);
-		WorldDirection.Z = 0.f; 
+		WorldDirection.Z = 0.f;
 
 		FRotator TargetRotation = WorldDirection.Rotation();
 
@@ -255,7 +316,7 @@ void UGAPlayerDodge::StickRotate()
 	}
 }
 
- 
- 
+
+
 //-----------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------
