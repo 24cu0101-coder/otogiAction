@@ -12,7 +12,6 @@
 #include "Components/WidgetComponent.h"
 #include "../UI/EnemyHPWidget.h"
 #include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "OtogiAction/minions/MinionsHitReactionComponent.h"
 
@@ -35,16 +34,16 @@ AMinionsCharacter::AMinionsCharacter()
 	OrbSpawnComponent = CreateDefaultSubobject<UOrbSpawnComponent>(TEXT("OrbSpawnComponent"));
 
 	//Audioコンポーネント
-	CharacterAudioComponent =CreateDefaultSubobject<UCharacterAudioComponent>(TEXT("CharacterAudioComponent"));
+	CharacterAudioComponent = CreateDefaultSubobject<UCharacterAudioComponent>(TEXT("CharacterAudioComponent"));
 
 	//SphereCollisonComponent
-	SphereCollisionComponent =CreateDefaultSubobject<USphereCollisionComponent>(TEXT("SphereCollisionComponent"));
+	SphereCollisionComponent = CreateDefaultSubobject<USphereCollisionComponent>(TEXT("SphereCollisionComponent"));
 
 	//HitReaction
 	HitReactionComponent = CreateDefaultSubobject<UMinionsHitReactionComponent>(TEXT("HitReactionComponent"));
 
 	//HPwidget
-	HPWidgetComponent =CreateDefaultSubobject<UWidgetComponent>(TEXT("HPWidget"));
+	HPWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPWidget"));
 
 	HPWidgetComponent->SetupAttachment(RootComponent);
 
@@ -93,7 +92,7 @@ void AMinionsCharacter::BeginPlay()
 	if (UEnemyHPWidget* HPWidget =
 		Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
 	{
-		HPWidget->SetHP(StatusComponent->GetCurrentHP(),StatusComponent->GetMaxHP());
+		HPWidget->SetHP(StatusComponent->GetCurrentHP(), StatusComponent->GetMaxHP());
 	}
 }
 
@@ -121,7 +120,7 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		}
 	}
 }
-void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
+void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 
 	SetIsHitFlg(true);
@@ -141,7 +140,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 	// 被弾エフェクト
 	if (HitEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitEffect,GetActorLocation() + FVector(0, 0, 80.f));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, GetActorLocation() + FVector(0, 0, 80.f));
 	}
 
 
@@ -194,8 +193,15 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 
 	}
 
-
-	OrbSpawnComponent->SpawnOrbs(this,Damage);
+	if (!bKintaroOnlyEnemy || bCanSpawnOrb)
+	{
+		OrbSpawnComponent->SpawnOrbs(this, Damage);
+	}
+	UE_LOG(LogTemp, Warning,
+		TEXT("%s  KintaroOnly:%d  CanSpawn:%d"),
+		*GetName(),
+		bKintaroOnlyEnemy,
+		bCanSpawnOrb);
 }
 //HPWidget
 void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
@@ -205,9 +211,9 @@ void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
 		return;
 	}
 
-	if (UEnemyHPWidget* HPWidget =Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
+	if (UEnemyHPWidget* HPWidget = Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
 	{
-		HPWidget->SetHP(CurrentHP,StatusComponent->GetMaxHP());
+		HPWidget->SetHP(CurrentHP, StatusComponent->GetMaxHP());
 	}
 }
 
@@ -279,4 +285,15 @@ void AMinionsCharacter::CancelAttack()
 	UE_LOG(LogTemp, Warning,
 		TEXT("MINION ATTACK CANCEL"));
 
+}
+
+void AMinionsCharacter::SetCanSpawnOrb(bool bEnable)
+{
+	bCanSpawnOrb = bEnable;
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("SetCanSpawnOrb called : %s -> %d"),
+		*GetName(),
+		bCanSpawnOrb
+	);
 }

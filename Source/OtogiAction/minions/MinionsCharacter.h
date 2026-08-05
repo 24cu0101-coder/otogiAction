@@ -19,7 +19,7 @@ class UMinionsHitReactionComponent;
 
 
 UCLASS()
-class OTOGIACTION_API AMinionsCharacter: public ACharacter, public IAbilitySystemInterface
+class OTOGIACTION_API AMinionsCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -45,7 +45,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
-	
+
 	// Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStatusComponent* StatusComponent;
@@ -74,8 +74,20 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsAttacking = false;
 
-	UPROPERTY(EditAnywhere,category="Effect")
+	UPROPERTY(EditAnywhere, category = "Effect")
 	UNiagaraSystem* HitEffect;
+
+	//SpecialAbility
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Enemy")
+	bool bKintaroOnlyEnemy = false;
+
+	// Orb状態
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb")
+	bool bCanSpawnOrb = false;
+
+	//攻撃速度
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float AttackPlayRate = 1.0f;
 
 public:
 
@@ -105,6 +117,8 @@ public:
 
 	UFUNCTION()
 	void UpdateHPWidget(float CurrentHP);
+
+	void SetCanSpawnOrb(bool bEnable);
 
 private:
 	bool bIsHit = false;

@@ -49,18 +49,32 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 	}
 
 
-	// Montage再生
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
 
+	float PlayRate = 1.0f;
+
+	if (Minion)
+	{
+		PlayRate = Minion->AttackPlayRate;
+	}
+
+	// Montage再生
 	if (AttackMontage)
 	{
-		UAbilityTask_PlayMontageAndWait* MontageTask =UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,AttackMontage);
+		UAbilityTask_PlayMontageAndWait* MontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this,
+				NAME_None,
+				AttackMontage,
+				PlayRate);
 
+		MontageTask->OnCompleted.AddDynamic(
+			this,
+			&UGA_minionsAttack_Middle::OnMontageCompleted);
 
-		MontageTask->OnCompleted.AddDynamic(this,&UGA_minionsAttack_Middle::OnMontageCompleted);
-
-
-		MontageTask->OnInterrupted.AddDynamic(this,&UGA_minionsAttack_Middle::OnMontageInterrupted);
-
+		MontageTask->OnInterrupted.AddDynamic(
+			this,
+			&UGA_minionsAttack_Middle::OnMontageInterrupted);
 
 		MontageTask->ReadyForActivation();
 	}
@@ -71,7 +85,6 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 			Error,
 			TEXT("AttackMontage is NULL"));
 	}
-
 }
 
 

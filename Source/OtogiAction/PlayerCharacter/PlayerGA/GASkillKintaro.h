@@ -7,7 +7,7 @@
 #include "GASkillKintaro.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class OTOGIACTION_API UGASkillKintaro : public UGameplayAbility
@@ -18,13 +18,8 @@ public:
 	UGASkillKintaro();
 
 	// アビリティ開始時の処理
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-protected:
 protected:
 	//変身モンタージュ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Kintaro | Visual")
@@ -38,4 +33,12 @@ private:
 	// アニメーションが終了（またはキャンセル）した時のコールバック関数
 	UFUNCTION()
 	void AbilityFinished();
+
+	//金太郎専用敵のOrb生成を解除
+	UFUNCTION()
+	void DisableKintaroEnemyOrb();
+
+
+	FTimerHandle KintaroTimerHandle;
+
 };
