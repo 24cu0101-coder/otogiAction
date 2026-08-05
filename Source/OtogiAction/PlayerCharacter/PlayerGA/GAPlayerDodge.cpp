@@ -42,8 +42,6 @@ void UGAPlayerDodge::ActivateAbility(
 
 	StickRotate();
 
-	//PlayDodge();
-
 	//回避開始
 	DodgeStart();
 }
@@ -77,8 +75,9 @@ void UGAPlayerDodge::DodgeStart()
 		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
 	}
 
-	//通常回避
-	PlayDodge();
+	FTimerHandle DodgeDelayTimer;
+	GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGAPlayerDodge::PlayDodge, DelayTiem, false);
+
 }
 
 //通常回避の開始
@@ -86,15 +85,12 @@ void UGAPlayerDodge::PlayDodge()
 {
 
 	//移動用の関数の引数に代入してバインド
-	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::SetLocation, DodgeDistance);
+	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance);
 
 	//回避処理開始(ほぼ毎フレーム繰り返す)
 	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
 
 	JustDodgeWindow();
-
-	////ジャスト回避受付終了
-	//GetWorld()->GetTimerManager().SetTimer(EndJustDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, 0.2, false);
 
 	//指定した時間後終了
 	GetWorld()->GetTimerManager().SetTimer(EndDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, DodgeTime, false);
@@ -110,8 +106,9 @@ void UGAPlayerDodge::JustDodgeWindow()
 	IsInvincible = FGameplayTag::RequestGameplayTag(FName("Invincible"));
 	if (ASC)
 	{
+		//タグを付与する
 		ASC->AddLooseGameplayTag(IsInvincible);
-	}
+	}	
 	if (IsValid(PlayerActor) && IsValid(this))
 	{
 		PlayerActor->OnTakeAnyDamage.AddDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
@@ -137,6 +134,7 @@ void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, cons
 	}
 }
 
+
 void UGAPlayerDodge::EndJustDodgeWindow()
 {
 	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo()))
@@ -154,6 +152,14 @@ void UGAPlayerDodge::EndJustDodgeWindow()
 void UGAPlayerDodge::PlayJustDodge()
 {
 	UE_LOG(LogTemp, Warning, TEXT("yyyyy"));
+
+	LocationDelegate.Unbind();
+
+	//移動用の関数の引数に代入してバインド
+	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance / 2);
+
+	//回避処理開始(ほぼ毎フレーム繰り返す)
+	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001 / 5, true);
 
 
 	//再生のタスク
@@ -183,12 +189,7 @@ void UGAPlayerDodge::PlayJustDodge()
 	//世界をスローに
 	UGameplayStatics::SetGlobalTimeDilation(World, SlowMagnification);
 
-	//if (AActor* Avatar = GetAvatarActorFromActorInfo())
-	//{
-	//	//プレイヤーの速度は少し早めに
-	//	Avatar->CustomTimeDilation = 0.6 / SlowMagnification;
-	//}
-
+	
 	//数秒後処理終了
 	FTimerHandle dd;
 	//指定したフレーム後にjust回避受付終了
@@ -213,7 +214,7 @@ void UGAPlayerDodge::EndJustDodge()
 }
 
 //回避時の移動
-void UGAPlayerDodge::SetLocation(float Distance)
+void UGAPlayerDodge::DodgeLocation(float Distance)
 {
 	//プレイヤーの情報と再生タスクが在れば
 	if (PlayerActor)
@@ -234,11 +235,6 @@ void UGAPlayerDodge::SetLocation(float Distance)
 		//プレイヤーを移動
 		PlayerActor->SetActorLocation(DodgeLocation, true);
 	}
-}
-
-void UGAPlayerDodge::IsJustDodge()
-{
-
 }
 
 

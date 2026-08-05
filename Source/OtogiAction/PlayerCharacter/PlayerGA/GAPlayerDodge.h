@@ -55,16 +55,12 @@ protected:
 
 	void DodgeStart();
 
-	//回避時の移動処理
+	//回避時の移動関数
 	UFUNCTION()
 
-	void SetLocation(float Distance);
+	void DodgeLocation(float Distance);
 
-	UFUNCTION()
-	void IsJustDodge();
-
-
-	//回避終了時の処理
+	//回避終了時の関数
 	UFUNCTION()
 
 	void DodgeEnd();
@@ -74,20 +70,23 @@ protected:
 
 	void DodgeMontageEnd();
 
-	//ジャスト回避受付
+	//ジャスト回避受付関数
 	UFUNCTION()
 	void JustDodgeWindow();
 
+	//ジャスト回避受付終了の関数
 	UFUNCTION()
 	void EndJustDodgeWindow();
 
-	//
+	//回避開始の関数
 	UFUNCTION()
 	void PlayDodge();
 
+	//ジャスト回避の関数
 	UFUNCTION()
 	void PlayJustDodge();
 
+	//ジャスト回避終了の関数
 	UFUNCTION()
 	void EndJustDodge();
 
