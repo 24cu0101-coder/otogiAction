@@ -105,9 +105,11 @@ protected:
 	//回避実行中のタグ
 	FGameplayTag IsDodgeTag;
 
-	//無敵中のタグタグ
-	FGameplayTag IsInvincible;
+	//無敵中のタグ
+	FGameplayTag IsInvincibleTag;
 
+	//カウンター攻撃のタグ
+	FGameplayTag IsCounterAttackTag;
 
 	//アビリティシステム
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
