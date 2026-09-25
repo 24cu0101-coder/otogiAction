@@ -24,7 +24,9 @@ public class OtogiAction : ModuleRules
             "Niagara",
             "AIModule",
             "UMG",
-            "NavigationSystem"
+            "NavigationSystem",
+            "LevelSequence",
+            "MovieScene",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
