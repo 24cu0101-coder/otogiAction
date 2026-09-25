@@ -14,7 +14,7 @@ UMoveBuildComponent::UMoveBuildComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// 通常追跡の標準レンジ設定（例: 中〜近距離で評価が高くなる）
-	MinRange = 200.f;
+	MinRange = 100.f;
 	MaxRange = 600.f;
 	FadeOutRange = 1000.f;
 	BasePriority = 0.5f; // ダッシュより優先度は低めに設定
@@ -77,7 +77,21 @@ bool UMoveBuildComponent::StartTracking()
 	}
 
 	// 移動開始
-	EPathFollowingRequestResult::Type MoveResult = AIController->MoveToActor(TargetPawn, MinRange);
+	// 第2引数: AcceptanceRadius (MinRange)
+	// 第3引数 bStopOnOverlap = false (カプセルの接触ではなく中心距離を基準にする)
+	// 第4引数 bUsePathfinding = true
+	// 第5引数 bCanStrafe = false
+	// 第6引数 FilterClass = nullptr
+	// 第7引数 bAllowPartialPath = true
+	EPathFollowingRequestResult::Type MoveResult = AIController->MoveToActor(
+		TargetPawn,
+		MinRange,
+		false,
+		true,
+		false,
+		nullptr,
+		true
+	);
 	bIsTracking = (MoveResult != EPathFollowingRequestResult::Type::Failed);
 
 	// 失敗じゃなければ追跡中フラグを立てる

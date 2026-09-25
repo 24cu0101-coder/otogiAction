@@ -100,14 +100,12 @@ void UGAPlayerDodge::PlayDodge()
 //just回避受付の処理
 void UGAPlayerDodge::JustDodgeWindow()
 {
-	UE_LOG(LogTemp, Warning, TEXT("kkkk"));
-
 	//tagを飛ばす
-	IsInvincible = FGameplayTag::RequestGameplayTag(FName("Invincible"));
+	IsInvincibleTag = FGameplayTag::RequestGameplayTag(FName("Invincible"));
 	if (ASC)
 	{
 		//タグを付与する
-		ASC->AddLooseGameplayTag(IsInvincible);
+		ASC->AddLooseGameplayTag(IsInvincibleTag);
 	}	
 	if (IsValid(PlayerActor) && IsValid(this))
 	{
@@ -129,7 +127,7 @@ void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, cons
 		GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
 		GetWorld()->GetTimerManager().ClearTimer(EndDodgeTimer);
 
-		//
+		//ジャスト回避
 		PlayJustDodge();
 	}
 }
@@ -142,7 +140,7 @@ void UGAPlayerDodge::EndJustDodgeWindow()
 		Player->OnTakeAnyDamage.RemoveDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
 	}
 
-	ASC->RemoveLooseGameplayTag(IsInvincible);
+	ASC->RemoveLooseGameplayTag(IsInvincibleTag);
 
 	GetWorld()->GetTimerManager().ClearTimer(EndJustDodgeTimer);
 }
@@ -151,8 +149,6 @@ void UGAPlayerDodge::EndJustDodgeWindow()
 //ジャスト回避開始
 void UGAPlayerDodge::PlayJustDodge()
 {
-	UE_LOG(LogTemp, Warning, TEXT("yyyyy"));
-
 	LocationDelegate.Unbind();
 
 	//移動用の関数の引数に代入してバインド
@@ -160,6 +156,14 @@ void UGAPlayerDodge::PlayJustDodge()
 
 	//回避処理開始(ほぼ毎フレーム繰り返す)
 	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001 / 5, true);
+
+	//カウンター攻撃受付のタグを飛ばす
+	IsCounterAttackTag = FGameplayTag::RequestGameplayTag(FName("CounterAttack"));
+	if (ASC)
+	{
+		//タグを付与する
+		ASC->AddLooseGameplayTag(IsCounterAttackTag);
+	}
 
 
 	//再生のタスク
@@ -203,6 +207,10 @@ void UGAPlayerDodge::EndJustDodge()
 	UWorld* World = GetWorld();
 	//ワールドが無ければ
 	if (!World) return;
+
+	//カウンター攻撃のタグを破棄
+	ASC->RemoveLooseGameplayTag(IsCounterAttackTag);
+
 
 	DodgeEnd();
 
@@ -248,7 +256,7 @@ void UGAPlayerDodge::DodgeEnd()
 		Player->OnTakeAnyDamage.RemoveDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
 	}
 
-	ASC->RemoveLooseGameplayTag(IsInvincible);
+	ASC->RemoveLooseGameplayTag(IsInvincibleTag);
 
 
 	//timer破棄

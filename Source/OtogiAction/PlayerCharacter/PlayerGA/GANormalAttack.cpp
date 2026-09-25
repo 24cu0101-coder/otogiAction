@@ -20,12 +20,7 @@ UGANormalAttack::UGANormalAttack():
 }
 
 
-void UGANormalAttack::ActivateAbility(
-	const FGameplayAbilitySpecHandle NormalAttack,
-	const FGameplayAbilityActorInfo* playerActorInfo,
-	const FGameplayAbilityActivationInfo AvtivationInfo,
-	const FGameplayEventData* DodgeTriggerEvent
-) 
+void UGANormalAttack::ActivateAbility(const FGameplayAbilitySpecHandle NormalAttack,const FGameplayAbilityActorInfo* playerActorInfo,const FGameplayAbilityActivationInfo AvtivationInfo,const FGameplayEventData* DodgeTriggerEvent) 
 {
 	Super::ActivateAbility(NormalAttack, playerActorInfo, AvtivationInfo, DodgeTriggerEvent);
 
