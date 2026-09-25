@@ -14,8 +14,8 @@ UAttackBuildComponent::UAttackBuildComponent()
 
 	//弱攻撃は0～150のときに評価が高くなるよう設定
 	MinRange = 0.f;
-	MaxRange = 150.f;
-	FadeOutRange = 200.f;
+	MaxRange = 200.f;
+	FadeOutRange = 300.f;
 	BasePriority = 0.4f; // 通常移動より優先度を高く設定
 
 }
@@ -71,6 +71,20 @@ bool UAttackBuildComponent::StartAttackBuild()
 
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character) return false;
+
+	APawn* TargetPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (TargetPawn)
+	{
+		//プレイヤーへのベクトルを計算してYawのみ回転を反映
+		FVector Dir = TargetPawn->GetActorLocation() - Character->GetActorLocation();
+		Dir.Z = 0.f;
+
+		if (!Dir.IsNearlyZero())
+		{
+			FRotator TargetRotation = Dir.Rotation();
+			Character->SetActorRotation(TargetRotation);
+		}
+	}
 
 	UAnimInstance* AnimInstance = Character->GetMesh() ? Character->GetMesh()->GetAnimInstance() : nullptr;
 	if (!AnimInstance) return false;

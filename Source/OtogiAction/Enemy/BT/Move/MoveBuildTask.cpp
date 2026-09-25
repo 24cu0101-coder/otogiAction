@@ -20,6 +20,12 @@ EBTNodeResult::Type UMoveBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     ACharacter* EnemyCharacter = EnemyController ? Cast<ACharacter>(EnemyController->GetPawn()) : nullptr;
     if (!EnemyCharacter) return EBTNodeResult::Failed;
 
+    APawn* TargetPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+    if (EnemyController && TargetPawn)
+    {
+        EnemyController->SetFocus(TargetPawn);
+    }
+
     UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
     if (!BuildComp) return EBTNodeResult::Failed;
 
