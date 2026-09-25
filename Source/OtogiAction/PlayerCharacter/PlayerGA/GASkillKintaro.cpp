@@ -36,10 +36,9 @@ void UGASkillKintaro::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 			if (Minion->bKintaroOnlyEnemy)
 			{
 				Minion->SetCanSpawnOrb(true);
+				Minion->SetCanTakeDamage(true);
 
-				UE_LOG(LogTemp, Warning,
-					TEXT("SetCanSpawnOrb true : %s"),
-					*Minion->GetName());
+				UE_LOG(LogTemp, Warning,TEXT("KintaroSkill: Damage ON : %s"),*Minion->GetName());
 			}
 		}
 	}
@@ -144,13 +143,13 @@ void UGASkillKintaro::DisableKintaroEnemyOrb()
 				*Minion->GetName());
 
 
-			Minion->SetCanSpawnOrb(false);
+		Minion->SetCanSpawnOrb(false);
+		Minion->SetCanTakeDamage(false);
 
-
-			UE_LOG(LogTemp, Warning,
-				TEXT("CanSpawnOrb = %d"),
-				Minion->bCanSpawnOrb);
-
+UE_LOG(LogTemp, Warning,
+	TEXT("KintaroEnemy OFF : %s | CanTakeDamage=%d"),
+	*Minion->GetName(),
+	Minion->bCanTakeDamage);
 		}
 
 	}

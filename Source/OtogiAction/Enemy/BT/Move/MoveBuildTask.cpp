@@ -2,6 +2,7 @@
 
 
 #include "MoveBuildTask.h"
+#include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "GameFramework/Character.h"
@@ -25,7 +26,6 @@ EBTNodeResult::Type UMoveBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     {
         EnemyController->SetFocus(TargetPawn);
     }
-
     UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
     if (!BuildComp) return EBTNodeResult::Failed;
 

@@ -106,12 +106,16 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 	//入力が可能かどうかのタグ
 	FGameplayTag PossibleNAttack = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.CantAttack"));
 
-	//三段攻撃派生タグ
+	//五段攻撃派生タグ
 	FGameplayTag NextTag0 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag0"));
 	FGameplayTag NextTag1 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag1"));
 	FGameplayTag NextTag2 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag2"));
 	FGameplayTag NextTag3 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag3"));
 	FGameplayTag NextTag4 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag4"));
+
+	//カウンターアタック
+	FGameplayTag CounterAttack = FGameplayTag::RequestGameplayTag(TEXT("IsCounterAttackTag"));
+
 
 	//金太郎タグ
 	FGameplayTag kintaroTag = FGameplayTag::RequestGameplayTag(TEXT("State.Skill.Kintaro"));
@@ -125,6 +129,13 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 
 		return;
 	}
+
+	//ジャスト回避中のタグがあれば
+	if (AbilitySystemComponent->HasMatchingGameplayTag(CounterAttack))
+	{
+
+	}
+	
 
 
 	//金太郎タグがあったら
