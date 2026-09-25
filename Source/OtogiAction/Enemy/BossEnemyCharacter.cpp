@@ -133,6 +133,37 @@ void ABossEnemyCharacter::TriggerJumpAttack()
 	OnJumpAttackNotify.Broadcast();
 }
 
+void ABossEnemyCharacter::StartPhaseTwo()
+{
+	bIsPhaseTwo = true;
+
+	//AIコントローラー経由でBlackboardに第二形態フラグを設定
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BBComp = AIController->GetBlackboardComponent())
+		{
+			BBComp->SetValueAsBool(TEXT("IsPhaseTwo"), true);
+		}
+	}
+
+	//Delegateを発火
+	OnPhaseTwoStartedNotify.Broadcast();
+
+	//BP側のイベントを呼び出す
+	K2_OnPhaseTwoStarted();
+
+}
+
+void ABossEnemyCharacter::ApplyPhaseTwoState()
+{
+	//移動速度を変更
+	SetMovementSpeed(PhaseTwoMaxWalkSpeed);
+}
+
+void ABossEnemyCharacter::K2_OnPhaseTwoStarted()
+{
+}
+
 // Called every frame
 void ABossEnemyCharacter::Tick(float DeltaTime)
 {
@@ -170,6 +201,12 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 		IsHit = false;
 		//死亡処理（Ragdoll化やデストロイなど）
 		Destroy();
+	}
+
+	//第二形態への移行判定
+	if (!bIsPhaseTwo && MaxHP > 0.0f && (CurrentHP / MaxHP) <= PhaseTwoHPThresholdRatio)
+	{
+		StartPhaseTwo();
 	}
 
 	return ActualDamage;
