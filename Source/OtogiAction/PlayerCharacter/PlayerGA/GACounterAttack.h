@@ -35,10 +35,6 @@ protected:
 	//関数
 	//-------------------
 
-
-	//UFUNCTION()
-	void PlayCAttackMontage();
-
 	//アビリティシステム
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* CAttackASC;
