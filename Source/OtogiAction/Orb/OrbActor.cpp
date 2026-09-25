@@ -83,22 +83,7 @@ void AOrbActor::Tick(float DeltaTime)
             // Playerに到着したら
             if (Distance < 50.f)
             {
-                // Orbを落としたEnemyのStatusComponentを取得
-                if (OwnerEnemy && !OwnerEnemy->IsPendingKillPending())
-                {
-                    UStatusComponent* Status =
-                        OwnerEnemy->FindComponentByClass<UStatusComponent>();
-
-                    if (Status)
-                    {
-                        // すでに死亡しているならダメージを与えない
-                        if (!Status->IsDead())
-                        {
-                            // EnemyのHPを減らす
-                            Status->TakeDamage(OrbDamage);
-                        }
-                    }
-                }
+               
 
                 APlayerCharacter* Player = Cast<APlayerCharacter>(TargetActor);
 

@@ -30,7 +30,7 @@ void UOrbSpawnComponent::SpawnOrbs(AActor* OwnerEnemy, float Damage)
         FVector RandomOffset =
             FMath::VRand() * FMath::RandRange(50.f, Radius);
 
-        RandomOffset.Z = FMath::RandRange(50.f, 200.f);
+        RandomOffset.Z = FMath::RandRange(50.f, 300.f);
 
         FVector SpawnLocation =
             OwnerEnemy->GetActorLocation() + RandomOffset;

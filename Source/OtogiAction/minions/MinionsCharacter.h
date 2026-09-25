@@ -81,6 +81,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Enemy")
 	bool bKintaroOnlyEnemy = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+	bool bCanTakeDamage = false;
+
+	void SetCanTakeDamage(bool bEnable)
+	{
+		bCanTakeDamage = bEnable;
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("%s SetCanTakeDamage : %d"),
+			*GetName(),
+			bCanTakeDamage);
+	}
+
 	// Orb状態
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb")
 	bool bCanSpawnOrb = false;
@@ -88,7 +101,7 @@ public:
 	//攻撃速度
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float AttackPlayRate = 1.0f;
-
+	
 public:
 
 	void CancelAttack();
@@ -126,4 +139,10 @@ private:
 public:
 	bool GetIsHitFlg() const { return bIsHit; }
 	void SetIsHitFlg(bool bHit) { bIsHit = bHit; }
+
+	bool IsDead() const { return bIsDead; }
+
+private:
+
+	bool bIsDead = false;
 };

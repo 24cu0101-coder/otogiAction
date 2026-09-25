@@ -144,13 +144,31 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 	}
 
 
-	if (!StatusComponent || !OrbSpawnComponent)
+	if (!StatusComponent)
 	{
 		return;
 	}
 
+	if (bKintaroOnlyEnemy && !bCanTakeDamage)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("%s DAMAGE BLOCKED | KintaroOnly=%d CanTakeDamage=%d"),
+			*GetName(),
+			bKintaroOnlyEnemy,
+			bCanTakeDamage);
 
 
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("%s DAMAGE ALLOWED | KintaroOnly=%d CanTakeDamage=%d"),
+		*GetName(),
+		bKintaroOnlyEnemy,
+		bCanTakeDamage);
+	StatusComponent->TakeDamage(Damage);
+
+	//ヒットリアクション
 	if (HitReactionComponent && DamageCauser)
 	{
 
@@ -192,16 +210,18 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		}
 
 	}
-
-	if (!bKintaroOnlyEnemy || bCanSpawnOrb)
+	if (OrbSpawnComponent)
 	{
-		OrbSpawnComponent->SpawnOrbs(this, Damage);
+		if (!bKintaroOnlyEnemy || bCanSpawnOrb)
+		{
+			OrbSpawnComponent->SpawnOrbs(this, Damage);
+		}
+		UE_LOG(LogTemp, Warning,
+			TEXT("%s  KintaroOnly:%d  CanSpawn:%d"),
+			*GetName(),
+			bKintaroOnlyEnemy,
+			bCanSpawnOrb);
 	}
-	UE_LOG(LogTemp, Warning,
-		TEXT("%s  KintaroOnly:%d  CanSpawn:%d"),
-		*GetName(),
-		bKintaroOnlyEnemy,
-		bCanSpawnOrb);
 }
 //HPWidget
 void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
@@ -222,25 +242,29 @@ void AMinionsCharacter::Dead()
 {
 	UE_LOG(LogTemp, Warning, TEXT("minions dead"));
 
-	//AI停止
+	// 死亡フラグ
+	bIsDead = true;
+
+	// AI停止
 	if (AAIController* AI = Cast<AAIController>(GetController()))
 	{
-		AI->BrainComponent->StopLogic(TEXT("Dead"));
+		if (AI->BrainComponent)
+		{
+			AI->BrainComponent->StopLogic(TEXT("Dead"));
+		}
 	}
 
-	//コリジョン停止
+	// コリジョン停止
 	SetActorEnableCollision(false);
 
-	//消えてコリジョンなくす
+	// 非表示
 	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
 
 	if (AttackComponent)
 	{
 		AttackComponent->SetShowDebug(false);
 	}
 }
-
 
 void AMinionsCharacter::Tick(float DeltaTime)
 {
@@ -297,3 +321,4 @@ void AMinionsCharacter::SetCanSpawnOrb(bool bEnable)
 		bCanSpawnOrb
 	);
 }
+
