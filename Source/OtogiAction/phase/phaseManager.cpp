@@ -3,6 +3,7 @@
 #include "OtogiAction/minions/MinionsCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "AIController.h"
 AphaseManager::AphaseManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -40,6 +41,7 @@ void AphaseManager::Tick(float DeltaTime)
 	}
 
 }
+
 //第一Phase
 void AphaseManager::FindPhase1Minions()
 {
@@ -119,6 +121,89 @@ void AphaseManager::SpawnPhase2Minions()
 				i
 			);
 		}
+	}
+}
+
+//BossPhase
+void AphaseManager::SpawnBossPhase1()
+{
+	if (!BossClass)
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("BossClass is not set!")
+		);
+
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+
+	SpawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	BossActor = GetWorld()->SpawnActor<AActor>(
+		BossClass,
+		BossSpawnTransform,
+		SpawnParams
+	);
+
+	if (!BossActor)
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("===== BOSS SPAWN FAILED =====")
+		);
+
+		return;
+	}
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("===== BOSS SPAWNED =====")
+	);
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Boss Location = %s"),
+		*BossActor->GetActorLocation().ToString()
+	);
+
+	// BossがPawnならAI Controllerを確認
+	APawn* BossPawn = Cast<APawn>(BossActor);
+
+	if (!BossPawn)
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("BossActor is not a Pawn!")
+		);
+
+		return;
+	}
+
+	AController* Controller = BossPawn->GetController();
+
+	if (Controller)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("===== BOSS CONTROLLER FOUND =====")
+		);
+	}
+	else
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("===== BOSS CONTROLLER NOT FOUND =====")
+		);
 	}
 }
 
@@ -215,6 +300,9 @@ void AphaseManager::StartBossPhase1()
 		Warning,
 		TEXT("====BossPhase 1 Start =====")
 	);
+
+	//BossのSpawn
+	SpawnBossPhase1();
 }
 
 //クリアチェック３
@@ -238,6 +326,6 @@ void AphaseManager::CheckBossPhase1Clear()
 	UE_LOG(
 		LogTemp,
 		Warning,
-		TEXT("===== BossPhase 1 Start =====")
+		TEXT("===== Clear =====")
 	);
 }
