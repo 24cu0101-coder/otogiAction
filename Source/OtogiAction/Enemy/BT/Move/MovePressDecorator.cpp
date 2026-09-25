@@ -25,7 +25,7 @@ bool UMovePressDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& Own
             if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
             {
                 // 状態の参照
-                if (StateSubsystem->CurrentState == EEnemyState::AttackBuild)
+                if (StateSubsystem->CurrentState == EEnemyState::MovePress)
                 {
                     return true;
                 }
