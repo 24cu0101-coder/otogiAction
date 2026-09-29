@@ -93,7 +93,7 @@ void AOrbActor::Tick(float DeltaTime)
                     if (USkillGaugeComponent* Gauge = Player->FindComponentByClass<USkillGaugeComponent>())
                     {
 
-                        Gauge->ModifyGauge(50.f);
+                        Gauge->ModifyGauge(5.f);
 
                         Player->UpdateSkillGaugeUI();
                     }
