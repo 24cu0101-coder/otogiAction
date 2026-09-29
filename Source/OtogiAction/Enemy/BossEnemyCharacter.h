@@ -10,6 +10,7 @@
 #include "Component/MovePressComponent.h"
 #include "Component/UtilityAIComponent.h"
 #include "../Component/UHitReactionBaseComponent.h"
+#include "NiagaraComponent.h"
 
 #include "BossEnemyCharacter.generated.h"
 
@@ -17,6 +18,7 @@
 class UBossEnemyHitReactionComponent;
 class UUHitReactionBaseComponent;
 class UBossEnemyAttackBaseComponent;
+class UNiagaraSystem;
 
 //第二形態開始時に発火するデリゲート
 DECLARE_MULTICAST_DELEGATE(FOnPhaseTwoStartedDelegate);
@@ -50,6 +52,18 @@ protected:
 	//敵の状態遷移を管理する固有クラス
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UUtilityAIComponent> UtilityAIComp;
+
+	//第二形態用の常時オーラコンポーネント
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
+	TObjectPtr<UNiagaraSystem> PhaseTwoAuraEffect;
+
+	//エフェクトをアタッチするソケット名
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
+	FName AuraSocketName = FName("Spine1");
+
+	//生成したNiagaraコンポーネントの参照
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
+	TObjectPtr<UNiagaraComponent> SpawnedAuraComponent;
 
 public:
 	// Sets default values for this character's properties
@@ -88,7 +102,7 @@ public:
 
 	//第二形態かどうかを取得
 	UFUNCTION(BlueprintCallable,Category = "AI|PhaseTwo")
-	bool GetIsPhaseTwo() const { return bIsPhaseTwo; }
+	bool GetIsPhaseTwo();
 
 	//第二形態へ移行する処理
 	UFUNCTION(BlueprintCallable, Category = "AI|PhaseTwo")
@@ -98,7 +112,7 @@ public:
 	void ApplyPhaseTwoState();
 	
 	//移行時の処理
-	UFUNCTION(BlueprintCallable, Category = "AI|PhaseTwo")
+	UFUNCTION(BlueprintImplementableEvent, Category = "AI|PhaseTwo")
 	void K2_OnPhaseTwoStarted();
 
 	//敵の最大HP

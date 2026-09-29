@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../Enemy/Component/BossEnemyHitReactionComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 ABossEnemyCharacter::ABossEnemyCharacter()
@@ -133,6 +135,12 @@ void ABossEnemyCharacter::TriggerJumpAttack()
 	OnJumpAttackNotify.Broadcast();
 }
 
+//第二形態かどうかを確認
+bool ABossEnemyCharacter::GetIsPhaseTwo()
+{
+	return bIsPhaseTwo;
+}
+
 void ABossEnemyCharacter::StartPhaseTwo()
 {
 	bIsPhaseTwo = true;
@@ -152,16 +160,31 @@ void ABossEnemyCharacter::StartPhaseTwo()
 	//BP側のイベントを呼び出す
 	K2_OnPhaseTwoStarted();
 
+	//第二形態移行時に呼ばれる関数
+	ApplyPhaseTwoState();
 }
 
 void ABossEnemyCharacter::ApplyPhaseTwoState()
 {
 	//移動速度を変更
 	SetMovementSpeed(PhaseTwoMaxWalkSpeed);
-}
 
-void ABossEnemyCharacter::K2_OnPhaseTwoStarted()
-{
+	//Niagaraエフェクトをメッシュのソケットに追従アタッチ
+	if (PhaseTwoAuraEffect && GetMesh())
+	{
+		SpawnedAuraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			PhaseTwoAuraEffect,                 // スポーンするNiagara System
+			GetMesh(),                          // アタッチ対象のコンポーネント（Skeletal Mesh）
+			AuraSocketName,                     // アタッチ先のソケット/ボーン名
+			FVector::ZeroVector,                // 相対位置オフセット
+			FRotator::ZeroRotator,              // 相対回転オフセット
+			EAttachLocation::KeepRelativeOffset,      // 位置・回転をソケットに完全に同期
+			true,                               // AutoDestroy (エフェクト終了時に自動削除)
+			true,                               // AutoActivate
+			ENCPoolMethod::None,
+			true
+		);
+	}
 }
 
 // Called every frame
