@@ -1,31 +1,50 @@
 #include "phaseManager.h"
 
 #include "OtogiAction/minions/MinionsCharacter.h"
+
 #include "Kismet/GameplayStatics.h"
 
-#include "AIController.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Actor.h"
+
+
 AphaseManager::AphaseManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+
+// BeginPlay
+
 void AphaseManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp,Warning,TEXT("===== BOSS PHASE MANAGER BEGIN PLAY ====="));
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("===== BOSS PHASE MANAGER BEGIN PLAY =====")
+	);
 
 	// 最初はPhase1
 	CurrentPhase = EBossPhase::Phase1;
 
-	// レベル上の雑魚敵を取得
+	// レベルに配置されているPhase1 Minionを取得
 	FindPhase1Minions();
 }
+
+
+// Tick
 
 void AphaseManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// Phase1なら雑魚全滅を確認
+
+	// リスポーン中はフェーズチェックしない
+	if (bIsRespawning)
+	{
+		return;
+	}
 
 	if (CurrentPhase == EBossPhase::Phase1)
 	{
@@ -39,21 +58,27 @@ void AphaseManager::Tick(float DeltaTime)
 	{
 		CheckBossPhase1Clear();
 	}
-
 }
 
-//第一Phase
+
+// Phase1 Minion取得
+
 void AphaseManager::FindPhase1Minions()
 {
 	Phase1Minions.Empty();
 
 	TArray<AActor*> FoundActors;
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(),AMinionsCharacter::StaticClass(),FoundActors);
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(),
+		AMinionsCharacter::StaticClass(),
+		FoundActors
+	);
 
 	for (AActor* Actor : FoundActors)
 	{
-		AMinionsCharacter* Minion = Cast<AMinionsCharacter>(Actor);
+		AMinionsCharacter* Minion =
+			Cast<AMinionsCharacter>(Actor);
 
 		if (Minion)
 		{
@@ -69,7 +94,9 @@ void AphaseManager::FindPhase1Minions()
 	);
 }
 
-//第二Phase
+
+// Phase2 Minion Spawn
+
 void AphaseManager::SpawnPhase2Minions()
 {
 	Phase2Minions.Empty();
@@ -87,14 +114,7 @@ void AphaseManager::SpawnPhase2Minions()
 
 	for (int32 i = 0; i < Phase2MinionCount; i++)
 	{
-		FTransform SpawnTransform;
-
-		// Spawn位置が設定されている場合
-		if (Phase2SpawnTransforms.IsValidIndex(i))
-		{
-			SpawnTransform = Phase2SpawnTransforms[i];
-		}
-		else
+		if (!Phase2SpawnTransforms.IsValidIndex(i))
 		{
 			UE_LOG(
 				LogTemp,
@@ -106,9 +126,20 @@ void AphaseManager::SpawnPhase2Minions()
 			continue;
 		}
 
-		FActorSpawnParameters SpawnParams;SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		FTransform SpawnTransform =
+			Phase2SpawnTransforms[i];
 
-		AMinionsCharacter* Minion =GetWorld()->SpawnActor<AMinionsCharacter>(Phase2MinionClass,SpawnTransform,SpawnParams);
+		FActorSpawnParameters SpawnParams;
+
+		SpawnParams.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		AMinionsCharacter* Minion =
+			GetWorld()->SpawnActor<AMinionsCharacter>(
+				Phase2MinionClass,
+				SpawnTransform,
+				SpawnParams
+			);
 
 		if (Minion)
 		{
@@ -124,7 +155,9 @@ void AphaseManager::SpawnPhase2Minions()
 	}
 }
 
-//BossPhase
+
+// Boss Spawn
+
 void AphaseManager::SpawnBossPhase1()
 {
 	if (!BossClass)
@@ -143,11 +176,12 @@ void AphaseManager::SpawnBossPhase1()
 	SpawnParams.SpawnCollisionHandlingOverride =
 		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	BossActor = GetWorld()->SpawnActor<AActor>(
-		BossClass,
-		BossSpawnTransform,
-		SpawnParams
-	);
+	BossActor =
+		GetWorld()->SpawnActor<AActor>(
+			BossClass,
+			BossSpawnTransform,
+			SpawnParams
+		);
 
 	if (!BossActor)
 	{
@@ -173,8 +207,9 @@ void AphaseManager::SpawnBossPhase1()
 		*BossActor->GetActorLocation().ToString()
 	);
 
-	// BossがPawnならAI Controllerを確認
-	APawn* BossPawn = Cast<APawn>(BossActor);
+	// BossがPawnならController確認
+	APawn* BossPawn =
+		Cast<APawn>(BossActor);
 
 	if (!BossPawn)
 	{
@@ -187,7 +222,8 @@ void AphaseManager::SpawnBossPhase1()
 		return;
 	}
 
-	AController* Controller = BossPawn->GetController();
+	AController* Controller =
+		BossPawn->GetController();
 
 	if (Controller)
 	{
@@ -207,10 +243,16 @@ void AphaseManager::SpawnBossPhase1()
 	}
 }
 
-//クリアチェック１
+
+// Phase1 Clear
+
 void AphaseManager::CheckPhase1Clear()
 {
-	// 生きている雑魚がいるか確認
+	if (bIsRespawning)
+	{
+		return;
+	}
+
 	for (AMinionsCharacter* Minion : Phase1Minions)
 	{
 		if (!IsValid(Minion))
@@ -218,21 +260,20 @@ void AphaseManager::CheckPhase1Clear()
 			continue;
 		}
 
-		// まだ生きているならPhase1継続
 		if (!Minion->IsDead())
 		{
 			return;
 		}
 	}
 
-	// 全員死亡したら
 	StartPhase2();
 }
 
-//Phase2開始
+
+// Phase1 → Phase2
+
 void AphaseManager::StartPhase2()
 {
-	// 二重実行防止
 	if (CurrentPhase != EBossPhase::Phase1)
 	{
 		return;
@@ -249,16 +290,22 @@ void AphaseManager::StartPhase2()
 	UE_LOG(
 		LogTemp,
 		Warning,
-		TEXT("====Phase 2 Start =====")
+		TEXT("==== Phase 2 Start =====")
 	);
 
 	SpawnPhase2Minions();
 }
 
-//クリアチェック２
+
+// Phase2 Clear
+
 void AphaseManager::CheckPhase2Clear()
 {
-	// 生きている雑魚がいるか確認
+	if (bIsRespawning)
+	{
+		return;
+	}
+
 	for (AMinionsCharacter* Minion : Phase2Minions)
 	{
 		if (!IsValid(Minion))
@@ -266,22 +313,20 @@ void AphaseManager::CheckPhase2Clear()
 			continue;
 		}
 
-		// まだ生きているならPhase1継続
 		if (!Minion->IsDead())
 		{
 			return;
 		}
 	}
 
-	// 全員死亡したら
 	StartBossPhase1();
 }
 
 
-//BossPhase1開始
+// Phase2 → BossPhase1
+
 void AphaseManager::StartBossPhase1()
 {
-	// 二重実行防止
 	if (CurrentPhase != EBossPhase::Phase2)
 	{
 		return;
@@ -298,17 +343,23 @@ void AphaseManager::StartBossPhase1()
 	UE_LOG(
 		LogTemp,
 		Warning,
-		TEXT("====BossPhase 1 Start =====")
+		TEXT("==== BossPhase 1 Start =====")
 	);
 
-	//BossのSpawn
 	SpawnBossPhase1();
 }
 
-//クリアチェック３
+
+// Boss Phase1 Clear
+
 void AphaseManager::CheckBossPhase1Clear()
 {
-	// Bossがまだ存在しているなら戦闘継続
+	if (bIsRespawning)
+	{
+		return;
+	}
+
+	// Bossが存在しているなら戦闘継続
 	if (IsValid(BossActor))
 	{
 		return;
@@ -326,6 +377,121 @@ void AphaseManager::CheckBossPhase1Clear()
 	UE_LOG(
 		LogTemp,
 		Warning,
-		TEXT("===== Clear =====")
+		TEXT("===== BOSS PHASE 2 =====")
+	);
+}
+
+
+// 現在フェーズのMinionをリスポーン
+
+void AphaseManager::RespawnCurrentPhaseMinions()
+{
+	// Phase1
+
+	if (CurrentPhase == EBossPhase::Phase1)
+	{
+		// Phase1のMinionを削除
+		for (AMinionsCharacter* Minion : Phase1Minions)
+		{
+			if (IsValid(Minion))
+			{
+				Minion->Destroy();
+			}
+		}
+
+		Phase1Minions.Empty();
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Phase1 Respawn")
+		);
+
+		return;
+	}
+
+
+	// Phase2
+
+	if (CurrentPhase == EBossPhase::Phase2)
+	{
+		// 現在のPhase2 Minionを削除
+		for (AMinionsCharacter* Minion : Phase2Minions)
+		{
+			if (IsValid(Minion))
+			{
+				Minion->Destroy();
+			}
+		}
+
+		Phase2Minions.Empty();
+
+		// Phase2 Minion再生成
+		SpawnPhase2Minions();
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Phase2 Respawn")
+		);
+
+		return;
+	}
+
+
+	// BossPhase1
+
+	if (CurrentPhase == EBossPhase::BossPhase1)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Boss Phase Respawn")
+		);
+
+		return;
+	}
+}
+
+// リスポーン位置
+
+FTransform AphaseManager::GetRespawnTransform() const
+{
+	switch (CurrentPhase)
+	{
+	case EBossPhase::Phase1:
+
+		return Phase1RespawnTransform;
+
+
+	case EBossPhase::Phase2:
+
+		return Phase2RespawnTransform;
+
+
+	case EBossPhase::BossPhase1:
+
+		return BossPhase1RespawnTransform;
+
+
+	default:
+
+		return Phase1RespawnTransform;
+	}
+}
+
+
+// リスポーン中フラグ
+
+void AphaseManager::SetRespawning(bool bRespawning)
+{
+	bIsRespawning = bRespawning;
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("PhaseManager Respawning = %s"),
+		bIsRespawning
+		? TEXT("TRUE")
+		: TEXT("FALSE")
 	);
 }
