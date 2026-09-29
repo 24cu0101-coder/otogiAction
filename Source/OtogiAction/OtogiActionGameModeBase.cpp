@@ -1,109 +1,159 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "OtogiActionGameModeBase.h"
+
 #include "Kismet/GameplayStatics.h"
-#include "OtogiAction/minions/MinionsCharacter.h"
 #include "GameFramework/Character.h"
 
+#include "OtogiAction/phase/phaseManager.h"
 
-//コンストラクタ
+
+// コンストラクタ
 AOtogiActionGameModeBase::AOtogiActionGameModeBase()
 {
-
 }
 
-//生成されたときとゲームが始まった時に呼ばれる処理
+
+// ゲーム開始時
 void AOtogiActionGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//ゲーム開始直後は初期位置であるプレイヤースタートで始まる。
+	// ゲーム開始直後のプレイヤー位置を保存
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+
 	if (PC && PC->GetPawn())
 	{
-		CurrentCheckpointTransform = PC->GetPawn()->GetActorTransform();
-	}
-
-	//Minionの初期位置保存
-	TArray<AActor*>Minions;
-
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMinionsCharacter::StaticClass(), Minions);
-
-	MinionSpawnTransforms.Empty();
-	for (AActor* Actor : Minions)
-	{
-		MinionSpawnTransforms.Add(Actor->GetActorTransform());
+		CurrentCheckpointTransform =
+			PC->GetPawn()->GetActorTransform();
 	}
 }
 
-//チェックポイントのアクターに触れたら呼ばれてスポーン地点が変わる
+
+// チェックポイント更新
 void AOtogiActionGameModeBase::SetCheckPoint(FTransform NewTransform)
 {
 	CurrentCheckpointTransform = NewTransform;
-	UE_LOG(LogTemp, Warning, TEXT("Checkpont Update"));
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Checkpoint Update")
+	);
 }
 
-//プレイヤーの復活処理
+
+// プレイヤー復活
 void AOtogiActionGameModeBase::RespawmPlayer(AController* TargetController)
 {
-	if (!TargetController)return;
+	if (!TargetController)
+	{
+		return;
+	}
 
-	//もともとのアクターを処分
+	// PhaseManager取得
+
+	AphaseManager* PhaseManager =
+		Cast<AphaseManager>(
+			UGameplayStatics::GetActorOfClass(
+				GetWorld(),
+				AphaseManager::StaticClass()
+			)
+		);
+
+	// リスポーン開始
+
+	if (PhaseManager)
+	{
+		PhaseManager->SetRespawning(true);
+	}
+
+	// 現在のプレイヤーを削除
+
 	APawn* OldPawn = TargetController->GetPawn();
+
 	if (OldPawn)
 	{
 		OldPawn->Destroy();
 	}
 
-	// 現在いるMinionを全て削除
-	TArray<AActor*> Minions;
+	// 現在のフェーズの敵を復活
 
-	UGameplayStatics::GetAllActorsOfClass(
-		GetWorld(),
-		AMinionsCharacter::StaticClass(),
-		Minions);
-
-	for (AActor* Actor : Minions)
+	if (PhaseManager)
 	{
-		if (Actor)
-		{
-			Actor->Destroy();
-		}
+		PhaseManager->RespawnCurrentPhaseMinions();
 	}
 
-	// 保存した位置にMinionを再生成
-	for (const FTransform& SpawnTransform : MinionSpawnTransforms)
+	// リスポーン位置
+
+	FTransform RespawnTransform =
+		CurrentCheckpointTransform;
+
+	if (PhaseManager)
 	{
-		GetWorld()->SpawnActor<AMinionsCharacter>(
-			MinionClass,
-			SpawnTransform);
+		RespawnTransform =
+			PhaseManager->GetRespawnTransform();
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Respawn Phase: %d"),
+			(int32)PhaseManager->GetCurrentPhase()
+		);
 	}
 
-	//チェックポイントにプレイヤーを生成
+	// プレイヤー生成
+
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	
-	//デフォルトのスポーンクラスをPlayerCharacterに設定
-	if (DefaultPawnClass)
+
+	SpawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	if (RespawnPlayerClass)
 	{
-		APawn* NewPawn = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, CurrentCheckpointTransform, SpawnParams);
+		APawn* NewPawn =
+			GetWorld()->SpawnActor<APawn>(
+				RespawnPlayerClass,
+				RespawnTransform,
+				SpawnParams
+			);
+
 		if (NewPawn)
 		{
-			//コントローラーの権限を移動
 			TargetController->Possess(NewPawn);
+
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("===== NEW PLAYER RESPAWNED =====")
+			);
 		}
-
 	}
+	else
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("RespawnPlayerClass is NOT set!")
+		);
+	}
+	// リスポーン終了
 
-
+	if (PhaseManager)
+	{
+		PhaseManager->SetRespawning(false);
+	}
 }
 
-//シーン遷移
+
+// シーン遷移
 void AOtogiActionGameModeBase::ChangeLevel(FName LevelName)
 {
 	if (!LevelName.IsNone())
 	{
-		UGameplayStatics::OpenLevel(this, LevelName);
+		UGameplayStatics::OpenLevel(
+			this,
+			LevelName
+		);
 	}
 }

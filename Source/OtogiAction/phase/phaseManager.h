@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,54 +8,105 @@
 UENUM(BlueprintType)
 enum class EBossPhase : uint8
 {
-	Phase1			UMETA(DisplayName = "Phase1-Minion"),
-	Phase2			UMETA(DisplayName = "Phase2-Minion"),
-	BossPhase1		UMETA(DisplayName = "BossPhase1"),
-	BossPhase2		UMETA(DisplayName = "BossPhase2"),
-	Clear			UMETA(DisplayName = "Clear"),
+	Phase1		UMETA(DisplayName = "Phase1-Minion"),
+	Phase2		UMETA(DisplayName = "Phase2-Minion"),
+	BossPhase1	UMETA(DisplayName = "BossPhase1"),
+	BossPhase2	UMETA(DisplayName = "BossPhase2"),
+	Clear		UMETA(DisplayName = "Clear"),
 };
+
 
 UCLASS()
 class OTOGIACTION_API AphaseManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
+
 	AphaseManager();
 
+
 protected:
+
 	virtual void BeginPlay() override;
 
-public:	
+
+public:
+
 	virtual void Tick(float DeltaTime) override;
 
-	// 現在のフェーズ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss Phase", meta = (AllowPrivateAccess = "true"))
+
+	// フェーズ
+
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase",
+		meta = (AllowPrivateAccess = "true")
+	)
 	EBossPhase CurrentPhase = EBossPhase::Phase1;
+
+
+	// 現在のフェーズ取得
+	EBossPhase GetCurrentPhase() const
+	{
+		return CurrentPhase;
+	}
+
+
+	// リスポーン
+
+	// 現在フェーズに応じたリスポーン位置
+	FTransform GetRespawnTransform() const;
+
+	// リスポーン中か設定
+	UFUNCTION(BlueprintCallable)
+	void SetRespawning(bool bRespawning);
+
+	// 現在フェーズのMinionを再生成
+	void RespawnCurrentPhaseMinions();
+
+
+	// Phase1
 
 	// Phase1で使用する雑魚敵
 	UPROPERTY()
 	TArray<class AMinionsCharacter*> Phase1Minions;
 
-	// Phase1にいる雑魚敵を取得
+	// Phase1の雑魚敵を取得
 	void FindPhase1Minions();
 
 	// Phase1の雑魚敵が全滅したか確認
 	void CheckPhase1Clear();
 
-	// Phase2でSpawnする雑魚敵のクラス
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss Phase|Phase2")
+
+	// Phase2
+
+	// Phase2でSpawnする雑魚敵
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Phase2"
+	)
 	TSubclassOf<AMinionsCharacter> Phase2MinionClass;
 
-	// Phase2のMinionを何体Spawnするか
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss Phase|Phase2")
+	// Phase2のMinion数
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Phase2"
+	)
 	int32 Phase2MinionCount = 3;
 
 	// Phase2のMinion出現位置
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss Phase|Phase2")
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Phase2"
+	)
 	TArray<FTransform> Phase2SpawnTransforms;
 
-	// Phase2でSpawnした雑魚敵
+	// Phase2でSpawnしたMinion
 	UPROPERTY()
 	TArray<class AMinionsCharacter*> Phase2Minions;
 
@@ -67,29 +117,70 @@ public:
 	void SpawnPhase2Minions();
 
 
-	// BossPhase1でSpawnするBoss
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss Phase|Boss")
+	// Boss Phase1
+
+	// Bossクラス
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Boss"
+	)
 	TSubclassOf<AActor> BossClass;
 
-	// Bossの出現位置
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boss Phase|Boss")
+	// Boss出現位置
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Boss"
+	)
 	FTransform BossSpawnTransform;
 
 	// SpawnしたBoss
 	UPROPERTY()
 	AActor* BossActor = nullptr;
 
-	// BossをSpawn
+	// Boss Spawn
 	void SpawnBossPhase1();
 
-	//Bossが死んだか確認
+	// Boss死亡確認
 	void CheckBossPhase1Clear();
 
 
-	// Phase1終了->Phase2移行
+	// フェーズ移行
+
+	// Phase1 → Phase2
 	void StartPhase2();
 
-	// Phase2終了->BossPhase移行
+	// Phase2 → BossPhase1
 	void StartBossPhase1();
 
+
+	// リスポーン位置
+
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Respawn"
+	)
+	FTransform Phase1RespawnTransform;
+
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Respawn"
+	)
+	FTransform Phase2RespawnTransform;
+
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Respawn"
+	)
+	FTransform BossPhase1RespawnTransform;
+
+
+private:
+
+	// リスポーン中フラグ
+	bool bIsRespawning = false;
 };
