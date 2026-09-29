@@ -206,7 +206,11 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	//第二形態への移行判定
 	if (!bIsPhaseTwo && MaxHP > 0.0f && (CurrentHP / MaxHP) <= PhaseTwoHPThresholdRatio)
 	{
+		//第二形態ログ
+		UE_LOG(LogTemp, Warning, TEXT("Phase 2"));
+
 		StartPhaseTwo();
+
 	}
 
 	return ActualDamage;
