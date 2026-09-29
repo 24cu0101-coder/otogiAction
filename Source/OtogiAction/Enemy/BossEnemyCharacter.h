@@ -18,6 +18,9 @@ class UBossEnemyHitReactionComponent;
 class UUHitReactionBaseComponent;
 class UBossEnemyAttackBaseComponent;
 
+//第二形態開始時に発火するデリゲート
+DECLARE_MULTICAST_DELEGATE(FOnPhaseTwoStartedDelegate);
+
 //ジャンプアタックMontageでNotifyが作動したときのdelegate
 DECLARE_MULTICAST_DELEGATE(FOnJumpAttackNotifyDelegate);
 
@@ -83,6 +86,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	void TriggerJumpAttack();
 
+	//第二形態かどうかを取得
+	UFUNCTION(BlueprintCallable,Category = "AI|PhaseTwo")
+	bool GetIsPhaseTwo() const { return bIsPhaseTwo; }
+
+	//第二形態へ移行する処理
+	UFUNCTION(BlueprintCallable, Category = "AI|PhaseTwo")
+	void StartPhaseTwo();
+
+	//移行時の処理
+	void ApplyPhaseTwoState();
+	
+	//移行時の処理
+	UFUNCTION(BlueprintCallable, Category = "AI|PhaseTwo")
+	void K2_OnPhaseTwoStarted();
 
 	//敵の最大HP
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
@@ -113,6 +130,9 @@ public:
 	//JumpAttackTaskからバインドするための公開デリゲート
 	FOnJumpAttackNotifyDelegate OnJumpAttackNotify;
 
+	//第二形態デリゲート
+	FOnPhaseTwoStartedDelegate OnPhaseTwoStartedNotify;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -126,4 +146,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")
 	UAnimMontage* JumpAttackMontage;
 
+	//第二形態に移行するHPの割合
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "AI|PhaseTwo")
+	float PhaseTwoHPThresholdRatio = 0.5f;
+
+	//第二形態時の移動速度
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
+	float PhaseTwoMaxWalkSpeed = 600.f;
+
+	//第二形態フラグ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
+	bool bIsPhaseTwo = false;
 };
