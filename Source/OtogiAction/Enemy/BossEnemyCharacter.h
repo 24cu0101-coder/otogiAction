@@ -11,6 +11,7 @@
 #include "Component/UtilityAIComponent.h"
 #include "../Component/UHitReactionBaseComponent.h"
 #include "NiagaraComponent.h"
+#include "Engine/DataTable.h"
 
 #include "BossEnemyCharacter.generated.h"
 
@@ -52,18 +53,18 @@ protected:
 	//敵の状態遷移を管理する固有クラス
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UUtilityAIComponent> UtilityAIComp;
-
 	//第二形態用の常時オーラコンポーネント
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
 	TObjectPtr<UNiagaraSystem> PhaseTwoAuraEffect;
+	//生成したNiagaraコンポーネントの参照
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
+	TObjectPtr<UNiagaraComponent> SpawnedAuraComponent;
 
 	//エフェクトをアタッチするソケット名
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
 	FName AuraSocketName = FName("Spine1");
 
-	//生成したNiagaraコンポーネントの参照
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
-	TObjectPtr<UNiagaraComponent> SpawnedAuraComponent;
+
 
 public:
 	// Sets default values for this character's properties
@@ -147,6 +148,9 @@ public:
 	//第二形態デリゲート
 	FOnPhaseTwoStartedDelegate OnPhaseTwoStartedNotify;
 
+	//全コンポーネントの数値をDataTableからセットする処理
+	void SyncActionComponentsData();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -171,4 +175,9 @@ protected:
 	//第二形態フラグ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
 	bool bIsPhaseTwo = false;
+
+	//ボスの各行動パラメータをまとめたデータテーブル
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BossSetup|Data")
+	TObjectPtr<UDataTable> ActionDataTable;
+
 };

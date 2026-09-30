@@ -74,6 +74,11 @@ void UEnemyAttackBaseComponent::SetEnemyState()
 }
 
 
+void UEnemyAttackBaseComponent::InitializeActionData(const FBossActionData& NewData)
+{
+	ActionData = NewData;
+}
+
 // Called when the game starts
 void UEnemyAttackBaseComponent::BeginPlay()
 {
