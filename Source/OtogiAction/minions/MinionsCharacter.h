@@ -84,6 +84,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	bool bCanTakeDamage = false;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,category="HP Widget",meta=(AllowPrivateAccess="true"))
+	float HPWidgetVisibleDistance = 1500.0f;
+
 	void SetCanTakeDamage(bool bEnable)
 	{
 		bCanTakeDamage = bEnable;
@@ -133,6 +136,8 @@ public:
 
 	void SetCanSpawnOrb(bool bEnable);
 
+	void UpdateHPWidgetVisibility();
+
 private:
 	bool bIsHit = false;
 
@@ -141,6 +146,7 @@ public:
 	void SetIsHitFlg(bool bHit) { bIsHit = bHit; }
 
 	bool IsDead() const { return bIsDead; }
+	
 
 private:
 
