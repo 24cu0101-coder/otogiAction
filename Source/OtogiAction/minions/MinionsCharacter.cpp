@@ -62,9 +62,26 @@ UAbilitySystemComponent* AMinionsCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void AMinionsCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	UpdateHPWidgetVisibility();
+}
+
 void AMinionsCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Kintaro専用敵はゲーム開始時はダメージ無効
+	if (bKintaroOnlyEnemy)
+	{
+		bCanTakeDamage = false;
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("[KINTARO DAMAGE] %s INITIALIZED -> CanTakeDamage = false"),
+			*GetName());
+	}
 
 	//ダメージを受けたらOnDamageを呼ぶ
 	OnTakeAnyDamage.AddDynamic(this, &AMinionsCharacter::OnDamage);
@@ -120,35 +137,9 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		}
 	}
 }
-void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
 {
-
-	SetIsHitFlg(true);
-
-	// 攻撃中断
-
-	if (IsAttacking())
-	{
-		CancelAttack();
-	}
-
-	// 被弾音
-	if (CharacterAudioComponent)
-	{
-		CharacterAudioComponent->PlayCharacterSound(ECharacterSoundType::Damage);
-	}
-	// 被弾エフェクト
-	if (HitEffect)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, GetActorLocation() + FVector(0, 0, 80.f));
-	}
-
-
-	if (!StatusComponent)
-	{
-		return;
-	}
-
+	// Kintaro専用敵のダメージ受付判定
 	if (bKintaroOnlyEnemy && !bCanTakeDamage)
 	{
 		UE_LOG(LogTemp, Warning,
@@ -157,7 +148,37 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 			bKintaroOnlyEnemy,
 			bCanTakeDamage);
 
+		return;
+	}
 
+	// ここから通常の被弾処理
+
+	SetIsHitFlg(true);
+
+	// 攻撃中断
+	if (IsAttacking())
+	{
+		CancelAttack();
+	}
+
+	// 被弾音
+	if (CharacterAudioComponent)
+	{
+		CharacterAudioComponent->PlayCharacterSound(
+			ECharacterSoundType::Damage);
+	}
+
+	// 被弾エフェクト
+	if (HitEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			HitEffect,
+			GetActorLocation() + FVector(0, 0, 80.f));
+	}
+
+	if (!StatusComponent)
+	{
 		return;
 	}
 
@@ -166,63 +187,47 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		*GetName(),
 		bKintaroOnlyEnemy,
 		bCanTakeDamage);
+
 	StatusComponent->TakeDamage(Damage);
 
-	//ヒットリアクション
+	// ヒットリアクション
 	if (HitReactionComponent && DamageCauser)
 	{
-
-		// 攻撃方向保存
-
-		HitReactionComponent->SetHitDirection(
-			DamageCauser);
-
-
-
-		// 姿勢値を削る
+		HitReactionComponent->SetHitDirection(DamageCauser);
 
 		if (!HitReactionComponent->IsStanceBroken())
 		{
 			HitReactionComponent->AddStance(Damage);
 		}
 
-
-		// 姿勢崩壊チェック
-
 		if (HitReactionComponent->IsStanceBreak())
 		{
-
 			UE_LOG(LogTemp, Warning,
 				TEXT("MINION STANCE BREAK"));
 
+			HitReactionComponent->PlayHitReaction(Damage);
 
-			// 大きい怯み
-
-			HitReactionComponent->PlayHitReaction(
-				Damage);
-
-
-
-			// 姿勢リセット
 			HitReactionComponent->SetStanceBroken(true);
 			HitReactionComponent->ResetStance();
-
 		}
-
 	}
+
+	// Orb生成
 	if (OrbSpawnComponent)
 	{
 		if (!bKintaroOnlyEnemy || bCanSpawnOrb)
 		{
 			OrbSpawnComponent->SpawnOrbs(this, Damage);
 		}
+
 		UE_LOG(LogTemp, Warning,
-			TEXT("%s  KintaroOnly:%d  CanSpawn:%d"),
+			TEXT("%s KintaroOnly:%d CanSpawn:%d"),
 			*GetName(),
 			bKintaroOnlyEnemy,
 			bCanSpawnOrb);
 	}
 }
+
 //HPWidget
 void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
 {
@@ -266,11 +271,6 @@ void AMinionsCharacter::Dead()
 	}
 }
 
-void AMinionsCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 
 void AMinionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -322,3 +322,25 @@ void AMinionsCharacter::SetCanSpawnOrb(bool bEnable)
 	);
 }
 
+void AMinionsCharacter::UpdateHPWidgetVisibility()
+{
+	if (!HPWidgetComponent)
+	{
+		return;
+	}
+
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	const float DistanceSquared =FVector::DistSquared(GetActorLocation(),PlayerPawn->GetActorLocation());
+
+	const float VisibleDistanceSquared =FMath::Square(HPWidgetVisibleDistance);
+
+	const bool bShouldShow =DistanceSquared <= VisibleDistanceSquared;
+
+	HPWidgetComponent->SetVisibility(bShouldShow);
+}

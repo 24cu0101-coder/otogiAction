@@ -31,15 +31,26 @@ void UGASkillKintaro::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 		AMinionsCharacter* Minion = Cast<AMinionsCharacter>(Actor);
 
 
-		if (Minion)
+		if (!Minion)
 		{
-			if (Minion->bKintaroOnlyEnemy)
-			{
-				Minion->SetCanSpawnOrb(true);
-				Minion->SetCanTakeDamage(true);
+			continue;
+		}
 
-				UE_LOG(LogTemp, Warning,TEXT("KintaroSkill: Damage ON : %s"),*Minion->GetName());
-			}
+		//kintoro専用敵だけ対象
+		if (Minion->bKintaroOnlyEnemy)
+		{
+			//ダメージ受付ON
+			Minion->SetCanTakeDamage(true);
+
+			//Orb生成ON
+			Minion->SetCanSpawnOrb(true);
+
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("[KINTARO SKILL] Damage ON / Orb ON : %s"),
+				*Minion->GetName()
+			);
 		}
 	}
 
@@ -119,7 +130,7 @@ void UGASkillKintaro::AbilityFinished()
 //金太郎専用敵のOrb生成を解除
 void UGASkillKintaro::DisableKintaroEnemyOrb()
 {
-	UE_LOG(LogTemp, Warning, TEXT("DisableKintaroEnemyOrb Called"));
+	UE_LOG(LogTemp, Warning, TEXT("Kintaro 15 sec End"));
 
 
 	TArray<AActor*> MinionActors;
@@ -134,6 +145,11 @@ void UGASkillKintaro::DisableKintaroEnemyOrb()
 
 		AMinionsCharacter* Minion = Cast<AMinionsCharacter>(Actor);
 
+		if (!Minion)
+		{
+			continue;
+		}
+
 
 		if (Minion && Minion->bKintaroOnlyEnemy)
 		{
@@ -143,13 +159,15 @@ void UGASkillKintaro::DisableKintaroEnemyOrb()
 				*Minion->GetName());
 
 
-		Minion->SetCanSpawnOrb(false);
-		Minion->SetCanTakeDamage(false);
+			Minion->SetCanSpawnOrb(false);
+			Minion->SetCanTakeDamage(false);
 
-UE_LOG(LogTemp, Warning,
-	TEXT("KintaroEnemy OFF : %s | CanTakeDamage=%d"),
-	*Minion->GetName(),
-	Minion->bCanTakeDamage);
+			UE_LOG(LogTemp, Warning,
+				TEXT("KintaroEnemy OFF : %s | CanTakeDamage=%d/ CanSpawnOrb=%d"),
+				*Minion->GetName(),
+				Minion->bCanTakeDamage,
+				Minion->bCanSpawnOrb
+			);
 		}
 
 	}
