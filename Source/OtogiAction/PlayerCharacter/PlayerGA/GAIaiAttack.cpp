@@ -4,11 +4,13 @@
 #include "GAIaiAttack.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Abilities/Tasks/AbilityTask_WaitInputPress.h" 
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "../PlayerComponent/PlayerTargetComponent.h"
 
 UGAIaiAttack::UGAIaiAttack()
 {
+
 }
 
 void UGAIaiAttack::ActivateAbility
@@ -33,7 +35,6 @@ void UGAIaiAttack::ActivateAbility
 	//	アビリティシステムコンポーネントとモンタージュ二つのどれか一つでもなかったら
 	if (!m_ASC || !m_sheathingMontage || !m_iaiAttackMontage)
 	{
-
 		//リターン
 		return;
 	}
@@ -59,21 +60,14 @@ void UGAIaiAttack::ActivateAbility
 		SheathingEvent->ReadyForActivation();
 	}
 
-	if (!m_iaiStance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("country"));
+	
 
-		// 納刀開始
-		SheathingSword();
-	}
-
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("yametahougaiitoomouze"));
-
-		// 抜刀
-		IaiSlash();
-	}
+	// 納刀開始
+	SheathingSword();
+	
+	// 抜刀
+	//IaiSlash();
+	
 
 }
 
@@ -96,7 +90,7 @@ void UGAIaiAttack::SheathingSword()
 		}
 
 
-		if (m_char)
+		if (IaiMontageTask && m_char)
 		{
 			//アニメーションインスタンスを取得
 			if (UAnimInstance* SAttackAnimInstance = m_char->GetMesh()->GetAnimInstance())
@@ -109,18 +103,31 @@ void UGAIaiAttack::SheathingSword()
 			}
 		}
 
+
+
 		// 数秒後終了処理
 		FTimerHandle EndDodgTimer;
 		GetWorld()->GetTimerManager().SetTimer(EndDodgTimer, this, &UGAIaiAttack::Iaistep, 0.3f, false);
 
+		FGameplayTag SecondInputTag = FGameplayTag::RequestGameplayTag(FName("Iai.SecondInput"));
+		UAbilityTask_WaitGameplayEvent* WiatEvetnTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+			this,SecondInputTag,nullptr ,false,false);
+		if (WiatEvetnTask)
+		{
+			WiatEvetnTask->EventReceived.AddDynamic(this, &UGAIaiAttack::IaiSlash);
+			WiatEvetnTask->ReadyForActivation();
+
+
+		}
 	}
 }
 
-// 納刀の処理
-void UGAIaiAttack::IaiSlash()
+// 抜刀の処理
+void UGAIaiAttack::IaiSlash(FGameplayEventData Payload)
 {
-	m_iaiStance = false;
+	UE_LOG(LogTemp, Warning, TEXT("IaiSlash"));
 
+	StartMontage();
 	IaiWarping();
 }
 
@@ -136,7 +143,6 @@ void UGAIaiAttack::Iaistep()
 	////0.2秒後、消える
 	GetWorld()->GetTimerManager().SetTimer(VisibleTimer, this, &UGAIaiAttack::StopMontage, m_iaiTime, false);
 
-	m_iaiStance = true;
 
 	//FTimerHandle WarpingTimer;
 	////1秒後現れる
@@ -328,6 +334,23 @@ void UGAIaiAttack::StopMontage()
 			SAttackAnimInstance->Montage_SetPlayRate(m_iaiAttackMontage, 0.001f);
 		}
 	}
+}
+
+void UGAIaiAttack::StartMontage()
+{
+	if (m_char)
+	{
+		//アニメーションインスタンスを取得
+		if (UAnimInstance* SAttackAnimInstance = m_char->GetMesh()->GetAnimInstance())
+		{
+
+			//IaiMontageTask->ReadyForActivation();
+
+			//アニメーションを止める
+			SAttackAnimInstance->Montage_SetPlayRate(m_iaiAttackMontage, 1.0f);
+		}
+	}
+
 }
 
 void UGAIaiAttack::RestartMontage()

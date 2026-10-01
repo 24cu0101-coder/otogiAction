@@ -19,13 +19,16 @@ class OTOGIACTION_API UIaiAttackComponent : public UBaseAttackComponent
 {
 	GENERATED_BODY()
 	
+protected:
+
+	void AbilityEnd(const FAbilityEndedData& AbilityEndedData);
+
 public:
 	UIaiAttackComponent();
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-
+	
 	//プレイヤーのアクター
 	UPROPERTY(Transient)
 	APlayerCharacter* PlayerActor;
@@ -62,5 +65,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "IaiAttack.InputBufferComp", meta = (AllowPrivateAccess = "true"))
 	UInputBufferComponent* IaiAttackInputBufferComp;
 
+	bool SecondInputExecuted = false;
+
+	void Iaidebug();
 
 };
