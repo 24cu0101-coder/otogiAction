@@ -121,12 +121,7 @@ public:
 
 	// Event
 	UFUNCTION()
-	void OnDamage(
-		AActor* DamagedActor,
-		float Damage,
-		const UDamageType* DamageType,
-		AController* InstigatedBy,
-		AActor* DamageCauser);
+	void OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser);
 
 	UFUNCTION()
 	void Dead();

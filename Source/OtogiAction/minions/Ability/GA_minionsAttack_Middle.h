@@ -29,6 +29,9 @@ public:
 
 
 protected:
+	// 予備動作Montage
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> PreAttackMontage;
 
 	// 攻撃Montage
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
@@ -39,6 +42,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack")
 	float Damage = 20.f;
 
+
+	// 予備動作終了
+	UFUNCTION()
+	void OnPreAttackCompleted();
+
+
+	// 予備動作中断
+	UFUNCTION()
+	void OnPreAttackInterrupted();
 
 	// Montage終了時
 	UFUNCTION()

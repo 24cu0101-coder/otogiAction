@@ -91,9 +91,7 @@ void AMinionsCharacter::BeginPlay()
 		StatusComponent->OnDead.AddDynamic(this, &AMinionsCharacter::Dead);
 
 		// HP変更時にHPバー更新
-		StatusComponent->OnDamaged.AddDynamic(
-			this,
-			&AMinionsCharacter::UpdateHPWidget);
+		StatusComponent->OnDamaged.AddDynamic(this,&AMinionsCharacter::UpdateHPWidget);
 	}
 	if (!AbilitySystemComponent)
 	{
@@ -106,8 +104,7 @@ void AMinionsCharacter::BeginPlay()
 
 	//AttackComponent->Attack();
 
-	if (UEnemyHPWidget* HPWidget =
-		Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
+	if (UEnemyHPWidget* HPWidget =Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
 	{
 		HPWidget->SetHP(StatusComponent->GetCurrentHP(), StatusComponent->GetMaxHP());
 	}
@@ -128,8 +125,7 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		{
 			if (AbilityClass)
 			{
-				AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, InputID)
-				);
+				AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, InputID));
 
 				UE_LOG(LogTemp, Warning, TEXT("Ability Granted: %s"), *AbilityClass->GetName());
 				InputID++;
@@ -164,17 +160,13 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 	// 被弾音
 	if (CharacterAudioComponent)
 	{
-		CharacterAudioComponent->PlayCharacterSound(
-			ECharacterSoundType::Damage);
+		CharacterAudioComponent->PlayCharacterSound(ECharacterSoundType::Damage);
 	}
 
 	// 被弾エフェクト
 	if (HitEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
-			HitEffect,
-			GetActorLocation() + FVector(0, 0, 80.f));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitEffect,GetActorLocation() + FVector(0, 0, 80.f));
 	}
 
 	if (!StatusComponent)

@@ -1,12 +1,10 @@
 #include "GA_minionsAttack_Middle.h"
-
 #include "OtogiAction/minions/MinionsCharacter.h"
-
 #include "AbilitySystemComponent.h"
-
 #include "NiagaraFunctionLibrary.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+
 
 UGA_minionsAttack_Middle::UGA_minionsAttack_Middle()
 {
@@ -33,9 +31,104 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 	CurrentActivationInfo = ActivationInfo;
 
 
-	UE_LOG(LogTemp, Warning, TEXT("GA MIDDLE START"));
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("GA MIDDLE START"));
 
-	//エフェクト
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(true);
+
+		// 攻撃中は移動を止める
+		Minion->GetCharacterMovement()->StopMovementImmediately();
+	}
+
+
+	float PlayRate = 1.0f;
+
+	if (Minion)
+	{
+		PlayRate = Minion->AttackPlayRate;
+	}
+
+
+	//==================================================
+	// 予備動作
+	//==================================================
+
+	if (PreAttackMontage)
+	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("MIDDLE PRE ATTACK START"));
+
+
+		UAbilityTask_PlayMontageAndWait* MontageTask =
+			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+				this,
+				NAME_None,
+				PreAttackMontage,
+				PlayRate);
+
+
+		MontageTask->OnCompleted.AddDynamic(
+			this,
+			&UGA_minionsAttack_Middle::OnPreAttackCompleted);
+
+
+		MontageTask->OnInterrupted.AddDynamic(
+			this,
+			&UGA_minionsAttack_Middle::OnPreAttackInterrupted);
+
+
+		MontageTask->ReadyForActivation();
+
+		return;
+	}
+
+
+	// 予備動作が設定されていない場合
+	OnPreAttackCompleted();
+}
+
+
+//==================================================
+// 予備動作終了 → 本攻撃開始
+//==================================================
+
+void UGA_minionsAttack_Middle::OnPreAttackCompleted()
+{
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("MIDDLE PRE ATTACK END"));
+
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	float PlayRate = 1.0f;
+
+	if (Minion)
+	{
+		PlayRate = Minion->AttackPlayRate;
+	}
+
+
+	//==================================================
+	// 攻撃エフェクト
+	//==================================================
+
 	if (AttackEffect)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAttached(
@@ -49,18 +142,18 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 	}
 
 
-	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
+	//==================================================
+	// 本攻撃
+	//==================================================
 
-	float PlayRate = 1.0f;
-
-	if (Minion)
-	{
-		PlayRate = Minion->AttackPlayRate;
-	}
-
-	// Montage再生
 	if (AttackMontage)
 	{
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("MIDDLE ATTACK START"));
+
+
 		UAbilityTask_PlayMontageAndWait* MontageTask =
 			UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 				this,
@@ -68,13 +161,16 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 				AttackMontage,
 				PlayRate);
 
+
 		MontageTask->OnCompleted.AddDynamic(
 			this,
 			&UGA_minionsAttack_Middle::OnMontageCompleted);
 
+
 		MontageTask->OnInterrupted.AddDynamic(
 			this,
 			&UGA_minionsAttack_Middle::OnMontageInterrupted);
+
 
 		MontageTask->ReadyForActivation();
 	}
@@ -84,15 +180,71 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 			LogTemp,
 			Error,
 			TEXT("AttackMontage is NULL"));
+
+
+		if (Minion)
+		{
+			Minion->SetIsAttacking(false);
+		}
+
+
+		EndAbility(
+			CurrentSpecHandle,
+			CurrentActorInfo,
+			CurrentActivationInfo,
+			true,
+			false);
 	}
 }
 
 
-// Montage終了
+//==================================================
+// 予備動作中断
+//==================================================
+
+void UGA_minionsAttack_Middle::OnPreAttackInterrupted()
+{
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("MIDDLE PRE ATTACK INTERRUPTED"));
+
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
+
+
+	if (Minion)
+	{
+		Minion->SetIsAttacking(false);
+	}
+
+
+	EndAbility(
+		CurrentSpecHandle,
+		CurrentActorInfo,
+		CurrentActivationInfo,
+		true,
+		false);
+}
+
+
+//==================================================
+// 本攻撃終了
+//==================================================
+
 void UGA_minionsAttack_Middle::OnMontageCompleted()
 {
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("MIDDLE ATTACK END"));
 
-	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
 
 
 	if (Minion)
@@ -101,21 +253,30 @@ void UGA_minionsAttack_Middle::OnMontageCompleted()
 	}
 
 
-
 	EndAbility(
 		CurrentSpecHandle,
 		CurrentActorInfo,
 		CurrentActivationInfo,
 		true,
 		false);
-
 }
 
-// Montage中断
+
+//==================================================
+// 本攻撃中断
+//==================================================
+
 void UGA_minionsAttack_Middle::OnMontageInterrupted()
 {
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("MIDDLE ATTACK INTERRUPTED"));
 
-	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetAvatarActorFromActorInfo());
+
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(
+			GetAvatarActorFromActorInfo());
 
 
 	if (Minion)
@@ -124,12 +285,11 @@ void UGA_minionsAttack_Middle::OnMontageInterrupted()
 	}
 
 
-
 	EndAbility(
 		CurrentSpecHandle,
 		CurrentActorInfo,
 		CurrentActivationInfo,
 		true,
 		false);
-
 }
+
