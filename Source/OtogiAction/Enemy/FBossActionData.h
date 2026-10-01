@@ -16,21 +16,21 @@ struct FBossActionData : public FTableRowBase
 
     // 技の基本ダメージ量
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Parameters")
-    float Damage = 10.0f;
+    float Damage = 0.f;
 
     // 行動移行・発動条件の最小値（距離やHP割合など）
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Parameters")
-    float MinTriggerValue = 0.0f;
+    float MinTriggerValue = 0.f;
 
     // 行動移行・発動条件の最大値
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Parameters")
-    float MaxTriggerValue = 1000.0f;
+    float MaxTriggerValue = 0.f;
 
     // 行動の優先度
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Parameters")
-    int32 Priority = 1;
+    float Priority = 0.f;
 
-    // クールダウン時間（秒）
+    // 優先度のスコアが下がり始める距離
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Parameters")
-    float Cooldown = 2.0f;
+    float FeedOutRange = 0.f;
 };
