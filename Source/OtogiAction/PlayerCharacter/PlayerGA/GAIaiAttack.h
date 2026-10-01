@@ -42,6 +42,8 @@ protected:
 	UAnimMontage* m_sheathingMontage;
 
 
+
+
 	//プレイヤーの情報
 	UPROPERTY(Transient)
 	APlayerCharacter* m_playerActor;
@@ -56,7 +58,7 @@ protected:
 
 	// 居合攻撃
 	UFUNCTION()
-	void IaiSlash();
+	void IaiSlash(FGameplayEventData Payload);
 
 	UFUNCTION()
 	void RestartIaiAttackMontage();
@@ -125,6 +127,10 @@ private:
 	UFUNCTION()
 	void StopMontage();
 
-	bool m_iaiStance = false;
+	UFUNCTION()
+	void StartMontage();
+
+	bool SwordStance;
+
 
 };
