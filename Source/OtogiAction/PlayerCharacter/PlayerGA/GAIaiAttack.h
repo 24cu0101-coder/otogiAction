@@ -22,6 +22,8 @@ class OTOGIACTION_API UGAIaiAttack : public UGameplayAbility
 
 public:
 
+	UGAIaiAttack();
+
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle IaiAttack,
 		const FGameplayAbilityActorInfo* playerActorInfo,
@@ -33,24 +35,28 @@ protected:
 
 	//居合攻撃のアニメーションモンタージュ
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
-	UAnimMontage* IaiAttackMontage;
+	UAnimMontage* m_iaiAttackMontage;
 
 	//納刀アニメーションモンタージュ
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
-	UAnimMontage* SheathingMontage;
+	UAnimMontage* m_sheathingMontage;
 
 
 	//プレイヤーの情報
 	UPROPERTY(Transient)
-	APlayerCharacter* PlayerActor;
+	APlayerCharacter* m_playerActor;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
-	UAbilitySystemComponent* ASC;
+	UAbilitySystemComponent* m_ASC;
 
 
-	//モンタージュを再生する関数
+	// 納刀
 	UFUNCTION()
-	void PlayIaiAttackMontage();
+	void SheathingSword();
+
+	// 居合攻撃
+	UFUNCTION()
+	void IaiSlash();
 
 	UFUNCTION()
 	void RestartIaiAttackMontage();
@@ -80,40 +86,45 @@ protected:
 	void IaiWarping();
 
 	UPROPERTY()
-	UPlayerTargetComponent* PlayerTargetComp;
+	UPlayerTargetComponent* m_playerTargetComp;
 
 
 private:
 
-	FTimerHandle IaiTimer;
+	FTimerHandle m_iaiTimer;
 	
 	//キャラクターのアクター変数
-	ACharacter* Char;
+	ACharacter* m_char;
 
 	//stepの距離
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "IaiAttackParameter", meta = (AllowPrivateAccess = "true"))
-	float IaiDistance;
+	float m_iaiDistance;
 
 	//ステップする時間
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "IaiAttackParameter", meta = (AllowPrivateAccess = "true"))
-	float IaiTime;
+	float m_iaiTime;
 
 	//ステップのディレイ時間
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "IaiAttackParameter", meta = (AllowPrivateAccess = "true"))
-	float IaiDelayTiem;
+	float m_iaiDelayTiem;
 
 	UPROPERTY()
-	AActor* WarpTargetActor = nullptr;
+	AActor* m_warpTargetActor = nullptr;
 
 
 	//このコンポーネントの持ち主
 	UPROPERTY()
-	ACharacter* OwnerCharacter;
+	ACharacter* m_ownerCharacter;
 
 	UFUNCTION()
 	void PlayerVisible(bool Visible);
 
 	UFUNCTION()
 	void IaiVisible();
+
+	UFUNCTION()
+	void StopMontage();
+
+	bool m_iaiStance = false;
 
 };
