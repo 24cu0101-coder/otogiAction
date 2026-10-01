@@ -36,6 +36,46 @@ ABossEnemyCharacter::ABossEnemyCharacter()
 
 }
 
+void ABossEnemyCharacter::SyncActionComponentsData()
+{
+	if (!ActionDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[BossEnemyCharacter] ActionDataTable is NULL !"));
+		return;
+	}
+
+	//ボスにアタッチされている全てのUEnemyAttackBaseComponentを取得
+	TArray<UEnemyAttackBaseComponent*> ActionComponents;
+	GetComponents<UEnemyAttackBaseComponent>(ActionComponents);
+
+	for (UEnemyAttackBaseComponent* ActionComp : ActionComponents)
+	{
+		if (!ActionComp || ActionComp->ActionRowName.IsNone())
+		{
+			continue;
+		}
+
+		//行名をキーにしてDataTableから検索
+		static const FString ContextStr(TEXT("BossActionDataLookup"));
+		FBossActionData* FoundRow = ActionDataTable->FindRow<FBossActionData>(
+			ActionComp->ActionRowName,
+			ContextStr
+		);
+
+		if (FoundRow)
+		{
+			//各コンポーネントの初期化関数を読んで数値を割り当て
+			ActionComp->InitializeActionData(*FoundRow);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[BossEnemyCharacter] Row '%s' not found for component '%s'"),
+				*ActionComp->ActionRowName.ToString(), *ActionComp->GetName());
+		}
+	}
+
+}
+
 // Called when the game starts or when spawned
 void ABossEnemyCharacter::BeginPlay()
 {
@@ -43,6 +83,8 @@ void ABossEnemyCharacter::BeginPlay()
 
 	CurrentHP = MaxHP;
 
+	//ゲーム開始時にデータテーブルの値を各コンポーネントへ同期
+	SyncActionComponentsData();
 }
 
 //パンチアタックMontageの再生時間を返す
