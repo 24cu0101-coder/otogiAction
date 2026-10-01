@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
+#include "../FBossActionData.h"
 #include "EnemyAttackBaseComponent.generated.h"
 
 class AAIController;
@@ -37,6 +38,18 @@ public:
 	//ABPでのアニメーション変更用変数
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard", meta = (UseByRequest = "true"))
 	FBlackboardKeySelector CanAttackBuildKey;
+
+	//エディタで設定する対象のDataTable行名
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActionData")
+	FName ActionRowName;
+
+	//同期されたパラメータを保持する構造体
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActionData")
+	FBossActionData ActionData;
+
+	//ボス本体から呼ばれる同期・初期化処理
+	UFUNCTION(BlueprintCallable, Category = "ActionData")
+	virtual void InitializeActionData(const FBossActionData& NewData);
 
 protected:
 	// Called when the game starts

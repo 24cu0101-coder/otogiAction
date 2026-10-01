@@ -130,3 +130,8 @@ void UMoveBuildComponent::FinishTracking()
 	}
 	bIsTracking = false;
 }
+
+//データテーブルにセットされた数値を初期化する関数
+void UMoveBuildComponent::InitializeActionData(const FBossActionData& NewData) {
+
+}

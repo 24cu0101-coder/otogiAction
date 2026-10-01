@@ -373,7 +373,6 @@ void APlayerCharacter::OnIaiAttack()
 
 		IaiAttackComp->ExecuteIaiAttackAbility();
 	}
-
 }
 
 //ƒXƒLƒ‹ŒQ‚ÌØ‚è‘Ö‚¦

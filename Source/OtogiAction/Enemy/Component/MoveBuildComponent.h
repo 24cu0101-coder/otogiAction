@@ -36,6 +36,7 @@ public:
 	virtual void FinishTracking();
 
 	bool IsTracking()const { return bIsTracking; }
+	virtual void InitializeActionData(const FBossActionData& NewData)override;
 
 protected:
 	virtual void BeginPlay() override;
