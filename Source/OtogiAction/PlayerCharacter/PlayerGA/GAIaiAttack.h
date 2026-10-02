@@ -39,10 +39,11 @@ protected:
 
 	//納刀アニメーションモンタージュ
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
-	UAnimMontage* m_sheathingMontage;
+	UAnimMontage* m_iaiStanceMontage;
 
+	//m_iaiAttackMontage
 
-
+	//m_iaiStanceMontage
 
 	//プレイヤーの情報
 	UPROPERTY(Transient)
@@ -130,7 +131,8 @@ private:
 	UFUNCTION()
 	void StartMontage();
 
-	bool SwordStance;
+	bool m_SwordStance;
 
+	float m_montageLength;
 
 };
