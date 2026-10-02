@@ -27,23 +27,20 @@ void UGAIaiAttack::ActivateAbility
 
 	//プレイヤーのキャラクターをキャスト
 	m_playerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
-
 	m_ownerCharacter = Cast<ACharacter>(GetAvatarActorFromActorInfo());
-
 	m_char = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 
 	//	アビリティシステムコンポーネントとモンタージュ二つのどれか一つでもなかったら
-	if (!m_ASC || !m_sheathingMontage || !m_iaiAttackMontage)
-	{
-		//リターン
-		return;
-	}
+	if (!m_ASC || !m_iaiStanceMontage || !m_iaiAttackMontage) return;
+	
+	// 納刀モンタージュの長さを取得
+	m_montageLength = m_iaiAttackMontage->GetPlayLength()/2.5;
 
 
-	//納刀時のタグ
+	// 納刀時のタグ
 	FGameplayTag SheathingTag = FGameplayTag::RequestGameplayTag(FName("Iai.Sheathing"));
 
-	//納刀時のイベントのタスク
+	// 納刀時のイベントのタスク
 	UAbilityTask_WaitGameplayEvent* SheathingEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
 		SheathingTag,
@@ -60,22 +57,15 @@ void UGAIaiAttack::ActivateAbility
 		SheathingEvent->ReadyForActivation();
 	}
 
-	
-
 	// 納刀開始
 	SheathingSword();
-	
-	// 抜刀
-	//IaiSlash();
-	
-
 }
 
 // 納刀処理
 void UGAIaiAttack::SheathingSword()
 {
 	// 納刀モンタージュがあれば
-	if (m_sheathingMontage)
+	if (m_iaiStanceMontage)
 	{
 		//アニメーション再生タスク
 		UAbilityTask_PlayMontageAndWait* IaiMontageTask =
@@ -103,11 +93,9 @@ void UGAIaiAttack::SheathingSword()
 			}
 		}
 
-
-
 		// 数秒後終了処理
 		FTimerHandle EndDodgTimer;
-		GetWorld()->GetTimerManager().SetTimer(EndDodgTimer, this, &UGAIaiAttack::Iaistep, 0.3f, false);
+		GetWorld()->GetTimerManager().SetTimer(EndDodgTimer, this, &UGAIaiAttack::Iaistep, m_montageLength, false);
 
 		FGameplayTag SecondInputTag = FGameplayTag::RequestGameplayTag(FName("Iai.SecondInput"));
 		UAbilityTask_WaitGameplayEvent* WiatEvetnTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
@@ -116,8 +104,6 @@ void UGAIaiAttack::SheathingSword()
 		{
 			WiatEvetnTask->EventReceived.AddDynamic(this, &UGAIaiAttack::IaiSlash);
 			WiatEvetnTask->ReadyForActivation();
-
-
 		}
 	}
 }
@@ -186,7 +172,7 @@ void UGAIaiAttack::Rotate(FVector TargetLocation)
 	//アニメーション再生タスク
 	UAbilityTask_PlayMontageAndWait* SheathingMontageTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-		(this, NAME_None, m_sheathingMontage);
+		(this, NAME_None, m_iaiStanceMontage);
 
 	//納刀のアニメーションタスクがあれば
 	if (SheathingMontageTask)
@@ -267,7 +253,7 @@ void UGAIaiAttack::Sheathing(FGameplayEventData Payload)
 		if (UAnimInstance* SheathingAnimInstance = m_char->GetMesh()->GetAnimInstance())
 		{
 			//再生速度を0にして止める
-			SheathingAnimInstance->Montage_SetPlayRate(m_sheathingMontage, 0.001f);
+			SheathingAnimInstance->Montage_SetPlayRate(m_iaiStanceMontage, 0.001f);
 
 
 
