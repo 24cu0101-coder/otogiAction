@@ -130,7 +130,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.NormalDodge", meta = (AllowPrivateAccess = "true"))
 	float DelayTiem;
 
-	//just回避のフレーム
+	//just回避の範囲フレーム
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.JustDodge", meta = (AllowPrivateAccess = "true"))
 	float JustFrame;
 
@@ -151,6 +151,9 @@ private:
 	//just回避している
 	bool JustDodge = false;
 
+	// ジャスト回避受付時間をはかる
+	bool m_justDodgeWind = false;
+
 	//現在無敵かどうか
 	bool IsInvincibleFlag = false;
 
@@ -166,6 +169,8 @@ private:
 
 	UFUNCTION()
 	void StickRotate();
+
+	void JustDodgeWindFlag();
 
 	//移動の関数をバインドするでりげーど変数 
 	FTimerDelegate LocationDelegate;
