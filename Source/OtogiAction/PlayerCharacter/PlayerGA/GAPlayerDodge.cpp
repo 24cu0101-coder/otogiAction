@@ -117,11 +117,11 @@ void UGAPlayerDodge::JustDodgeWindow()
 	}
 }
 
-// ジャスト回避のうけつけを判断する
-void UGAPlayerDodge::JustDodgeWindow()
-{
-
-}
+//// ジャスト回避のうけつけを判断する
+//void UGAPlayerDodge::JustDodgeWindow()
+//{
+//
+//}
 
 
 void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
