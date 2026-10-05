@@ -12,8 +12,6 @@
 //コンストラクタ
 UGAPlayerDodge::UGAPlayerDodge()
 {
-	m_justDodgeWind = false;
-
 	////実行中のタグを登録
 	//AbilityTags.AddTag(IsDodgeTag);
 }
@@ -92,13 +90,11 @@ void UGAPlayerDodge::PlayDodge()
 	//回避処理開始(ほぼ毎フレーム繰り返す)
 	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
 
-	// 検知中は
-	if(m_justDodgeWind) JustDodgeWindow();
+	JustDodgeWindow();
 
 	//指定した時間後終了
 	GetWorld()->GetTimerManager().SetTimer(EndDodgeTimer, this, &UGAPlayerDodge::DodgeEnd, DodgeTime, false);
 }
-
 
 
 //just回避受付の処理
@@ -110,18 +106,12 @@ void UGAPlayerDodge::JustDodgeWindow()
 	{
 		//タグを付与する
 		ASC->AddLooseGameplayTag(IsInvincibleTag);
-	}	
+	}
 	if (IsValid(PlayerActor) && IsValid(this))
 	{
 		PlayerActor->OnTakeAnyDamage.AddDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
 	}
 }
-
-//// ジャスト回避のうけつけを判断する
-//void UGAPlayerDodge::JustDodgeWindow()
-//{
-//
-//}
 
 
 void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
@@ -131,7 +121,7 @@ void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, cons
 
 		FTimerHandle EndJustDodgeTime;
 		GetWorld()->GetTimerManager().SetTimer(EndJustDodgeTime, this, &UGAPlayerDodge::EndJustDodgeWindow, DodgeTime, false);
-			
+
 
 		//timer破棄
 		GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
@@ -203,7 +193,7 @@ void UGAPlayerDodge::PlayJustDodge()
 	//世界をスローに
 	UGameplayStatics::SetGlobalTimeDilation(World, SlowMagnification);
 
-	
+
 	//数秒後処理終了
 	FTimerHandle dd;
 	//指定したフレーム後にjust回避受付終了
