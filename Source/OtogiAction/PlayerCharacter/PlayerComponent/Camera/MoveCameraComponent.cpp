@@ -1,3 +1,5 @@
+//担当：飯島
+
 //----------------------------------------
 //カメラ操作を担うコンポーネント
 //----------------------------------------
@@ -5,6 +7,7 @@
 #include "MoveCameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include "../PlayerTargetComponent.h"
 #include "Camera/PlayerCameraManager.h"
 
@@ -13,8 +16,12 @@ UMoveCameraComponent::UMoveCameraComponent()
 {
 	//Tick有効
 	PrimaryComponentTick.bCanEverTick = true;
-	PlayerTargetComp = nullptr;
 
+	//ポインターの初期化
+	PlayerTargetComp = nullptr;
+	OwnerCharacter = nullptr;
+	SpringArmComp = nullptr;
+	CameraComp = nullptr;
 }
 
 
@@ -23,32 +30,35 @@ void UMoveCameraComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//カメラを所持しているキャラクターを保持
+	//カメラを所持しているキャラクターをキャストして取得
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 
-	if (OwnerCharacter)
+	//キャラクターがいなかったら終了
+	if (!OwnerCharacter) return;
+
+	//SpringArmのポインター取得
+	SpringArmComp = OwnerCharacter->FindComponentByClass < USpringArmComponent>();
+
+	//カメラのポインター取得
+	CameraComp = OwnerCharacter->FindComponentByClass<UCameraComponent>();
+
+	//springarm設定
+	if (SpringArmComp)
 	{
-		//所持しているキャラクターからスプリングアームを追加
-		SpringArmComp = OwnerCharacter->FindComponentByClass<USpringArmComponent>();
+		//カメラとアクターの同期を切る
+		SpringArmComp->bUsePawnControlRotation = false;
 
-		
-		if (SpringArmComp)
-		{
-			//カメラとアクターの同期を切る
-			SpringArmComp->bUsePawnControlRotation = false;
+		//Pitch
+		SpringArmComp->bInheritPitch = false;
 
-			//アクターとのPitch回転の同期を切る
-			SpringArmComp->bInheritPitch = false;
+		//Yaw
+		SpringArmComp->bInheritYaw = false;
 
-			//アクターとのYaw回転の同期を切る
-			SpringArmComp->bInheritYaw = false;
+		//Roll
+		SpringArmComp->bInheritRoll = false;
 
-			//アクターとのRoll回転の同期を切る
-			SpringArmComp->bInheritRoll = false;
-
-			//キャラクターのコントローラーの回転をカメラと同期
-			OwnerCharacter->bUseControllerRotationYaw = false;
-		}
+		//キャラクター側のコントローラーの回転を切る
+		OwnerCharacter->bUseControllerRotationYaw = false;
 	}
 }
 
@@ -58,32 +68,47 @@ void UMoveCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//ターゲットコンポーネントが存在し、かつロックオン中ならカメラを強制移動
 	if (PlayerTargetComp && PlayerTargetComp->IsTargeting())
 	{
 		AActor* TargetActor = PlayerTargetComp->GetCurrentTargetActor();
-		if (TargetActor && SpringArmComp)
-		{
-			// スプリングアームの現在の位置と、敵の位置を取得
-			FVector CameraLoc = SpringArmComp->GetComponentLocation();
-			FVector TargetLoc = TargetActor->GetActorLocation();
 
-			// カメラから敵への回転角度を計算
-			FRotator LookAtRot = FRotationMatrix::MakeFromX(TargetLoc - CameraLoc).Rotator();
+		if (!TargetActor || !OwnerCharacter || !SpringArmComp || !CameraComp) return;
+		
+		//プレイヤーの注視点
+		FVector PlayerPoint = OwnerCharacter->GetActorLocation();
 
-			// 現在のカメラのワールド回転を取得
-			FRotator CurrentRot = SpringArmComp->GetComponentRotation();
+		PlayerPoint.Z += PlayerTargetPointHeight;
 
-			// 補間
-			FRotator SmoothRot = FMath::RInterpTo(CurrentRot, LookAtRot, DeltaTime, 5.0f);
+		//敵の注視点
+		FVector EnemyPoint = TargetActor->GetActorLocation();
 
-			// ピッチの制限
-			SmoothRot.Pitch = FMath::Clamp(SmoothRot.Pitch, -60.0f, 60.0f);
-			SmoothRot.Roll = 0.0f; // ロールは傾かないように0固定
+		EnemyPoint.Z += EnemyTargetPointHeight;
 
-			// プリングアームの回転を直接上書き！
-			SpringArmComp->SetWorldRotation(SmoothRot);
-		}
+		//プレイヤーと敵のポイントを結んだ中心点を求める
+		FVector CameraTargetPoint = (PlayerPoint + EnemyPoint) * 0.5f;
+
+		//実際のカメラ位置を取得
+		FVector CameraLocation = CameraComp->GetComponentLocation();
+
+		//カメラのとらえる中心点の方向を求める
+		FVector LookDirection = CameraTargetPoint - CameraLocation;
+
+		if (LookDirection.IsNearlyZero()) return;
+
+		//ターゲット中のカメラの回転
+		FRotator LookAtRotation = LookDirection.Rotation();
+
+		//SpringArm回転
+		FRotator CurrentRotation = SpringArmComp->GetComponentRotation();
+
+		//回転の補間
+		FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, LookAtRotation, DeltaTime, TargetCameraInterpSpeed);
+
+		//上下のカメラ制限
+		SmoothRotation.Pitch = FMath::Clamp(SmoothRotation.Pitch, MinTargetCameraPitch, MaxTargetCameraPitch); 
+
+		//SpringArmを回転
+		SpringArmComp->SetWorldRotation(SmoothRotation);
 	}
 }
 
