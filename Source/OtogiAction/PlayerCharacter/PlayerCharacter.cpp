@@ -53,14 +53,13 @@ APlayerCharacter::APlayerCharacter()
 
 		//カメラの子コリジョンテストを行うか設定
 		m_SpringArmComp->bDoCollisionTest = false;
-		//カメラ追従ラグを使うか設定
+		// カメラ位置の追従ラグ
 		m_SpringArmComp->bEnableCameraLag = true;
-		//カメラ追従ラグの速度を設定
 		m_SpringArmComp->CameraLagSpeed = 1000.0f;
-		//カメラ回転ラグを使うかを設定
+
+		// カメラ回転の追従ラグ
 		m_SpringArmComp->bEnableCameraRotationLag = true;
-		//カメラ回転ラグの速度を設定
-		m_SpringArmComp->CameraLagSpeed = 10.0f;
+		m_SpringArmComp->CameraRotationLagSpeed = 10.0f;
 	}
 
 	if ((m_CameraComp) && (m_SpringArmComp))
@@ -127,6 +126,12 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//カメラコンポーネントにターゲットを渡す
+	if (MovementCameraComp && TargetComp)
+	{
+		MovementCameraComp->SetTargetComponent(TargetComp);
+	}
 
 	// Enhanced Input のマッピングコンテキストを追加
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))

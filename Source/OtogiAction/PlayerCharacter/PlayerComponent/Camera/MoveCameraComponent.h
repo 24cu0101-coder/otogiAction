@@ -11,6 +11,7 @@
 //前方宣言
 class ACharacter;
 class USpringArmComponent;
+class UCameraComponent;
 class UPlayerTargetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -48,15 +49,41 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Shake")
 	TSubclassOf<UCameraShakeBase>DefaultCameraShakeClass;
 
+	//ロックオン時のカメラ設定
+	//プレイヤー注視点の高さ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Target Lock")
+	float PlayerTargetPointHeight = 80.0f;
+
+	// 敵側の注視点高さ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Target Lock") 
+	float EnemyTargetPointHeight = 80.0f;
+
+	// カメラが向きを変える速度
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Target Lock")
+	float TargetCameraInterpSpeed = 8.0f;
+
+	// ロックオン中の最大Pitch
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Target Lock")
+	float MaxTargetCameraPitch = 60.0f;
+
+	// ロックオン中の最小Pitch
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Target Lock")
+	float MinTargetCameraPitch = -60.0f;
+
 private:
+	//プレイヤーポインター
 	UPROPERTY()
 	ACharacter* OwnerCharacter;
 
-	//キャラクターが所持するスプイングアームを参照
+	//スプイングアームポインター
 	UPROPERTY()
 	USpringArmComponent* SpringArmComp;
 
-	//ターゲットコンポーネント
+	//カメラコンポーネントポインター
+	UPROPERTY()
+	UCameraComponent* CameraComp;
+
+	//ターゲットポインター
 	UPROPERTY()
 	UPlayerTargetComponent* PlayerTargetComp;
 };
