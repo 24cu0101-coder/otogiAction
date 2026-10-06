@@ -124,9 +124,9 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					16,							//球の滑らかさ
 					FColor::Red,                // 赤色で描画
 					false,                      // ずっと残さない
-					2.0f,                       // 2秒間表示
+					1.0f,                       // 2秒間表示
 					0,
-					2.0f                        // 線の太さ
+					.5f                        // 線の太さ
 				);
 				// 二重ヒット防止リストに追加
 				DamagedActors.Add(OverlappedActor);
@@ -145,9 +145,9 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 			16,							//球の滑らかさ
 			FColor::Green,              //緑色で描画
 			false,                      // ずっと残さない
-			2.0f,                       // 2秒間表示
+			1.0f,                       // 2秒間表示
 			0,
-			2.0f                        // 線の太さ
+			.5f                        // 線の太さ
 		);
 	}
 
