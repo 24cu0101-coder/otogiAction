@@ -72,7 +72,7 @@ public:
 	//ヒットストップを外部から取得できるようにするゲッター関数
 	UHitStopComponent* GetHitStopComponent() const { return HitStopComp; }
 	//スキルゲージをUIに表示
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION()
 	void UpdateSkillGaugeUI();
 	
 	UFUNCTION()

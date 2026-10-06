@@ -199,6 +199,14 @@ void APlayerCharacter::BeginPlay()
 			SkillGaugeWidget->SetGaugePercent(
 				GaugeComp->GetGaugeRatio());
 		}
+		// ゲージ変更時にUIを更新
+		if (GaugeComp)
+		{
+			GaugeComp->OnSkillGaugeChanged.AddDynamic(
+				this,
+				&APlayerCharacter::UpdateSkillGaugeUI
+			);
+		}
 	}
 
 

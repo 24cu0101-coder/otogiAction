@@ -1,63 +1,88 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SkillGaugeComponent.h"
 
-// Sets default values for this component's properties
+
 USkillGaugeComponent::USkillGaugeComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	//現在のゲージの初期化
 	CurrentSkillGauge = 0.f;
 }
 
 
-// Called when the game starts
 void USkillGaugeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	CurrentSkillGauge = 0.f;
-
 }
 
 
-// Called every frame
-void USkillGaugeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void USkillGaugeComponent::TickComponent(
+	float DeltaTime,
+	ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	Super::TickComponent(
+		DeltaTime,
+		TickType,
+		ThisTickFunction);
 }
 
+
+// スキルが使えるか確認
 bool USkillGaugeComponent::CanUseSkill(float SkillCost) const
 {
 	return CurrentSkillGauge >= SkillCost;
 }
 
+
+// スキル使用時にゲージを減らす
 bool USkillGaugeComponent::ConsumeGauge(float Amount)
 {
-	//使用可能か確認
+
+	// 使用可能か確認
 	if (!CanUseSkill(Amount))
 	{
 		return false;
 	}
 
-	CurrentSkillGauge = FMath::Clamp(CurrentSkillGauge - Amount, 0.f, MaxSkillGauge);
+	// ゲージを減らす
+	CurrentSkillGauge = FMath::Clamp(
+		CurrentSkillGauge - Amount,
+		0.f,
+		MaxSkillGauge
+	);
+
+
+
+	// ゲージが変更されたことを通知
+	OnSkillGaugeChanged.Broadcast();
+
 	return true;
 }
 
+
+// ゲージを回復
 void USkillGaugeComponent::ModifyGauge(float Amount)
 {
-	CurrentSkillGauge = FMath::Clamp(CurrentSkillGauge + Amount, 0.f, MaxSkillGauge);
+	CurrentSkillGauge = FMath::Clamp(
+		CurrentSkillGauge + Amount,
+		0.f,
+		MaxSkillGauge
+	);
+
+	// ゲージが変更されたことを通知
+	OnSkillGaugeChanged.Broadcast();
 }
 
+
+// ゲージ割合を取得
 float USkillGaugeComponent::GetGaugeRatio() const
 {
-	if (MaxSkillGauge <= 0.f)return 0.f;
+	if (MaxSkillGauge <= 0.f)
+	{
+		return 0.f;
+	}
+
 	return CurrentSkillGauge / MaxSkillGauge;
 }
-

@@ -374,10 +374,16 @@ void AphaseManager::CheckBossPhase1Clear()
 		TEXT("===== BOSS PHASE 1 CLEAR =====")
 	);
 
-	UE_LOG(
+	/*UE_LOG(
 		LogTemp,
 		Warning,
-		TEXT("===== BOSS PHASE 2 =====")
+		TEXT("===== BOSS PHASE 2 ====="
+		);*/
+
+		// Kanrikyokuレベルへ遷移
+		UGameplayStatics::OpenLevel(
+			GetWorld(),
+			FName(TEXT("OtogiKanrikyoku"))
 	);
 }
 

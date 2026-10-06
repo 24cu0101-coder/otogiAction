@@ -22,7 +22,7 @@ struct FSkillSet
 
 	//ゲージの消費量
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
-	float Cost = 30.f;
+	float Cost = 100.f;
 
 	//スキルの最大使用回数
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill|Limit")

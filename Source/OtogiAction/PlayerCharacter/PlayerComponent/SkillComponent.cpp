@@ -104,13 +104,17 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 		//ゲージが足りているか
 		if (GaugeComp->CanUseSkill(CurrentSet.Cost))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("OkSkillGauge"));
 			//消費に成功したらアビリティを発動
 			if (GaugeComp->ConsumeGauge(CurrentSet.Cost))
 			{
 				/*UE_LOG(LogTemp, Warning, TEXT("ExcuteSkill"));
 				OwnerASC->TryActivateAbilityByClass(CurrentSet.SkillAbility);
 				*/
+
+				UE_LOG(LogTemp, Warning,
+					TEXT("[SKILL GAUGE] 使用後 = %f"),
+					GaugeComp->GetCurrentGauge());
+
 				//ability発動したら使用回数を減算
 				bool bSuccess = OwnerASC->TryActivateAbilityByClass(CurrentSet.SkillAbility);
 
