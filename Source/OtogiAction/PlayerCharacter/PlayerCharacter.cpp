@@ -28,6 +28,7 @@
 #include "OtogiAction/UI/SkillGaugeWidget.h"
 #include "OtogiAction/UI/SkillCircle.h"
 #include"PlayerDeathComponent.h"
+#include "PlayerComponent/Camera/CameraDirectorComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -120,6 +121,9 @@ APlayerCharacter::APlayerCharacter()
 	
 	//デッドコンポーネント
 	DeathComp = CreateDefaultSubobject<UPlayerDeathComponent>(TEXT("DeathComp"));
+
+	//カメラディレクター
+	CameraDirectorComponent = CreateDefaultSubobject<UCameraDirectorComponent>(TEXT("CameraDirectorComp"));
 }
 
 //ゲームが始まったときに生成
@@ -304,6 +308,9 @@ void APlayerCharacter::OnCharacterMovement(const FInputActionValue& Value)
 //カメラ操作
 void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 {
+
+	if (TargetComp && TargetComp->IsTargeting()) return;
+
 	//スティックの傾きの軸を取得
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 

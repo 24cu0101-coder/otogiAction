@@ -37,6 +37,7 @@ class USkillGaugeWidget;
 class UPlayerDeathComponent;
 class UPlayerTargetComponent;
 class USkillCircle;
+class UCameraDirectorComponent;	
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -89,6 +90,10 @@ private:
 	//カメラコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* m_CameraComp;
+
+	//カメラディレクターコンポーネント
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Camera",meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCameraDirectorComponent> CameraDirectorComponent;
 
 	//AbilitySystemコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
