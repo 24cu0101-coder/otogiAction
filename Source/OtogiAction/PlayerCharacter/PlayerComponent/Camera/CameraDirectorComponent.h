@@ -7,6 +7,7 @@
 #include "CameraDirectorComponent.generated.h"
 
 //前方宣言
+class UActionCameraSettingDataAsset;
 class UCameraModifierDataAsset;
 class ULevelSequence;
 class ULevelSequencePlayer;
@@ -14,6 +15,7 @@ class APlayerCharacter;
 class UMoveCameraComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class UPlayerTargetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UCameraDirectorComponent : public UActorComponent
@@ -32,76 +34,118 @@ public:
 	// 毎フレーム呼ばれる
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//=======================
-	//通常カメラを管理する関数
-	//=======================
 
-	//カメラのデータアセットをセットする関数
+	//==================================================
+	// Action Camera
+	//==================================================
+
+	UFUNCTION(BlueprintCallable, Category = "Camera|Action")
+	void SetActionCameraEnabled(bool bEnabled);
+
+
+	UFUNCTION(BlueprintCallable, Category = "Camera|Action")
+	void SetBossCameraEnabled(bool bEnabled);
+
+
+	UFUNCTION(BlueprintCallable, Category = "Camera|Action")
+	void SetActionCameraSetting(UActionCameraSettingDataAsset* NewSetting);
+
+
+	//==================================================
+	// Modifier
+	//==================================================
+
 	UFUNCTION(BlueprintCallable, Category = "Camera|Modifier")
-	void SetModifier(UCameraModifierDataAsset* Modifier, float Weight);
+	void SetModifier(UCameraModifierDataAsset* Modifier,float Weight);
 
-	//カメラのデータアセットをクリア
+
 	UFUNCTION(BlueprintCallable, Category = "Camera|Modifier")
 	void ClearModifier(UCameraModifierDataAsset* Modifier);
 
 
-	//==================================
-	//シネマティックカメラを制御する関数
-	//==================================
+	UFUNCTION(BlueprintCallable, Category = "Camera|Modifier")
+	void ClearAllModifiers();
 
-	//レベルシーケンスを開始
-	UFUNCTION(BlueprintCallable, Category = "Camera|Cinematic")
-	void PlaySequence(ULevelSequence* Sequence);
 
-	//シーケンス終了
-	UFUNCTION(BlueprintCallable, Category = "Camera|Cinematic")
-	void StopSequence();
+protected:
 
-	//現在シーケンスを再生しているか？
-	UFUNCTION(BlueprintPure, Category = "Camera|Cinematic")
-	bool IsPlayingSequence() const { return bPlayingSequence; }
+	//==================================================
+	// Action Camera
+	//==================================================
+
+	void UpdateActionCamera(float DeltaTime);
+
+	//注視点付与
+	FVector CalculateCombatFocusPoint() const;
+
+	//カメラ距離の計算
+	float CalculateCombatCameraDistance() const;
+
+	//フォーカス点へカメラを向ける
+	void UpdateCombatRotation(const FVector& FocusPoint,float DeltaTime);
+
+	//==================================================
+	// Modifier
+	//==================================================
+
+	void ApplyModifier(float DeltaTime);
 
 private:
-	//===========================
-	//メンバー変数
-	//==========================
+	//==================================================
+	// ポインター
+	//==================================================
 
-	//プレイヤーのポインター
 	UPROPERTY()
-	TObjectPtr<APlayerCharacter>m_PlayerCharacter;
+	TObjectPtr<APlayerCharacter> m_PlayerCharacter;
 
-	//カメラの制御クラスポインター
 	UPROPERTY()
-	TObjectPtr<UMoveCameraComponent>m_MoveCameraComp;
+	TObjectPtr<UPlayerTargetComponent> m_PlayerTargetComponent;
 
-	//スプリングアームコンポーネントのポインター
 	UPROPERTY()
-	TObjectPtr<USpringArmComponent>m_SpringArmComp;
+	TObjectPtr<USpringArmComponent> m_SpringArmComponent;
 
-	//カメラコンポーネントのポインター
 	UPROPERTY()
-	TObjectPtr<UCameraComponent>m_CameraComp;
+	TObjectPtr<UCameraComponent> m_CameraComponent;
 
-	//シーケンスプレイヤーポインター
+
+	//==================================================
+	// カメラデータアセット
+	//==================================================
+
+	UPROPERTY(EditAnywhere, Category = "Camera|Action")
+	TObjectPtr<UActionCameraSettingDataAsset> m_GameplayCameraSetting;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|Action")
+	TObjectPtr<UActionCameraSettingDataAsset> m_LockOnCameraSetting;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|Action")
+	TObjectPtr<UActionCameraSettingDataAsset> m_BossCameraSetting;
+
+
 	UPROPERTY()
-	TObjectPtr<ULevelSequencePlayer>m_SequencePlayer;
+	TObjectPtr<UActionCameraSettingDataAsset> m_CurrentCameraSetting;
 
-	//現在シーケンスが再生されているか？
-	bool bPlayingSequence = false;
 
-	//使用しているデーターアセットの中身
+	//==================================================
+	// カメラステート
+	//==================================================
+
+	UPROPERTY(EditAnywhere, Category = "Camera|Action")
+	bool bActionCameraEnabled = true;
+
+	bool bBossCameraEnabled = false;
+
+
+	//==================================================
+	// Modifier
+	//==================================================
+
 	struct FActiveModifier
 	{
-		TObjectPtr<UCameraModifierDataAsset>m_Data = nullptr;
+		TObjectPtr<UCameraModifierDataAsset> Data = nullptr;
+
 		float Weight = 0.0f;
 	};
 
-	//使用できるデータアセット配列
-	TArray<FActiveModifier>m_ActiveModifier;
-
-	//データアセット適応
-	void ApplyModifier(float DeltaTime);
-
-	//通常カメラに戻る
-	void ReturnToGameplayCamra();
+	TArray<FActiveModifier> ActiveModifiers;
 };
