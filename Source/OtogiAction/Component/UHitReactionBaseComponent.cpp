@@ -3,6 +3,7 @@
 
 #include "UHitReactionBaseComponent.h"
 #include "TimerManager.h"
+#include "OtogiAction/minions/MinionsCharacter.h"
 
 // Sets default values for this component's properties
 UUHitReactionBaseComponent::UUHitReactionBaseComponent()
@@ -25,6 +26,19 @@ void UUHitReactionBaseComponent::TickComponent(float DeltaTime, ELevelTick TickT
 //スタン値の加算
 void UUHitReactionBaseComponent::AddStunPoint(float StunAmount)
 {
+	// Minionが攻撃中ならスタン値・怯み値を加算しない
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(GetOwner());
+
+	if (Minion && Minion->bIsAttackInProgress)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[%s] Attack中のためStunPoint加算を無効化"),
+			*Minion->GetName());
+
+		return;
+	}
+
 	//すでにスタンしていたら返す
 	if (bIsStunned)return;
 
@@ -76,14 +90,34 @@ void UUHitReactionBaseComponent::OnFearMax()
 {
 }
 
-//スタン値が最大になったら
+// スタン値が最大になったら
 void UUHitReactionBaseComponent::OnStunMax()
 {
-	//スタン状態に
-	bIsStunned = true;
-	UE_LOG(LogTemp, Warning, TEXT("[%s] *** STUN MAXED OUT! ***"), *GetOwner()->GetName());
+	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetOwner());
 
-	//スタン値タイマーのリセット
+	// Minionが攻撃中ならスタンさせない
+	if (Minion && Minion->bIsAttackInProgress)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[%s] Attack中のため特大スタンを無効化"),
+			*Minion->GetName());
+
+		CurrentStunPoint = 0.f;
+		CurrentFearPoint = 0.f;
+		bIsStunned = false;
+
+		GetWorld()->GetTimerManager().ClearTimer(StunRecoveryTimerHandle);
+
+		return;
+	}
+
+	// 通常時は従来どおりスタン
+	bIsStunned = true;
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("[%s] *** STUN MAXED OUT! ***"),
+		*GetOwner()->GetName());
+
 	GetWorld()->GetTimerManager().ClearTimer(StunRecoveryTimerHandle);
 }
 

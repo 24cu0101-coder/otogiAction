@@ -78,6 +78,15 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetOwner());
 
 
+	// 攻撃中は軽い怯みを発生させない
+	if (Minion && Minion->bIsAttackInProgress)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[HIT REACTION] Attack中のためLightHitを無効化"));
+
+		return;
+	}
+
 	if (Minion)
 	{
 
@@ -362,6 +371,15 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 
 	AMinionsCharacter* Minion =
 		Cast<AMinionsCharacter>(GetOwner());
+
+	// 攻撃中は軽い怯みを発生させない
+	if (Minion && Minion->bIsAttackInProgress)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[HIT REACTION] Attack中のためLightHitを無効化"));
+
+		return;
+	}
 
 
 	if (Minion)
