@@ -123,7 +123,7 @@ APlayerCharacter::APlayerCharacter()
 	DeathComp = CreateDefaultSubobject<UPlayerDeathComponent>(TEXT("DeathComp"));
 
 	//カメラディレクター
-	CameraDirectorComponent = CreateDefaultSubobject<UCameraDirectorComponent>(TEXT("CameraDirectorComp"));
+	CameraDirectorComp = CreateDefaultSubobject<UCameraDirectorComponent>(TEXT("CameraDirectorComp"));
 }
 
 //ゲームが始まったときに生成
@@ -554,6 +554,11 @@ void APlayerCharacter::OnDeath()
 	if (bIsDead) return;
 	bIsDead = true;
 
+	if (CameraDirectorComp && m_DeathCameraModifier)
+	{
+		CameraDirectorComp->SetModifier(m_DeathCameraModifier, 1.0f);
+	}
+	
 	//UIのリセット
 	if (SkillCircle)
 	{
