@@ -135,6 +135,11 @@ void AMinionsCharacter::GiveDefaultAbilities()
 }
 void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
 {
+	UE_LOG(LogTemp, Warning,
+		TEXT("[HIT CHECK] AttackInProgress=%d IsAttacking=%d"),
+		bIsAttackInProgress,
+		IsAttacking());
+
 	// Kintaro専用敵のダメージ受付判定
 	if (bKintaroOnlyEnemy && !bCanTakeDamage)
 	{
@@ -147,15 +152,23 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 		return;
 	}
 
-	// ここから通常の被弾処理
+	//NotifyStateで攻撃中か判断
+	const bool bIgnoreHitReaction = bIsAttackInProgress;
 
-	SetIsHitFlg(true);
-
-	// 攻撃中断
-	if (IsAttacking())
+	//攻撃中でなければ通常の被弾
+	if (!bIgnoreHitReaction)
 	{
-		CancelAttack();
+		// ここから通常の被弾処理
+		SetIsHitFlg(true);
+
+		// 攻撃中断
+		if (IsAttacking())
+		{
+			CancelAttack();
+		}
+
 	}
+
 
 	// 被弾音
 	if (CharacterAudioComponent)
@@ -183,7 +196,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 	StatusComponent->TakeDamage(Damage);
 
 	// ヒットリアクション
-	if (HitReactionComponent && DamageCauser)
+	if (!bIgnoreHitReaction && HitReactionComponent && DamageCauser)
 	{
 		HitReactionComponent->SetHitDirection(DamageCauser);
 
@@ -335,4 +348,9 @@ void AMinionsCharacter::UpdateHPWidgetVisibility()
 	const bool bShouldShow =DistanceSquared <= VisibleDistanceSquared;
 
 	HPWidgetComponent->SetVisibility(bShouldShow);
+}
+
+void AMinionsCharacter::SetAttackInProgress(bool bInProgress)
+{
+	bIsAttackInProgress = bInProgress;
 }

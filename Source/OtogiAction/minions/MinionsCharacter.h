@@ -133,6 +133,13 @@ public:
 
 	void UpdateHPWidgetVisibility();
 
+	// 攻撃中NotifyStateから呼び出す
+	void SetAttackInProgress(bool bInProgress);
+
+	// 攻撃アニメーション中かどうか
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	bool bIsAttackInProgress = false;
+
 private:
 	bool bIsHit = false;
 
