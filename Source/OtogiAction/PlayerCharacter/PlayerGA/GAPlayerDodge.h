@@ -11,6 +11,8 @@
  */
  //クラス前方宣言
 class APlayerCharacter;		//プレイヤークラス
+class UDamageType;
+class UAbilityTask_WaitGameplayTagRemoved;
 
 UCLASS()
 class OTOGIACTION_API UGAPlayerDodge : public UGameplayAbility
@@ -60,6 +62,12 @@ protected:
 
 	void DodgeLocation(float Distance);
 
+	//ジャスト回避時の移動関数
+	UFUNCTION()
+
+	void JustDodgeLocation();
+
+
 	//回避終了時の関数
 	UFUNCTION()
 
@@ -108,6 +116,9 @@ protected:
 	//無敵中のタグ
 	FGameplayTag IsInvincibleTag;
 
+	// just回避中のタグ
+	FGameplayTag m_justDodgeTag;
+
 	//カウンター攻撃のタグ
 	FGameplayTag IsCounterAttackTag;
 
@@ -132,7 +143,7 @@ private:
 
 	//just回避の範囲フレーム
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.JustDodge", meta = (AllowPrivateAccess = "true"))
-	float JustFrame;
+	float m_justDodgeTime;
 
 	//just回避時のスロー倍率
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.JustDodge", meta = (AllowPrivateAccess = "true"))
@@ -141,6 +152,10 @@ private:
 	//ジャスト回避のスローのフレーム
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.JustDodge", meta = (AllowPrivateAccess = "true"))
 	float SlowTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.JustDodge", meta = (AllowPrivateAccess = "true"))
+	float JustDodgeDistance;
+
 
 	//回避時の無敵の時間
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.JustDodge", meta = (AllowPrivateAccess = "true"))
@@ -164,7 +179,7 @@ private:
 	FTimerHandle EndDodgeTimer;
 
 	//数秒後処理終了
-	FTimerHandle EndJustDodgeTimer;
+	FTimerHandle m_endJustDodgeTimer;
 
 
 	UFUNCTION()
