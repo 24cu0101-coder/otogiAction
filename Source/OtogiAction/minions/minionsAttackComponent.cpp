@@ -63,7 +63,7 @@ void UminionsAttackComponent::TickComponent(float DeltaTime,ELevelTick TickType,
 
 	DebugTimer = 0.f;
 
-	DrawAttackRange();
+	//DrawAttackRange();
 }
 void UminionsAttackComponent::DrawAttackRange()
 {
@@ -274,17 +274,6 @@ void UminionsAttackComponent::ExecuteAttackHit()
 
 
 	float Radius = 200.f;
-
-
-	DrawDebugSphere(
-		GetWorld(),
-		Center,
-		Radius,
-		24,
-		FColor::Red,
-		false,
-		1.f);
-
 
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(OwnerActor);

@@ -65,4 +65,8 @@ public:
 
     void SetOrbDamage(float InDamage);
 
+    // Orb取得時のSkillGauge上昇量
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orb")
+    float SkillGaugeAmount = 20.f;
+
 };

@@ -23,6 +23,11 @@ void UStatusComponent::TakeDamage(float Damage)
     //プレイヤーが無敵なら処理しない
     if (PlayerInvincible())return;
 
+    // 不死身ならダメージ処理を終了
+    if (bInvincibleToDamage)
+    {
+        return;
+    }
 
     CurrentHP -= Damage;
     CurrentHP = FMath::Clamp(CurrentHP, 0.f, MaxHP);
