@@ -45,6 +45,7 @@ void UGAPlayerDodge::ActivateAbility(
 
 	StickRotate();
 
+
 	//回避開始
 	DodgeStart();
 }
@@ -81,11 +82,7 @@ void UGAPlayerDodge::DodgeStart()
 	m_justDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.JustDodge"));
 
 
-
-	// 回避にディレイをかけてstart
-	FTimerHandle DodgeDelayTimer;
-	GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGAPlayerDodge::PlayDodge, DelayTiem, false);
-
+	PlayDodge();
 }
 
 //通常回避の開始
@@ -101,11 +98,19 @@ void UGAPlayerDodge::PlayDodge()
 
 
 
-	//移動用の関数の引数に代入してバインド
-	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance);
+	if (DelayTiem > 0)
+	{
+		// 回避にディレイをかけてstart
+		FTimerHandle DodgeDelayTimer;
+		GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGAPlayerDodge::DodgeLocationStart, DelayTiem, false);
+	}
 
-	//回避処理開始(ほぼ毎フレーム繰り返す)
-	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
+	else
+	{
+		//回避開始
+		DodgeLocationStart();
+	}
+
 
 	// タグがあればjust回避を受け付ける
 	JustDodgeWindow();
@@ -293,6 +298,15 @@ void UGAPlayerDodge::DodgeLocation(float Distance)
 	}
 }
 
+void UGAPlayerDodge::DodgeLocationStart()
+{
+	//移動用の関数の引数に代入してバインド
+	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance);
+
+	//回避処理開始(ほぼ毎フレーム繰り返す)
+	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
+}
+
 void UGAPlayerDodge::JustDodgeLocation()
 {
 	//プレイヤーの情報と再生タスクが在れば
@@ -371,6 +385,7 @@ float UGAPlayerDodge::GetEnemyAngle(const AActor* EnemyActor)
 	return AngleInDegrees;
 }
 
+
 FVector UGAPlayerDodge::GetEnemyAngleVector(const AActor* EnemyActor)
 {
 	FVector AngleInDegrees = FVector::ZeroVector;
@@ -388,6 +403,7 @@ FVector UGAPlayerDodge::GetEnemyAngleVector(const AActor* EnemyActor)
 	return AngleInDegrees;
 }
 
+// ジャスト回避自の回転
 void UGAPlayerDodge::JustDodgeRotate(FVector Angle)
 {
 	if (UCharacterMovementComponent* MoveComp = PlayerActor->GetCharacterMovement())

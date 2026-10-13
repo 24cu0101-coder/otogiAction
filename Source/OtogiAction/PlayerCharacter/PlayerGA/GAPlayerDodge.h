@@ -62,6 +62,11 @@ protected:
 
 	void DodgeLocation(float Distance);
 
+	// 回避の移動を開始
+	UFUNCTION()
+	void DodgeLocationStart();
+
+
 	//ジャスト回避時の移動関数
 	UFUNCTION()
 
