@@ -143,6 +143,8 @@ void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, cons
 {
 	if (DamageCauser && DamageCauser->ActorHasTag(FName("Enemy")))
 	{
+		// 攻撃してきた敵の方向を求める
+		m_justDodgeRelativeAngle = GetEnemyAngleVector(DamageCauser);
 
 		//// 指定した時間後ジャスト回避終了
 		//FTimerHandle EndJustDodgeTime;
@@ -190,12 +192,16 @@ void UGAPlayerDodge::PlayJustDodge()
 
 
 
-	//JustDodgeLocation();
-	//移動用の関数の引数に代入してバインド
-	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance / 2);
+	JustDodgeLocation();
 
-	//回避処理開始(ほぼ毎フレーム繰り返す)
-	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001 / 5, true);
+	JustDodgeRotate(m_justDodgeRelativeAngle);
+
+
+	////移動用の関数の引数に代入してバインド
+	//LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance / 2);
+
+	////回避処理開始(ほぼ毎フレーム繰り返す)
+	//GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001 / 5, true);
 
 	//UE_LOG(LogTemp, Warning, TEXT("【GAPlayerDodge.cpp】: PlayJustDodge"));
 
@@ -338,6 +344,58 @@ void UGAPlayerDodge::DodgeEnd()
 void UGAPlayerDodge::DodgeMontageEnd()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+// 敵の方向を取得する
+float UGAPlayerDodge::GetEnemyAngle(const AActor* EnemyActor)
+{
+	// プレイヤーかエネミーがないなら0を返す
+	if (!PlayerActor || !EnemyActor) return 0.0f;
+
+	// プレイヤーから敵への方向ベクトル
+	FVector DirToEnemy = (EnemyActor->GetActorLocation() - PlayerActor-> GetActorLocation());
+	DirToEnemy.Z = 0.0f;
+	DirToEnemy.Normalize();
+
+	// プレイヤーの正面のベクトル
+	FVector PlayerForward = PlayerActor->GetActorForwardVector();
+	PlayerForward.Z = 0.0f;
+	PlayerForward.Normalize();
+
+	float Dot = FVector::DotProduct(PlayerForward, DirToEnemy);
+	float CrossZ = FVector::CrossProduct(PlayerForward, DirToEnemy).Z;
+
+	float AngleInRadians = FMath::Atan2(CrossZ, Dot);
+	float AngleInDegrees = FMath::RadiansToDegrees(AngleInDegrees);
+
+	return AngleInDegrees;
+}
+
+FVector UGAPlayerDodge::GetEnemyAngleVector(const AActor* EnemyActor)
+{
+	FVector AngleInDegrees = FVector::ZeroVector;
+
+	// プレイヤーかエネミーがないなら0を返す
+	if (!PlayerActor || !EnemyActor) return AngleInDegrees;
+
+	// プレイヤーから敵への方向ベクトル
+	FVector DirToEnemy = (EnemyActor->GetActorLocation() - PlayerActor->GetActorLocation());
+	DirToEnemy.Z = 0.0f;
+	DirToEnemy.Normalize();
+
+	AngleInDegrees = DirToEnemy;
+
+	return AngleInDegrees;
+}
+
+void UGAPlayerDodge::JustDodgeRotate(FVector Angle)
+{
+	if (UCharacterMovementComponent* MoveComp = PlayerActor->GetCharacterMovement())
+	{
+		FRotator rotate = Angle.Rotation();
+		PlayerActor->SetActorRotation(rotate, ETeleportType::TeleportPhysics);
+	}
+
 }
 
 //即座に回転させる

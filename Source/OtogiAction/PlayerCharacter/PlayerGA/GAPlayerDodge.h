@@ -99,6 +99,15 @@ protected:
 	void EndJustDodge();
 
 	UFUNCTION()
+	float GetEnemyAngle(const AActor* EnemyActor);
+	
+	UFUNCTION()
+	FVector GetEnemyAngleVector(const AActor* EnemyActor);
+
+	UFUNCTION()
+	void JustDodgeRotate(FVector Angle);
+
+	UFUNCTION()
 	void OnPlayerTakeDamage(
 		AActor* DamagedActor,
 		float Damage,
@@ -180,6 +189,9 @@ private:
 
 	//数秒後処理終了
 	FTimerHandle m_endJustDodgeTimer;
+
+	// ジャスト回避後のプレイヤーの向き
+	FVector m_justDodgeRelativeAngle;
 
 
 	UFUNCTION()
