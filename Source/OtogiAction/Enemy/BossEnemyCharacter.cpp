@@ -11,6 +11,7 @@
 #include "../Enemy/Component/BossEnemyHitReactionComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "EnemyStateSubsystem.h"
 
 // Sets default values
 ABossEnemyCharacter::ABossEnemyCharacter()
@@ -226,6 +227,24 @@ void ABossEnemyCharacter::ApplyPhaseTwoState()
 			ENCPoolMethod::None,
 			true
 		);
+	}
+}
+
+//UŒ‚’†‚©‚Ç‚¤‚©æ“¾‚·‚éŠÖ”
+bool ABossEnemyCharacter::GetNowAttack()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
+		{
+			if (StateSubsystem->CurrentState == EEnemyState::AttackBuild || StateSubsystem->CurrentState == EEnemyState::AttackPress)
+			{
+				return true;
+			}
+
+			return false;
+
+		}
 	}
 }
 
