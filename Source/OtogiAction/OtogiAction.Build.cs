@@ -27,6 +27,8 @@ public class OtogiAction : ModuleRules
             "NavigationSystem",
             "LevelSequence",
             "MovieScene",
+            "ChaosSolverEngine", 
+            "GeometryCollectionEngine"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
