@@ -80,6 +80,9 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 		QueryParams         //無視するオブジェクト
 	);
 
+	// 可視化するかどうか(高山)
+	bool Visualization = false;
+
 	if (bHasOverlap)
 	{
 		// 重複して同じアクターにダメージを与えないよう、すでにダメージを与えたアクターを記憶する配列
@@ -116,18 +119,22 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					}
 
 				}
-				//デバッグ用の表示
-				DrawDebugSphere(
-					GetWorld(),
-					Center,
-					Radius,
-					16,							//球の滑らかさ
-					FColor::Red,                // 赤色で描画
-					false,                      // ずっと残さない
-					1.0f,                       // 2秒間表示
-					0,
-					.5f                        // 線の太さ
-				);
+				
+				if (Visualization)
+				{
+					//デバッグ用の表示
+					DrawDebugSphere(
+						GetWorld(),
+						Center,
+						Radius,
+						16,							//球の滑らかさ
+						FColor::Red,                // 赤色で描画
+						false,                      // ずっと残さない
+						1.0f,                       // 2秒間表示
+						0,
+						.5f                        // 線の太さ
+					);
+				}
 				// 二重ヒット防止リストに追加
 				DamagedActors.Add(OverlappedActor);
 
@@ -137,18 +144,21 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 	}
 	else
 	{
-		//デバッグ用の表示
-		DrawDebugSphere(
-			GetWorld(),
-			Center,
-			Radius,
-			16,							//球の滑らかさ
-			FColor::Green,              //緑色で描画
-			false,                      // ずっと残さない
-			1.0f,                       // 2秒間表示
-			0,
-			.5f                        // 線の太さ
-		);
+		if (Visualization)
+		{
+			//デバッグ用の表示
+			DrawDebugSphere(
+				GetWorld(),
+				Center,
+				Radius,
+				16,							//球の滑らかさ
+				FColor::Green,              //緑色で描画
+				false,                      // ずっと残さない
+				1.0f,                       // 2秒間表示
+				0,
+				.5f                        // 線の太さ
+			);
+		}
 	}
 
 }
