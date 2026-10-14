@@ -76,6 +76,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
 	UNiagaraSystem* DarkParticleAsset;
 
+	// ダメージを受けない設定
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status")
+	bool bInvincibleToDamage = false;
+
 private:
 	//敵のパーティクル生成関数
 	void SpawnDarkParticleOnDamage(FVector SpawnLocation);

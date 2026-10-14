@@ -35,7 +35,7 @@ void UGANormalAttack::ActivateAbility(const FGameplayAbilitySpecHandle NormalAtt
 
 
 		//アニメーションのループをカウントする処理を実行(対応アニメーションの場合だけ実行するように修正予定  本アニメーション次第では廃止)
-		SetLoopCountTask();
+		//SetLoopCountTask();
 
 		//アニメーションをスローにする処理を実行(本アニメーション次第では廃止)
 		//SloawMontageTaskSet();

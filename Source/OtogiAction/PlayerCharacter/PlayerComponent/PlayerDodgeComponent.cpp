@@ -79,7 +79,7 @@ void UPlayerDodgeComponent::ExecuteAbility()
 
 void UPlayerDodgeComponent::ExecuteAbility2()
 {
-	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
+	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
 
 	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
 

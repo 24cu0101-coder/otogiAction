@@ -91,7 +91,7 @@ void AMinionsCharacter::BeginPlay()
 		StatusComponent->OnDead.AddDynamic(this, &AMinionsCharacter::Dead);
 
 		// HP変更時にHPバー更新
-		StatusComponent->OnDamaged.AddDynamic(this,&AMinionsCharacter::UpdateHPWidget);
+		StatusComponent->OnDamaged.AddDynamic(this, &AMinionsCharacter::UpdateHPWidget);
 	}
 	if (!AbilitySystemComponent)
 	{
@@ -104,7 +104,7 @@ void AMinionsCharacter::BeginPlay()
 
 	//AttackComponent->Attack();
 
-	if (UEnemyHPWidget* HPWidget =Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
+	if (UEnemyHPWidget* HPWidget = Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
 	{
 		HPWidget->SetHP(StatusComponent->GetCurrentHP(), StatusComponent->GetMaxHP());
 	}
@@ -133,7 +133,7 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		}
 	}
 }
-void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
+void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Warning,
 		TEXT("[HIT CHECK] AttackInProgress=%d IsAttacking=%d"),
@@ -179,7 +179,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor,float Damage,const UDamage
 	// 被弾エフェクト
 	if (HitEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitEffect,GetActorLocation() + FVector(0, 0, 80.f));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, GetActorLocation() + FVector(0, 0, 80.f));
 	}
 
 	if (!StatusComponent)
@@ -254,6 +254,22 @@ void AMinionsCharacter::Dead()
 
 	// 死亡フラグ
 	bIsDead = true;
+
+	// 攻撃中フラグを解除
+	bIsAttacking = false;
+	bIsAttackInProgress = false;
+
+	// GASの攻撃Abilityをすべてキャンセル
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->CancelAllAbilities();
+	}
+
+	// アニメーションのモンタージュを停止
+	if (GetMesh() && GetMesh()->GetAnimInstance())
+	{
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
+	}
 
 	// AI停止
 	if (AAIController* AI = Cast<AAIController>(GetController()))
@@ -341,11 +357,11 @@ void AMinionsCharacter::UpdateHPWidgetVisibility()
 		return;
 	}
 
-	const float DistanceSquared =FVector::DistSquared(GetActorLocation(),PlayerPawn->GetActorLocation());
+	const float DistanceSquared = FVector::DistSquared(GetActorLocation(), PlayerPawn->GetActorLocation());
 
-	const float VisibleDistanceSquared =FMath::Square(HPWidgetVisibleDistance);
+	const float VisibleDistanceSquared = FMath::Square(HPWidgetVisibleDistance);
 
-	const bool bShouldShow =DistanceSquared <= VisibleDistanceSquared;
+	const bool bShouldShow = DistanceSquared <= VisibleDistanceSquared;
 
 	HPWidgetComponent->SetVisibility(bShouldShow);
 }

@@ -11,33 +11,51 @@
 #include "PlayerCharacter.generated.h"
 
 //前方宣言
-class UAbilitySystemComponent;		
+//GAS
+class UAbilitySystemComponent;
+
+//camera
 class USpringArmComponent;
 class UCameraComponent;
+class UCameraDirectorComponent;	
+
+//move
 class UMoveComponent;
 class UMoveCameraComponent;
+
+//Input
 class UInputMappingContext;
 class UInputAction;
 
+//action
 class UPlayerDodgeComponent;		//回避を実行するクラス(髙山)
 class UNormalComboAttackComponent;		//通常攻撃を実行するクラス(髙山)
 class UPlayerTargetComponent;
-class USkillComponent;
-class UAttackCollisionComponent;
-class USphereCollisionComponent;
-class UPlayerStatusComponent;
 class UStrongAttackComponent;		//強攻撃を実行するクラス(髙山)
 class UIaiAttackComponent;			//居合攻撃を実行するクラス(髙山)
-class USkillGaugeComponent;
 class UWeaponComponent;
-class UHitStopComponent;
+
+//skill
+class USkillComponent;
+class USkillGaugeComponent;
+
+//colliison
+class UAttackCollisionComponent;
+class USphereCollisionComponent;
+
+//Status
 class UUHitReactionBaseComponent;
+class UPlayerStatusComponent;
+class UHitStopComponent;
+class UPlayerDeathComponent;
+
+//UI
 class UPlayerHPWidget;
 class USkillGaugeWidget;
-class UPlayerDeathComponent;
-class UPlayerTargetComponent;
 class USkillCircle;
-class UCameraDirectorComponent;	
+
+//dataasset
+class UCameraModifierDataAsset;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -93,7 +111,7 @@ private:
 
 	//カメラディレクターコンポーネント
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Camera",meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraDirectorComponent> CameraDirectorComponent;
+	TObjectPtr<UCameraDirectorComponent> CameraDirectorComp;
 
 	//AbilitySystemコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
@@ -270,4 +288,8 @@ protected:
 	//ハンドル関数
 	UFUNCTION()
 	void HandleDamaged(float NewHP);
+
+	// 死亡時カメラ用DataAsset
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<UCameraModifierDataAsset> m_DeathCameraModifier = nullptr;
 };

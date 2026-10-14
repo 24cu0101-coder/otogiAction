@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
 //コンストラクタ
@@ -30,7 +31,7 @@ void UGAPlayerDodge::ActivateAbility(
 
 	//プレイヤーの情報を取得
 	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
-
+	
 	if (!PlayerActor || !DodgeMontage)
 	{
 		//リターン
@@ -38,9 +39,12 @@ void UGAPlayerDodge::ActivateAbility(
 	}
 
 	//タグ登録
-	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge"));
+	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
+
+	m_justDodgeWind = true;
 
 	StickRotate();
+
 
 	//回避開始
 	DodgeStart();
@@ -64,32 +68,51 @@ void UGAPlayerDodge::DodgeStart()
 	//タスクなければリターン
 	if (!DodgeMontageTask) return;
 
+	
+	//タスクがあれば終了時に呼ぶ
+	DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+	DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
+	
+
 	//アニメーション再生
 	DodgeMontageTask->ReadyForActivation();
 
-	//タスクがあれば
-	if (DodgeMontageTask)
-	{
-		//終了時に自動で呼ぶ
-		DodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
-		DodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerDodge::DodgeEnd);
-	}
+	
+	// just回避のタグを受け取る
+	m_justDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.JustDodge"));
 
-	FTimerHandle DodgeDelayTimer;
-	GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGAPlayerDodge::PlayDodge, DelayTiem, false);
 
+	PlayDodge();
 }
 
 //通常回避の開始
 void UGAPlayerDodge::PlayDodge()
 {
+	// 無敵tagを飛ばす(現在は必要なし)
+	IsInvincibleTag = FGameplayTag::RequestGameplayTag(FName("Invincible"));
+	if (ASC)
+	{
+		//タグを付与する
+		ASC->AddLooseGameplayTag(IsInvincibleTag);
+	}
 
-	//移動用の関数の引数に代入してバインド
-	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance);
 
-	//回避処理開始(ほぼ毎フレーム繰り返す)
-	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
 
+	if (DelayTiem > 0)
+	{
+		// 回避にディレイをかけてstart
+		FTimerHandle DodgeDelayTimer;
+		GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGAPlayerDodge::DodgeLocationStart, DelayTiem, false);
+	}
+
+	else
+	{
+		//回避開始
+		DodgeLocationStart();
+	}
+
+
+	// タグがあればjust回避を受け付ける
 	JustDodgeWindow();
 
 	//指定した時間後終了
@@ -99,18 +122,25 @@ void UGAPlayerDodge::PlayDodge()
 
 //just回避受付の処理
 void UGAPlayerDodge::JustDodgeWindow()
-{
-	//tagを飛ばす
-	IsInvincibleTag = FGameplayTag::RequestGameplayTag(FName("Invincible"));
-	if (ASC)
+{	
+
+
+	// just回避終了時のタグが消える瞬間を検知するタスク
+	UAbilityTask_WaitGameplayTagRemoved* WaitTagremovedTask =
+		UAbilityTask_WaitGameplayTagRemoved::WaitGameplayTagRemove(this, m_justDodgeTag);
+
+	if (WaitTagremovedTask)
 	{
-		//タグを付与する
-		ASC->AddLooseGameplayTag(IsInvincibleTag);
+
+		WaitTagremovedTask->Removed.AddDynamic(this, &UGAPlayerDodge::EndJustDodgeWindow);
+		WaitTagremovedTask->ReadyForActivation();
 	}
+
+
 	if (IsValid(PlayerActor) && IsValid(this))
 	{
 		PlayerActor->OnTakeAnyDamage.AddDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
-	}
+	}	
 }
 
 
@@ -118,31 +148,43 @@ void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, cons
 {
 	if (DamageCauser && DamageCauser->ActorHasTag(FName("Enemy")))
 	{
+		// 攻撃してきた敵の方向を求める
+		m_justDodgeRelativeAngle = GetEnemyAngleVector(DamageCauser);
 
-		FTimerHandle EndJustDodgeTime;
-		GetWorld()->GetTimerManager().SetTimer(EndJustDodgeTime, this, &UGAPlayerDodge::EndJustDodgeWindow, DodgeTime, false);
+		//// 指定した時間後ジャスト回避終了
+		//FTimerHandle EndJustDodgeTime;
+		//GetWorld()->GetTimerManager().SetTimer(EndJustDodgeTime, this, &UGAPlayerDodge::EndJustDodgeWindow, m_justDodgeTime, false);
 
 
 		//timer破棄
 		GetWorld()->GetTimerManager().ClearTimer(DodgeTimer);
 		GetWorld()->GetTimerManager().ClearTimer(EndDodgeTimer);
 
+
+
 		//ジャスト回避
-		PlayJustDodge();
+		if (ASC->HasMatchingGameplayTag(m_justDodgeTag)) PlayJustDodge();
 	}
 }
 
 
 void UGAPlayerDodge::EndJustDodgeWindow()
 {
-	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo()))
+	// just回避受付のflagがあれば
+	if (m_justDodgeWind)
 	{
-		Player->OnTakeAnyDamage.RemoveDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
-	}
+		// イベント解除
+		if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo()))
+		{
+			Player->OnTakeAnyDamage.RemoveDynamic(this, &UGAPlayerDodge::OnPlayerTakeDamage);
+		}
 
+
+	// タグ消滅
 	ASC->RemoveLooseGameplayTag(IsInvincibleTag);
 
-	GetWorld()->GetTimerManager().ClearTimer(EndJustDodgeTimer);
+	GetWorld()->GetTimerManager().ClearTimer(m_endJustDodgeTimer);
+	}
 }
 
 
@@ -151,11 +193,23 @@ void UGAPlayerDodge::PlayJustDodge()
 {
 	LocationDelegate.Unbind();
 
-	//移動用の関数の引数に代入してバインド
-	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance / 2);
+	m_justDodgeWind = false;
 
-	//回避処理開始(ほぼ毎フレーム繰り返す)
-	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001 / 5, true);
+
+
+	JustDodgeLocation();
+
+	JustDodgeRotate(m_justDodgeRelativeAngle);
+
+
+	////移動用の関数の引数に代入してバインド
+	//LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance / 2);
+
+	////回避処理開始(ほぼ毎フレーム繰り返す)
+	//GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001 / 5, true);
+
+	//UE_LOG(LogTemp, Warning, TEXT("【GAPlayerDodge.cpp】: PlayJustDodge"));
+
 
 	//カウンター攻撃受付のタグを飛ばす
 	IsCounterAttackTag = FGameplayTag::RequestGameplayTag(FName("CounterAttack"));
@@ -210,15 +264,14 @@ void UGAPlayerDodge::EndJustDodge()
 
 	//カウンター攻撃のタグを破棄
 	ASC->RemoveLooseGameplayTag(IsCounterAttackTag);
+	m_justDodgeWind = true;
 
+	EndJustDodgeWindow();
 
 	DodgeEnd();
 
 	//世界をあるべき姿に
 	UGameplayStatics::SetGlobalTimeDilation(World, 1);
-
-
-
 }
 
 //回避時の移動
@@ -243,6 +296,39 @@ void UGAPlayerDodge::DodgeLocation(float Distance)
 		//プレイヤーを移動
 		PlayerActor->SetActorLocation(DodgeLocation, true);
 	}
+}
+
+void UGAPlayerDodge::DodgeLocationStart()
+{
+	//移動用の関数の引数に代入してバインド
+	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance);
+
+	//回避処理開始(ほぼ毎フレーム繰り返す)
+	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
+}
+
+void UGAPlayerDodge::JustDodgeLocation()
+{
+	//プレイヤーの情報と再生タスクが在れば
+	if (PlayerActor)
+	{
+
+		//プレイヤーの正面を取得
+		FVector DodgeForward = PlayerActor->GetActorForwardVector();
+
+		//縦方向の動きを0に
+		DodgeForward.Z = 0.f;
+
+		//ベクトル正規化
+		DodgeForward.Normalize();
+
+		//最終回避距離と方向(なんか正規化)
+		FVector DodgeLocation = PlayerActor->GetActorLocation() + (DodgeForward * JustDodgeDistance);
+
+		//プレイヤーを移動
+		PlayerActor->SetActorLocation(DodgeLocation, true);
+	}
+
 }
 
 
@@ -272,6 +358,60 @@ void UGAPlayerDodge::DodgeEnd()
 void UGAPlayerDodge::DodgeMontageEnd()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+// 敵の方向を取得する
+float UGAPlayerDodge::GetEnemyAngle(const AActor* EnemyActor)
+{
+	// プレイヤーかエネミーがないなら0を返す
+	if (!PlayerActor || !EnemyActor) return 0.0f;
+
+	// プレイヤーから敵への方向ベクトル
+	FVector DirToEnemy = (EnemyActor->GetActorLocation() - PlayerActor-> GetActorLocation());
+	DirToEnemy.Z = 0.0f;
+	DirToEnemy.Normalize();
+
+	// プレイヤーの正面のベクトル
+	FVector PlayerForward = PlayerActor->GetActorForwardVector();
+	PlayerForward.Z = 0.0f;
+	PlayerForward.Normalize();
+
+	float Dot = FVector::DotProduct(PlayerForward, DirToEnemy);
+	float CrossZ = FVector::CrossProduct(PlayerForward, DirToEnemy).Z;
+
+	float AngleInRadians = FMath::Atan2(CrossZ, Dot);
+	float AngleInDegrees = FMath::RadiansToDegrees(AngleInDegrees);
+
+	return AngleInDegrees;
+}
+
+
+FVector UGAPlayerDodge::GetEnemyAngleVector(const AActor* EnemyActor)
+{
+	FVector AngleInDegrees = FVector::ZeroVector;
+
+	// プレイヤーかエネミーがないなら0を返す
+	if (!PlayerActor || !EnemyActor) return AngleInDegrees;
+
+	// プレイヤーから敵への方向ベクトル
+	FVector DirToEnemy = (EnemyActor->GetActorLocation() - PlayerActor->GetActorLocation());
+	DirToEnemy.Z = 0.0f;
+	DirToEnemy.Normalize();
+
+	AngleInDegrees = DirToEnemy;
+
+	return AngleInDegrees;
+}
+
+// ジャスト回避自の回転
+void UGAPlayerDodge::JustDodgeRotate(FVector Angle)
+{
+	if (UCharacterMovementComponent* MoveComp = PlayerActor->GetCharacterMovement())
+	{
+		FRotator rotate = Angle.Rotation();
+		PlayerActor->SetActorRotation(rotate, ETeleportType::TeleportPhysics);
+	}
+
 }
 
 //即座に回転させる

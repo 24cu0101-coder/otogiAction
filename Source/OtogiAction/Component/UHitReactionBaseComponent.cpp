@@ -58,7 +58,7 @@ void UUHitReactionBaseComponent::AddStunPoint(float StunAmount)
 		OnStunMax();
 		return;
 	}
-	
+
 	//怯み値を超えたら怯む
 	if (CurrentFearPoint >= MaxFearPoint)
 	{
@@ -76,7 +76,7 @@ void UUHitReactionBaseComponent::AddStunPoint(float StunAmount)
 		StunRecoveryDelay // 最初の開始ディレイ
 	);
 
-	
+
 }
 
 //playerとエネミー側の子クラスで実装するリアクション関数
@@ -93,7 +93,7 @@ void UUHitReactionBaseComponent::OnFearMax()
 // スタン値が最大になったら
 void UUHitReactionBaseComponent::OnStunMax()
 {
-	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetOwner());
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
 
 	// Minionが攻撃中ならスタンさせない
 	if (Minion && Minion->bIsAttackInProgress)

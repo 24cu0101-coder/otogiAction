@@ -24,11 +24,26 @@ UMinionsHitReactionComponent::UMinionsHitReactionComponent()
 
 void UMinionsHitReactionComponent::AddStance(float Value)
 {
+	// 大スタン中はStanceを減らさない
+	if (bIsStunned)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[STANCE] 大スタン中のため加算処理を無効化"));
+
+		return;
+	}
+
+	// 姿勢崩壊済みなら処理しない
+	if (bStanceBroken)
+	{
+		return;
+	}
+
 
 	CurrentStance -= Value;
 
 
-	CurrentStance =FMath::Clamp(CurrentStance,0.f,MaxStance);
+	CurrentStance = FMath::Clamp(CurrentStance, 0.f, MaxStance);
 
 
 
@@ -75,7 +90,7 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 {
 	// 攻撃キャンセル処理
 
-	AMinionsCharacter* Minion =Cast<AMinionsCharacter>(GetOwner());
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
 
 
 	// 攻撃中は軽い怯みを発生させない
@@ -110,7 +125,7 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 
 
 
-	ACharacter* Character =Cast<ACharacter>(GetOwner());
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
 
 	if (!Character)
@@ -118,7 +133,7 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 		return;
 	}
 
-		float Dot =FVector::DotProduct(Character->GetActorForwardVector(),HitDirection);
+	float Dot = FVector::DotProduct(Character->GetActorForwardVector(), HitDirection);
 
 
 
@@ -192,7 +207,7 @@ void UMinionsHitReactionComponent::OnStunMax()
 
 
 
-	ACharacter* Character =Cast<ACharacter>(GetOwner());
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
 
 	if (Character && StunKnockdownMontage)
@@ -204,7 +219,7 @@ void UMinionsHitReactionComponent::OnStunMax()
 
 
 
-	GetWorld()->GetTimerManager().SetTimer(StunRecoverTimerHandle,this,&UMinionsHitReactionComponent::RecoverFromStun,StunDownDuration,false);
+	GetWorld()->GetTimerManager().SetTimer(StunRecoverTimerHandle, this, &UMinionsHitReactionComponent::RecoverFromStun, StunDownDuration, false);
 
 }
 
@@ -214,7 +229,7 @@ void UMinionsHitReactionComponent::OnStunMax()
 
 void UMinionsHitReactionComponent::RecoverFromStun()
 {
-	ACharacter* Character =Cast<ACharacter>(GetOwner());
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
 	if (!Character)
 	{
@@ -229,7 +244,7 @@ void UMinionsHitReactionComponent::RecoverFromStun()
 		float MontageLength =
 			GetUpMontage->GetPlayLength();
 
-		GetWorld()->GetTimerManager().SetTimer(GetUpTimerHandle,this,&UMinionsHitReactionComponent::FinishRecover,MontageLength,false);
+		GetWorld()->GetTimerManager().SetTimer(GetUpTimerHandle, this, &UMinionsHitReactionComponent::FinishRecover, MontageLength, false);
 	}
 	else
 	{
@@ -243,13 +258,13 @@ void UMinionsHitReactionComponent::RecoverFromStun()
 void UMinionsHitReactionComponent::StopMovement()
 {
 
-	ACharacter* Character =Cast<ACharacter>(GetOwner());
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
 
 	if (Character)
 	{
 
-		UCharacterMovementComponent* Move =Character->GetCharacterMovement();
+		UCharacterMovementComponent* Move = Character->GetCharacterMovement();
 
 
 		if (Move)
@@ -269,13 +284,13 @@ void UMinionsHitReactionComponent::StopMovement()
 void UMinionsHitReactionComponent::StopAI()
 {
 
-	ACharacter* Character =Cast<ACharacter>(GetOwner());
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
 
 	if (Character)
 	{
 
-		AAIController* AI =Cast<AAIController>(Character->GetController());
+		AAIController* AI = Cast<AAIController>(Character->GetController());
 
 
 		if (AI)
@@ -316,7 +331,7 @@ void UMinionsHitReactionComponent::RestartAI()
 		Move->SetMovementMode(MOVE_Walking);
 	}
 
-	AAIController* AI =Cast<AAIController>(Character->GetController());
+	AAIController* AI = Cast<AAIController>(Character->GetController());
 
 	if (!AI)
 	{
@@ -348,7 +363,7 @@ void UMinionsHitReactionComponent::SetHitDirection(AActor* Attacker)
 
 
 
-	FVector Direction =Attacker->GetActorLocation()-GetOwner()->GetActorLocation();
+	FVector Direction = Attacker->GetActorLocation() - GetOwner()->GetActorLocation();
 
 
 
@@ -356,7 +371,7 @@ void UMinionsHitReactionComponent::SetHitDirection(AActor* Attacker)
 
 
 
-	HitDirection =Direction.GetSafeNormal();
+	HitDirection = Direction.GetSafeNormal();
 
 
 
@@ -368,9 +383,13 @@ void UMinionsHitReactionComponent::SetHitDirection(AActor* Attacker)
 
 void UMinionsHitReactionComponent::TryPlayLightHit()
 {
+	// 大スタン中は小スタンを再生しない
+	if (bIsStunned)
+	{
+		return;
+	}
 
-	AMinionsCharacter* Minion =
-		Cast<AMinionsCharacter>(GetOwner());
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
 
 	// 攻撃中は軽い怯みを発生させない
 	if (Minion && Minion->bIsAttackInProgress)
@@ -402,7 +421,7 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 
 
 
-	ACharacter* Character =Cast<ACharacter>(GetOwner());
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
 
 	if (!Character)
@@ -421,7 +440,7 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 
 
 
-	float Dot =FVector::DotProduct(Character->GetActorForwardVector(),HitDirection);
+	float Dot = FVector::DotProduct(Character->GetActorForwardVector(), HitDirection);
 
 
 
