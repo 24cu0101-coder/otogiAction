@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
 //コンストラクタ
@@ -27,25 +28,23 @@ void UGANormalAttack::ActivateAbility(const FGameplayAbilitySpecHandle NormalAtt
 	//アビリティシステムコンポーネントを取得
 	NAttackASC = GetAbilitySystemComponentFromActorInfo();
 
+	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
+
 	//アビリティシステムコンポーネントがあれば
-	if (NAttackASC)
-	{
-		//アニメーションを再生する関数を呼ぶ
-		PlayNAttackMontage();
+	if (!NAttackASC || !PlayerActor) return;
+	
+	//アニメーションを再生する関数を呼ぶ
+	PlayNAttackMontage();
 
 
-		//アニメーションのループをカウントする処理を実行(対応アニメーションの場合だけ実行するように修正予定  本アニメーション次第では廃止)
-		//SetLoopCountTask();
+	//アニメーションのループをカウントする処理を実行(対応アニメーションの場合だけ実行するように修正予定  本アニメーション次第では廃止)
+	//SetLoopCountTask();
 
-		//アニメーションをスローにする処理を実行(本アニメーション次第では廃止)
-		//SloawMontageTaskSet();
-	}
-	//アビリティシステムコンポーネントが無ければ
-	else
-	{
-		//return
-		return;
-	}
+	//アニメーションをスローにする処理を実行(本アニメーション次第では廃止)
+	//SloawMontageTaskSet();
+	
+	
+	
 }
 
 //アニメーション再生
@@ -53,9 +52,7 @@ void UGANormalAttack::PlayNAttackMontage()
 {
 	//通常攻撃のモンタージュがあれば
 	if (NAttackMontages)
-	{
-		//ループのカウントを0に
-		Count = 0;
+	{		
 
 		//アニメーション再生タスク
 		NAttackMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
@@ -86,7 +83,34 @@ void UGANormalAttack::PlayNAttackMontage()
 		}
 		//アニメーション再生
 		NAttackMontageTask->ReadyForActivation();
+		
+		AttackMove();
+	}
+}
 
+// 前進
+void UGANormalAttack::AttackMove()
+{
+	if (!PlayerActor || AttackMoveDistance <= 0) return;
+
+	//正面を取得
+	FVector AttackForward = PlayerActor->GetActorForwardVector();
+	AttackForward.Z = 0.0f;
+	AttackForward.Normalize();
+
+	// 移動速度
+
+	// ルートモーションタスク生成
+	UAbilityTask_ApplyRootMotionConstantForce* MoveTask =
+		UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
+			this, NAME_None, AttackForward, AttackMoveDistance, 0.2f, false, nullptr,
+			ERootMotionFinishVelocityMode::SetVelocity, FVector::ZeroVector, 0.0f, false);
+
+
+	// ルートモーションタスクがあるなら
+	if (MoveTask)
+	{
+		MoveTask->ReadyForActivation();
 	}
 }
 

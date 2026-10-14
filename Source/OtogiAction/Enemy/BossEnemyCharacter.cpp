@@ -245,7 +245,10 @@ bool ABossEnemyCharacter::GetNowAttack()
 			return false;
 
 		}
+
 	}
+	return false;
+
 }
 
 // Called every frame

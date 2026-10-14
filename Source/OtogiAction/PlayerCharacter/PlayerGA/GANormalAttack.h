@@ -10,7 +10,7 @@
 
 //クラス前方宣言
 class APlayerCharacter;		//プレイヤークラス
-
+class UAbilityTask_ApplyRootMotionConstantForce;
 /**
  * 
  */
@@ -37,7 +37,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "NAttackMontages")
 	UAnimMontage* NAttackMontages;
 
-
+	UPROPERTY(Transient)
+	APlayerCharacter* PlayerActor;
 
 	//-------------------
 	//関数
@@ -60,6 +61,10 @@ protected:
 
 	UFUNCTION()
 	void EventTaskEnd(UAbilityTask_WaitGameplayEvent* EventTask);
+
+	//攻撃時前進する関数
+	UFUNCTION()
+	void AttackMove();
 
 	//アニメーション終了時に呼ばれるタスク
 	UFUNCTION()
@@ -101,6 +106,10 @@ protected:
 	//FGameplayTag IsNormalAttackTag;
 
 private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.AttackMoveDistance", meta = (AllowPrivateAccess = "true"))
+	float AttackMoveDistance;
+
 
 	int32 Count;
 	int32 Countlimit;
