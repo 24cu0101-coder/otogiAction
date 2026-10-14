@@ -46,9 +46,6 @@ protected:
 	UFUNCTION()
 	void PlayNAttackMontage();
 
-	UFUNCTION()
-	//loop‚Ìcount‚Ìƒ^ƒXƒN‚ğİ’è‚·‚é
-	void SetLoopCountTask();
 
 	//loop‚ğcount‚·‚é
 	UFUNCTION()

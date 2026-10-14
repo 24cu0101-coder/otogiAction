@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
@@ -181,7 +182,7 @@ void UGAPlayerDodge::EndJustDodgeWindow()
 
 
 	// タグ消滅
-	ASC->RemoveLooseGameplayTag(IsInvincibleTag);
+	//ASC->RemoveLooseGameplayTag(IsInvincibleTag);
 
 	GetWorld()->GetTimerManager().ClearTimer(m_endJustDodgeTimer);
 	}
@@ -191,6 +192,15 @@ void UGAPlayerDodge::EndJustDodgeWindow()
 //ジャスト回避開始
 void UGAPlayerDodge::PlayJustDodge()
 {
+	// 回避の移動タスクがあるなら
+	if (IsValid(m_moveTask))
+	{
+		// タスク停止
+		m_moveTask->EndTask();
+		m_moveTask = nullptr;
+	}
+	
+
 	LocationDelegate.Unbind();
 
 	m_justDodgeWind = false;
@@ -274,38 +284,64 @@ void UGAPlayerDodge::EndJustDodge()
 	UGameplayStatics::SetGlobalTimeDilation(World, 1);
 }
 
-//回避時の移動
-void UGAPlayerDodge::DodgeLocation(float Distance)
-{
-	//プレイヤーの情報と再生タスクが在れば
-	if (PlayerActor)
-	{
-
-		//プレイヤーの正面を取得
-		FVector DodgeForward = PlayerActor->GetActorForwardVector();
-
-		//縦方向の動きを0に
-		DodgeForward.Z = 0.f;
-
-		//ベクトル正規化
-		DodgeForward.Normalize();
-
-		//最終回避距離と方向(なんか正規化)
-		FVector DodgeLocation = PlayerActor->GetActorLocation() + (DodgeForward * DodgeDistance * GetWorld()->DeltaTimeSeconds);
-
-		//プレイヤーを移動
-		PlayerActor->SetActorLocation(DodgeLocation, true);
-	}
-}
 
 void UGAPlayerDodge::DodgeLocationStart()
 {
-	//移動用の関数の引数に代入してバインド
-	LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance);
+	if (!PlayerActor)return;
 
-	//回避処理開始(ほぼ毎フレーム繰り返す)
-	GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
+	//正面を取得
+	FVector DodgeForward = PlayerActor->GetActorForwardVector();
+	DodgeForward.Z = 0.0f;
+	DodgeForward.Normalize();
+
+	// 移動速度
+	float Speed = DodgeDistance / DodgeTime;
+
+	// ルートモーションタスク生成
+	m_moveTask =
+		UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
+			this, NAME_None, DodgeForward, Speed, DodgeTime, false, nullptr,
+			ERootMotionFinishVelocityMode::SetVelocity, FVector::ZeroVector, 0.0f, false);
+		
+
+	// ルートモーションタスクがあるなら
+	if (m_moveTask)
+	{
+		m_moveTask->ReadyForActivation();
+	}
+
+
+	////移動用の関数の引数に代入してバインド
+	//LocationDelegate = FTimerDelegate::CreateUObject(this, &UGAPlayerDodge::DodgeLocation, DodgeDistance);
+
+	////回避処理開始(ほぼ毎フレーム繰り返す)
+	//GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
 }
+
+//回避時の移動
+void UGAPlayerDodge::DodgeLocation(float Distance)
+{
+	////プレイヤーの情報と再生タスクが在れば
+	//if (PlayerActor)
+	//{
+
+	//	//プレイヤーの正面を取得
+	//	FVector DodgeForward = PlayerActor->GetActorForwardVector();
+
+	//	//縦方向の動きを0に
+	//	DodgeForward.Z = 0.f;
+
+	//	//ベクトル正規化
+	//	DodgeForward.Normalize();
+
+	//	//最終回避距離と方向(なんか正規化)
+	//	FVector DodgeLocation = PlayerActor->GetActorLocation() + (DodgeForward * DodgeDistance * GetWorld()->DeltaTimeSeconds);
+
+	//	//プレイヤーを移動
+	//	PlayerActor->SetActorLocation(DodgeLocation, true);
+	//}
+}
+
 
 void UGAPlayerDodge::JustDodgeLocation()
 {

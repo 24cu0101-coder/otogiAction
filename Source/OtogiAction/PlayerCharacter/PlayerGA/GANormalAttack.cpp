@@ -90,34 +90,34 @@ void UGANormalAttack::PlayNAttackMontage()
 	}
 }
 
-//loopをcountするタスクを設定する関数
-void UGANormalAttack::SetLoopCountTask()
-{
-	//モンタージュのloopをcountするためのタグ
-	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("LoopCounter"));
-
-	//四段目のイベント
-	SheathingEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-		this,
-		TargetTag,
-		nullptr,
-		false,
-		false
-	);
-
-	//アニメーションloopの際のイベントのタスクがあれば
-	if (SheathingEvent)
-	{
-		//ループをカウントする処理を実行するように設定
-		SheathingEvent->EventReceived.AddDynamic(this, &UGANormalAttack::LoopCount);
-
-		//UE_LOG(LogTemp, Warning, TEXT("yy"));
-
-		//実行
-		SheathingEvent->ReadyForActivation();
-
-	}
-}
+////loopをcountするタスクを設定する関数
+//void UGANormalAttack::SetLoopCountTask()
+//{
+//	//モンタージュのloopをcountするためのタグ
+//	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("LoopCounter"));
+//
+//	//四段目のイベント
+//	SheathingEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+//		this,
+//		TargetTag,
+//		nullptr,
+//		false,
+//		false
+//	);
+//
+//	//アニメーションloopの際のイベントのタスクがあれば
+//	if (SheathingEvent)
+//	{
+//		//ループをカウントする処理を実行するように設定
+//		SheathingEvent->EventReceived.AddDynamic(this, &UGANormalAttack::LoopCount);
+//
+//		//UE_LOG(LogTemp, Warning, TEXT("yy"));
+//
+//		//実行
+//		SheathingEvent->ReadyForActivation();
+//
+//	}
+//}
 
 //loopのcountと脱出
 void UGANormalAttack::LoopCount(FGameplayEventData Payload)

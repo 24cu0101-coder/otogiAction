@@ -13,6 +13,8 @@
 class APlayerCharacter;		//プレイヤークラス
 class UDamageType;
 class UAbilityTask_WaitGameplayTagRemoved;
+class UAbilityTask_ApplyRootMotionConstantForce;
+
 
 UCLASS()
 class OTOGIACTION_API UGAPlayerDodge : public UGameplayAbility
@@ -111,7 +113,7 @@ protected:
 
 	UFUNCTION()
 	void JustDodgeRotate(FVector Angle);
-
+	
 	UFUNCTION()
 	void OnPlayerTakeDamage(
 		AActor* DamagedActor,
@@ -140,6 +142,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GAS")
 	UAbilitySystemComponent* ASC;
 
+	// 実行中のタスクを保持する変数
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> m_moveTask;
 
 private:
 
