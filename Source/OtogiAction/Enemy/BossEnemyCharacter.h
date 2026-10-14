@@ -116,6 +116,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI|PhaseTwo")
 	void K2_OnPhaseTwoStarted();
 
+	//Œ»İUŒ‚’†‚©‚Ç‚¤‚©‚ğæ“¾‚·‚éŠÖ”
+	bool GetNowAttack();
+
 	//“G‚ÌÅ‘åHP
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float MaxHP;
