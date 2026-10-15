@@ -7,6 +7,8 @@
 #include "TimerManager.h"
 #include "../Actor/BookActor.h"
 #include "../Actor/ChainActor.h"
+#include "../../PlayerCharacter/PlayerCharacter.h"
+#include "../../Component/Audio/BGMManager.h"
 
 // Sets default values
 ATitleManager::ATitleManager()
@@ -14,6 +16,20 @@ ATitleManager::ATitleManager()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+    SoundManager = CreateDefaultSubobject<USoundManagerComponent>(TEXT("SoundManager"));
+
+}
+
+void ATitleManager::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (!TitleBGM)
+    {
+        return;
+    }
+
+    SoundManager->PlayBGM(TitleBGM);
 }
 
 void ATitleManager::OnButtonPressed()

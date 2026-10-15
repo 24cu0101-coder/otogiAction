@@ -9,6 +9,7 @@
 //前方宣言
 class ABookActor;
 class AChainActor;
+class USoundManagerComponent;
 
 UCLASS()
 class OTOGIACTION_API ATitleManager : public AActor
@@ -19,6 +20,9 @@ public:
 	// Sets default values for this actor's properties
 	ATitleManager();
 
+protected:
+    virtual void BeginPlay() override;
+
 public:
     // レベル上に配置した各アクターの参照を設定
     UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Title Management")
@@ -26,6 +30,14 @@ public:
 
     UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Title Management")
     TObjectPtr<AChainActor> TargetChainActor;
+
+    //サウンドマネージャー
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
+    TObjectPtr<USoundManagerComponent> SoundManager;
+
+    //BGM
+    UPROPERTY(EditAnywhere, Category = "Sound")
+    TObjectPtr<USoundBase> TitleBGM;
 
     // 演出・遷移設定
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Title Settings")

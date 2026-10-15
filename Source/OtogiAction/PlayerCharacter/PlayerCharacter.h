@@ -54,6 +54,9 @@ class UPlayerHPWidget;
 class USkillGaugeWidget;
 class USkillCircle;
 
+//Sound
+class USoundManagerComponent;
+
 //dataasset
 class UCameraModifierDataAsset;
 
@@ -182,6 +185,11 @@ private:
 	//死亡コンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dead",meta = (AllowPrivateAccess = "true"))
 	UPlayerDeathComponent* DeathComp;
+
+	//サウンドコンポーネント
+	//死亡コンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USoundManagerComponent> SoundMngComp;
 
 	//HPWidget
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))

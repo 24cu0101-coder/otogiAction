@@ -30,6 +30,7 @@
 #include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include"PlayerDeathComponent.h"
 #include "PlayerComponent/Camera/CameraDirectorComponent.h"
+#include "../Component/Audio/BGMManager.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -125,6 +126,9 @@ APlayerCharacter::APlayerCharacter()
 
 	//カメラディレクター
 	CameraDirectorComp = CreateDefaultSubobject<UCameraDirectorComponent>(TEXT("CameraDirectorComp"));
+
+	//サウンドコンポーネント
+	SoundMngComp = CreateDefaultSubobject<USoundManagerComponent>(TEXT("SoundComp"));
 }
 
 //ゲームが始まったときに生成

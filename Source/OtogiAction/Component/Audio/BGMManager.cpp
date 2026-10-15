@@ -1,69 +1,181 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+//担当：イイジマ
 
 #include "BGMManager.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
 
-
-TWeakObjectPtr<UAudioComponent>
-ABGMManager::CurrentBGMComponent;
-
-// Sets default values
-ABGMManager::ABGMManager()
+//コンストラクタ
+USoundManagerComponent::USoundManagerComponent()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
-}
-
-// Called when the game starts or when spawned
-void ABGMManager::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (bAutoPlay)
-	{
-		PlayBGM();
-	}
 	
 }
 
-void ABGMManager::PlayBGM()
+//生成されたら処理される
+void USoundManagerComponent::BeginPlay()
 {
-    if (!BGM)
+	Super::BeginPlay();
+}
+
+//BGM再生関数
+void USoundManagerComponent::PlayBGM(USoundBase* Sound)
+{
+    if (!Sound)
     {
-        UE_LOG(LogTemp, Warning, TEXT("BGMが設定されていません"));
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("SoundManagerComponent::PlayBGM - Soundが設定されていません")
+        );
+
         return;
     }
 
-    // 以前のレベルで再生していたBGMを停止
-    if (CurrentBGMComponent.IsValid())
+    // 現在のBGMを停止
+    if (m_BGMComponent)
     {
-        CurrentBGMComponent->Stop();
-        CurrentBGMComponent.Reset();
+        m_BGMComponent->Stop();
+        m_BGMComponent = nullptr;
     }
 
     // 新しいBGMを再生
-    BGMComponent = UGameplayStatics::SpawnSound2D(
+    m_BGMComponent = UGameplayStatics::SpawnSound2D(
         this,
-        BGM,
-        1.0f,
-        1.0f,
-        0.0f,
-        nullptr,
-        false,
-        true
+        Sound,
+        1.0f,  // 音量
+        1.0f,  // 音の高さ
+        0.0f   // スタートタイム
     );
-
-    CurrentBGMComponent = BGMComponent;
 }
 
-void ABGMManager::StopBGM()
+//BGMの停止
+void USoundManagerComponent::StopBGM()
 {
-	if (BGMComponent)
-	{
-		BGMComponent->Stop();
-	}
+    if (!m_BGMComponent)
+    {
+        return;
+    }
+
+    m_BGMComponent->Stop();
 }
 
+//BGMの再開
+void USoundManagerComponent::ResumeBGM()
+{
+    if (!m_BGMComponent)
+    {
+        return;
+    }
+
+    // 既に再生中なら何もしない
+    if (m_BGMComponent->IsPlaying())
+    {
+        return;
+    }
+
+    m_BGMComponent->Play();
+}
+
+//ループサウンドの再生
+UAudioComponent* USoundManagerComponent::PlayLoopSound(USoundBase* Sound)
+{
+    if (!Sound)
+    {
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("SoundManagerComponent::PlayLoopSound - Soundが設定されていません")
+        );
+
+        return nullptr;
+    }
+
+    // LoopSoundを生成して再生
+    UAudioComponent* NewAudioComponent =
+        UGameplayStatics::SpawnSound2D(
+            this,
+            Sound,
+            1.0f,  //音量
+            1.0f,  //音の高さ
+            0.0f   //スタートタイム
+        );
+
+    if (NewAudioComponent)
+    {
+        // 管理対象に追加
+        m_LoopSoundComponents.Add(NewAudioComponent);
+    }
+
+    return NewAudioComponent;
+}
+
+//ループサウンドの停止
+void USoundManagerComponent::StopLoopSound(UAudioComponent* AudioComponent)
+{
+    if (!AudioComponent)
+    {
+        return;
+    }
+
+    AudioComponent->Stop();
+}
+
+//ループサウンドの再開
+void USoundManagerComponent::ResumeLoopSound(UAudioComponent* AudioComponent)
+{
+    if (!AudioComponent)
+    {
+        return;
+    }
+
+    // 既に再生中なら何もしない
+    if (AudioComponent->IsPlaying())
+    {
+        return;
+    }
+
+    AudioComponent->Play();
+}
+
+//サウンドの再生
+void USoundManagerComponent::PlaySound(USoundBase* Sound)
+{
+    if (!Sound)
+    {
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("SoundManagerComponent::PlaySound - Soundが設定されていません")
+        );
+
+        return;
+    }
+
+    // OneShotサウンド
+    UGameplayStatics::SpawnSound2D(
+        this,
+        Sound, 
+        1.0f,  // 音量
+        1.0f   // 高さ
+    );
+}
+
+//AnimNotify用再生関数
+void USoundManagerComponent::PlayAnimNotifySound(
+    USoundBase* Sound)
+{
+    if (!Sound)
+    {
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("SoundManagerComponent::PlayAnimNotifySound - Soundが設定されていません")
+        );
+
+        return;
+    }
+
+    // AnimNotify専用関数だが、
+    // 実際の再生処理は通常のSound再生に任せる
+    PlaySound(Sound);
+}
