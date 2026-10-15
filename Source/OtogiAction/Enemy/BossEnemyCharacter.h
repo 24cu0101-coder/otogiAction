@@ -75,10 +75,10 @@ protected:
 	float TitleTransitionDelay = 2.5f;
 	//点滅の間隔
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
-	float BlinkInterval = 0.06f;
+	float FlashInterval = 0.06f;
 	//点滅を行う合計時間
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
-	float BlinkDuration = 1.5f;
+	float FlashDuration = 1.5f;
 
 public:
 	// Sets default values for this character's properties
@@ -116,7 +116,7 @@ public:
 	void TriggerJumpAttack();
 
 	//第二形態かどうかを取得
-	UFUNCTION(BlueprintCallable,Category = "AI|PhaseTwo")
+	UFUNCTION(BlueprintCallable, Category = "AI|PhaseTwo")
 	bool GetIsPhaseTwo();
 
 	//第二形態へ移行する処理
@@ -125,7 +125,7 @@ public:
 
 	//移行時の処理
 	void ApplyPhaseTwoState();
-	
+
 	//移行時の処理
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI|PhaseTwo")
 	void K2_OnPhaseTwoStarted();
@@ -137,7 +137,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float MaxHP;
 	//敵の現在HP
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "AI|Param")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AI|Param")
 	float CurrentHP;
 
 
@@ -176,7 +176,7 @@ protected:
 	void ReturnToTitle();
 
 	//点滅処理の関数
-	void ToggleBlink();
+	void ToggleScreenFlash();
 
 	//レベル遷移開始（フェードアウト呼び出し）関数
 	void StartLevelTransition();
@@ -191,7 +191,7 @@ protected:
 	UAnimMontage* JumpAttackMontage;
 
 	//第二形態に移行するHPの割合
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "AI|PhaseTwo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
 	float PhaseTwoHPThresholdRatio = 0.5f;
 
 	//第二形態時の移動速度
@@ -207,10 +207,10 @@ protected:
 	TObjectPtr<UDataTable> ActionDataTable;
 
 private:
-	FTimerHandle DeathTimerHandle;
+	FTimerHandle FlashTimerHandle;
 	FTimerHandle BlinkTimerHandle;
 
 	// 点滅した回数をカウントするフラグ
-	bool bIsBlinkVisible = true;
-	float CurrentBlinkTime = 0.0f;
+	bool bIsFlashWhite = true;
+	float CurrentFlashTime = 0.0f;
 };

@@ -97,26 +97,52 @@ void ABossEnemyCharacter::ReturnToTitle()
 	}
 }
 
-//点滅をトグル呼び出しする関数
-void ABossEnemyCharacter::ToggleBlink()
+//画面の白点滅をトグル呼び出しする関数
+void ABossEnemyCharacter::ToggleScreenFlash()
 {
-	CurrentBlinkTime += BlinkInterval;
-
-	//表示・非表示を切り替え
-	bIsBlinkVisible = !bIsBlinkVisible;
-	SetActorHiddenInGame(!bIsBlinkVisible);
-
-	//設定した点滅時間を超えたら点滅終了
-	if (CurrentBlinkTime >= BlinkDuration)
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PC || !PC->PlayerCameraManager)
 	{
-		GetWorldTimerManager().ClearTimer(BlinkTimerHandle);
+		return;
+	}
 
-		// ボスを完全に消滅（非表示）にする
-		SetActorHiddenInGame(true);
+	CurrentFlashTime += FlashInterval;
+	bIsFlashWhite = !bIsFlashWhite;
 
-		// フェードアウトと遷移を開始
+	if (bIsFlashWhite)
+	{
+		//瞬間的に画面全体を白にする
+		PC->PlayerCameraManager->StartCameraFade(
+			0.0f,
+			1.0f,
+			0.01f,                 // 即座に切り替えるためごく短時間に設定
+			FLinearColor::White,   // 白色
+			true,                  // 保持
+			false
+		);
+	}
+	else
+	{
+		// 画面を通常に戻す（Alpha: 0.0）
+		PC->PlayerCameraManager->StartCameraFade(
+			1.0f,
+			0.0f,
+			0.01f,
+			FLinearColor::White,
+			false,
+			false
+		);
+	}
+
+	// 指定した点滅時間が経過したら点滅を終了
+	if (CurrentFlashTime >= FlashDuration)
+	{
+		GetWorldTimerManager().ClearTimer(FlashTimerHandle);
+
+		// 点滅終了後に黒暗転へ移行
 		StartLevelTransition();
 	}
+
 }
 
 //暗転とレベル遷移開始
@@ -135,10 +161,12 @@ void ABossEnemyCharacter::StartLevelTransition()
 			true
 		);
 	}
+	// ボス自身を画面から消す（撃破完了）
+	SetActorHiddenInGame(true);
 
 	//フェード完了後にレベル遷移
 	GetWorldTimerManager().SetTimer(
-		DeathTimerHandle,
+		FlashTimerHandle,
 		this,
 		&ABossEnemyCharacter::ReturnToTitle,
 		FadeDuration + 0.2f,    // フェード完了直後に遷移
@@ -359,8 +387,8 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 		}
 
 		// カウンタの初期化
-		CurrentBlinkTime = 0.0f;
-		bIsBlinkVisible = true;
+		CurrentFlashTime = 0.0f;
+		bIsFlashWhite = true;
 
 		// --------------------------------------------------
 				// 高速点滅タイマーのスタート
@@ -368,8 +396,8 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 		GetWorldTimerManager().SetTimer(
 			BlinkTimerHandle,
 			this,
-			&ABossEnemyCharacter::ToggleBlink,
-			BlinkInterval,
+			&ABossEnemyCharacter::ToggleScreenFlash,
+			FlashInterval,
 			true // ループ実行
 		);
 		return ActualDamage;
