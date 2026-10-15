@@ -380,11 +380,11 @@ void AphaseManager::CheckBossPhase1Clear()
 		TEXT("===== BOSS PHASE 2 ====="
 		);*/
 
-		// Kanrikyokuレベルへ遷移
-		UGameplayStatics::OpenLevel(
-			GetWorld(),
-			FName(TEXT("OtogiKanrikyoku"))
-	);
+	//	// Kanrikyokuレベルへ遷移
+	//	UGameplayStatics::OpenLevel(
+	//		GetWorld(),
+	//		FName(TEXT("OtogiKanrikyoku"))
+	//);
 }
 
 

@@ -64,7 +64,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
 	FName AuraSocketName = FName("Spine1");
 
-
+	//タイトルレベルの名前
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	FName TitleLevelName = FName("Title");
+	//フェードアウトにかける時間
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float FadeDuration = 2.f;
+	// 死亡判定が走ってからタイマーでレベル遷移を待つ合計時間（フェード時間以上に設定）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float TitleTransitionDelay = 2.5f;
+	//点滅の間隔
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float BlinkInterval = 0.06f;
+	//点滅を行う合計時間
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float BlinkDuration = 1.5f;
 
 public:
 	// Sets default values for this character's properties
@@ -158,6 +172,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// タイトル画面へ遷移する関数
+	void ReturnToTitle();
+
+	//点滅処理の関数
+	void ToggleBlink();
+
+	//レベル遷移開始（フェードアウト呼び出し）関数
+	void StartLevelTransition();
+
 protected:
 	//パンチアタックMontageの変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")
@@ -183,4 +206,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BossSetup|Data")
 	TObjectPtr<UDataTable> ActionDataTable;
 
+private:
+	FTimerHandle DeathTimerHandle;
+	FTimerHandle BlinkTimerHandle;
+
+	// 点滅した回数をカウントするフラグ
+	bool bIsBlinkVisible = true;
+	float CurrentBlinkTime = 0.0f;
 };
