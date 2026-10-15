@@ -88,6 +88,92 @@ void ABossEnemyCharacter::BeginPlay()
 	SyncActionComponentsData();
 }
 
+//タイトルに戻る関数
+void ABossEnemyCharacter::ReturnToTitle()
+{
+	if (!TitleLevelName.IsNone())
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), TitleLevelName);
+	}
+}
+
+//画面の白点滅をトグル呼び出しする関数
+void ABossEnemyCharacter::ToggleScreenFlash()
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PC || !PC->PlayerCameraManager)
+	{
+		return;
+	}
+
+	CurrentFlashTime += FlashInterval;
+	bIsFlashWhite = !bIsFlashWhite;
+
+	if (bIsFlashWhite)
+	{
+		//瞬間的に画面全体を白にする
+		PC->PlayerCameraManager->StartCameraFade(
+			0.0f,
+			1.0f,
+			0.01f,                 // 即座に切り替えるためごく短時間に設定
+			FLinearColor::White,   // 白色
+			true,                  // 保持
+			false
+		);
+	}
+	else
+	{
+		// 画面を通常に戻す（Alpha: 0.0）
+		PC->PlayerCameraManager->StartCameraFade(
+			1.0f,
+			0.0f,
+			0.01f,
+			FLinearColor::White,
+			false,
+			false
+		);
+	}
+
+	// 指定した点滅時間が経過したら点滅を終了
+	if (CurrentFlashTime >= FlashDuration)
+	{
+		GetWorldTimerManager().ClearTimer(FlashTimerHandle);
+
+		// 点滅終了後に黒暗転へ移行
+		StartLevelTransition();
+	}
+
+}
+
+//暗転とレベル遷移開始
+void ABossEnemyCharacter::StartLevelTransition()
+{
+	//画面の暗転（カメラフェード）
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PC && PC->PlayerCameraManager)
+	{
+		PC->PlayerCameraManager->StartCameraFade(
+			0.0f,                   // FromAlpha
+			1.0f,                   // ToAlpha
+			FadeDuration,           // 暗転にかける時間
+			FLinearColor::Black,    // 黒
+			true,                   // 遷移まで黒を維持
+			true
+		);
+	}
+	// ボス自身を画面から消す（撃破完了）
+	SetActorHiddenInGame(true);
+
+	//フェード完了後にレベル遷移
+	GetWorldTimerManager().SetTimer(
+		FlashTimerHandle,
+		this,
+		&ABossEnemyCharacter::ReturnToTitle,
+		FadeDuration + 0.2f,    // フェード完了直後に遷移
+		false
+	);
+}
+
 //パンチアタックMontageの再生時間を返す
 float ABossEnemyCharacter::GetPlayPunchAttackMontageTime()
 {
@@ -267,6 +353,12 @@ void ABossEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	//すでに死亡している場合は実行しない
+	if (CurrentHP <= 0.0f)
+	{
+		return 0.f;
+	}
+
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (ActualDamage <= 0.f)
@@ -286,8 +378,29 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	if (CurrentHP <= 0.0f)
 	{
 		IsHit = false;
-		//死亡処理（Ragdoll化やデストロイなど）
-		Destroy();
+
+		// 判定とAIの停止
+		SetActorEnableCollision(false);
+		if (AController* AICont = GetController())
+		{
+			AICont->UnPossess();
+		}
+
+		// カウンタの初期化
+		CurrentFlashTime = 0.0f;
+		bIsFlashWhite = true;
+
+		// --------------------------------------------------
+				// 高速点滅タイマーのスタート
+				// --------------------------------------------------
+		GetWorldTimerManager().SetTimer(
+			BlinkTimerHandle,
+			this,
+			&ABossEnemyCharacter::ToggleScreenFlash,
+			FlashInterval,
+			true // ループ実行
+		);
+		return ActualDamage;
 	}
 
 	//第二形態への移行判定

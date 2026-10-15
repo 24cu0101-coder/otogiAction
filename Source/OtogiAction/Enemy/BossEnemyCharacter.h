@@ -64,7 +64,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
 	FName AuraSocketName = FName("Spine1");
 
-
+	//タイトルレベルの名前
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	FName TitleLevelName = FName("Title");
+	//フェードアウトにかける時間
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float FadeDuration = 2.f;
+	// 死亡判定が走ってからタイマーでレベル遷移を待つ合計時間（フェード時間以上に設定）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float TitleTransitionDelay = 2.5f;
+	//点滅の間隔
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float FlashInterval = 0.06f;
+	//点滅を行う合計時間
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+	float FlashDuration = 1.5f;
 
 public:
 	// Sets default values for this character's properties
@@ -102,7 +116,7 @@ public:
 	void TriggerJumpAttack();
 
 	//第二形態かどうかを取得
-	UFUNCTION(BlueprintCallable,Category = "AI|PhaseTwo")
+	UFUNCTION(BlueprintCallable, Category = "AI|PhaseTwo")
 	bool GetIsPhaseTwo();
 
 	//第二形態へ移行する処理
@@ -111,7 +125,7 @@ public:
 
 	//移行時の処理
 	void ApplyPhaseTwoState();
-	
+
 	//移行時の処理
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI|PhaseTwo")
 	void K2_OnPhaseTwoStarted();
@@ -123,7 +137,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Param")
 	float MaxHP;
 	//敵の現在HP
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "AI|Param")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AI|Param")
 	float CurrentHP;
 
 
@@ -158,6 +172,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// タイトル画面へ遷移する関数
+	void ReturnToTitle();
+
+	//点滅処理の関数
+	void ToggleScreenFlash();
+
+	//レベル遷移開始（フェードアウト呼び出し）関数
+	void StartLevelTransition();
+
 protected:
 	//パンチアタックMontageの変数
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Attack")
@@ -168,7 +191,7 @@ protected:
 	UAnimMontage* JumpAttackMontage;
 
 	//第二形態に移行するHPの割合
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "AI|PhaseTwo")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|PhaseTwo")
 	float PhaseTwoHPThresholdRatio = 0.5f;
 
 	//第二形態時の移動速度
@@ -183,4 +206,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BossSetup|Data")
 	TObjectPtr<UDataTable> ActionDataTable;
 
+private:
+	FTimerHandle FlashTimerHandle;
+	FTimerHandle BlinkTimerHandle;
+
+	// 点滅した回数をカウントするフラグ
+	bool bIsFlashWhite = true;
+	float CurrentFlashTime = 0.0f;
 };
