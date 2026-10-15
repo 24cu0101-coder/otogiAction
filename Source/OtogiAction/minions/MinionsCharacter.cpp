@@ -13,6 +13,7 @@
 #include "../UI/EnemyHPWidget.h"
 #include "OtogiAction/Component/Collision/SphereCollisionComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include "OtogiAction/minions/MinionsHitReactionComponent.h"
 
 
@@ -230,6 +231,18 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 			*GetName(),
 			bKintaroOnlyEnemy,
 			bCanSpawnOrb);
+	}
+
+	// チュートリアル：敵に攻撃を当てた
+	if (DamageCauser && DamageCauser->IsA(ACharacter::StaticClass()))
+	{
+		ATutorialActor* TutorialManager =Cast<ATutorialActor>(UGameplayStatics::GetActorOfClass(GetWorld(),ATutorialActor::StaticClass()));
+
+		if (TutorialManager)
+		{
+			// 現在のチュートリアルを進める
+			TutorialManager->CompleteStep(1);
+		}
 	}
 }
 

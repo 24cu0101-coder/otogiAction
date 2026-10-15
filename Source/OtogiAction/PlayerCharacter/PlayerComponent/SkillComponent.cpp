@@ -3,6 +3,8 @@
 
 #include "SkillComponent.h"
 #include "AbilitySystemComponent.h"
+#include "OtogiAction/GameFlow/Actor/tutorialActor.h"
+#include "Kismet/GameplayStatics.h"
 #include "SkillGaugeComponent.h"
 
 
@@ -120,6 +122,18 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 
 				if (bSuccess)
 				{
+					// スキル発動成功時にチュートリアルをクリア
+					ATutorialActor* TutorialManager =
+						Cast<ATutorialActor>(
+							UGameplayStatics::GetActorOfClass(
+								GetWorld(),
+								ATutorialActor::StaticClass()));
+
+					if (TutorialManager)
+					{
+						TutorialManager->CompleteStep(3);
+					}
+
 					if (CurrentSet.MaxUseCount > 0)
 					{
 						CurrentSet.CurrentUseCount--;

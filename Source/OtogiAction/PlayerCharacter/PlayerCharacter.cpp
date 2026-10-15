@@ -27,6 +27,7 @@
 #include "OtogiAction/UI/PlayerHPWidget.h"
 #include "OtogiAction/UI/SkillGaugeWidget.h"
 #include "OtogiAction/UI/SkillCircle.h"
+#include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include"PlayerDeathComponent.h"
 #include "PlayerComponent/Camera/CameraDirectorComponent.h"
 
@@ -165,14 +166,14 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	// 現在のレベル名取得
-	FString LevelName = GetWorld()->GetMapName();
+	//FString LevelName = GetWorld()->GetMapName();
 
 	// OtogiKantrikyokuではUIを出さない
-	bool bShowUI = !LevelName.Contains(TEXT("OtogiKantrikyoku"));
+	//bool bShowUI = !LevelName.Contains(TEXT("OtogiKantrikyoku"));
 
 
 	//PlayerのHP表示
-	if (bShowUI && PlayerHPWidgetClass)
+	if (PlayerHPWidgetClass)
 	{
 		PlayerHPWidget = CreateWidget<UPlayerHPWidget>(
 			GetWorld(),
@@ -190,7 +191,7 @@ void APlayerCharacter::BeginPlay()
 
 
 	//SkillGauge表示
-	if (bShowUI && SkillGaugeWidgetClass)
+	if (SkillGaugeWidgetClass)
 	{
 		SkillGaugeWidget = CreateWidget<USkillGaugeWidget>(
 			GetWorld(),
@@ -215,7 +216,7 @@ void APlayerCharacter::BeginPlay()
 
 
 	//SkillCircle表示
-	if (bShowUI && SkillCircleClass)
+	if (SkillCircleClass)
 	{
 		SkillCircle = CreateWidget<USkillCircle>(
 			GetWorld(),
@@ -414,6 +415,18 @@ void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 			SkillCircle->UpdateSkillCircle(
 				SkillComp->GetCurrentGroupPointer()
 			);
+		}
+
+		// チュートリアルを次へ進める
+		ATutorialActor* TutorialManager =
+			Cast<ATutorialActor>(
+				UGameplayStatics::GetActorOfClass(
+					GetWorld(),
+					ATutorialActor::StaticClass()));
+
+		if (TutorialManager)
+		{
+			TutorialManager->CompleteStep(2);
 		}
 	}
 }
