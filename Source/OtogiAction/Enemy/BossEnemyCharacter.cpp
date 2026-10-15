@@ -88,6 +88,64 @@ void ABossEnemyCharacter::BeginPlay()
 	SyncActionComponentsData();
 }
 
+//タイトルに戻る関数
+void ABossEnemyCharacter::ReturnToTitle()
+{
+	if (!TitleLevelName.IsNone())
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), TitleLevelName);
+	}
+}
+
+//点滅をトグル呼び出しする関数
+void ABossEnemyCharacter::ToggleBlink()
+{
+	CurrentBlinkTime += BlinkInterval;
+
+	//表示・非表示を切り替え
+	bIsBlinkVisible = !bIsBlinkVisible;
+	SetActorHiddenInGame(!bIsBlinkVisible);
+
+	//設定した点滅時間を超えたら点滅終了
+	if (CurrentBlinkTime >= BlinkDuration)
+	{
+		GetWorldTimerManager().ClearTimer(BlinkTimerHandle);
+
+		// ボスを完全に消滅（非表示）にする
+		SetActorHiddenInGame(true);
+
+		// フェードアウトと遷移を開始
+		StartLevelTransition();
+	}
+}
+
+//暗転とレベル遷移開始
+void ABossEnemyCharacter::StartLevelTransition()
+{
+	//画面の暗転（カメラフェード）
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PC && PC->PlayerCameraManager)
+	{
+		PC->PlayerCameraManager->StartCameraFade(
+			0.0f,                   // FromAlpha
+			1.0f,                   // ToAlpha
+			FadeDuration,           // 暗転にかける時間
+			FLinearColor::Black,    // 黒
+			true,                   // 遷移まで黒を維持
+			true
+		);
+	}
+
+	//フェード完了後にレベル遷移
+	GetWorldTimerManager().SetTimer(
+		DeathTimerHandle,
+		this,
+		&ABossEnemyCharacter::ReturnToTitle,
+		FadeDuration + 0.2f,    // フェード完了直後に遷移
+		false
+	);
+}
+
 //パンチアタックMontageの再生時間を返す
 float ABossEnemyCharacter::GetPlayPunchAttackMontageTime()
 {
@@ -267,6 +325,12 @@ void ABossEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	//すでに死亡している場合は実行しない
+	if (CurrentHP <= 0.0f)
+	{
+		return 0.f;
+	}
+
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (ActualDamage <= 0.f)
@@ -286,8 +350,29 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	if (CurrentHP <= 0.0f)
 	{
 		IsHit = false;
-		//死亡処理（Ragdoll化やデストロイなど）
-		Destroy();
+
+		// 判定とAIの停止
+		SetActorEnableCollision(false);
+		if (AController* AICont = GetController())
+		{
+			AICont->UnPossess();
+		}
+
+		// カウンタの初期化
+		CurrentBlinkTime = 0.0f;
+		bIsBlinkVisible = true;
+
+		// --------------------------------------------------
+				// 高速点滅タイマーのスタート
+				// --------------------------------------------------
+		GetWorldTimerManager().SetTimer(
+			BlinkTimerHandle,
+			this,
+			&ABossEnemyCharacter::ToggleBlink,
+			BlinkInterval,
+			true // ループ実行
+		);
+		return ActualDamage;
 	}
 
 	//第二形態への移行判定
