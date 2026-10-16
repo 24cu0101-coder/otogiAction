@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
+#include "OtogiAction/GameFlow/Actor/TutorialActor.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 
 //コンストラクタ
@@ -192,6 +193,21 @@ void UGAPlayerDodge::EndJustDodgeWindow()
 //ジャスト回避開始
 void UGAPlayerDodge::PlayJustDodge()
 {
+	// チュートリアルを取得
+	ATutorialActor* TutorialManager =
+		Cast<ATutorialActor>(
+			UGameplayStatics::GetActorOfClass(
+				GetWorld(),
+				ATutorialActor::StaticClass()
+			)
+		);
+
+	// ジャスト回避のチュートリアルをクリア
+	if (TutorialManager)
+	{
+		TutorialManager->CompleteStep(6);
+	}
+
 	// 回避の移動タスクがあるなら
 	if (IsValid(m_moveTask))
 	{

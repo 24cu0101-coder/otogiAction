@@ -24,50 +24,43 @@ void ATitleManager::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (!TitleBGM)
+    if (SoundManager && TitleBGM)
     {
-        return;
+        SoundManager->PlayBGM(TitleBGM);
     }
-
-    SoundManager->PlayBGM(TitleBGM);
 }
 
 void ATitleManager::OnButtonPressed()
 {
-    //鎖アクターの破壊処理を実行
+    //鎖アクターの破壊処理を即座に実行
     if (TargetChainActor)
     {
         TargetChainActor->BreakChain();
     }
 
-    // ホワイトアウト開始 
-    APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
-    if (CameraManager)
-    {
-        CameraManager->StartCameraFade(0.0f, 1.0f, FadeOutDuration, FLinearColor::White, true, true);
-    }
-
-    // フェードアウト完了後に本を開いてフェードイン
-    GetWorldTimerManager().SetTimer(TimerHandle, this, &ATitleManager::SwapBookAndFadeIn, FadeOutDuration);
-}
-
-void ATitleManager::SwapBookAndFadeIn()
-{
-    // 3. 本アクターのメッシュ切替処理を実行
+    //と同時に本を開く
     if (TargetBookActor)
     {
         TargetBookActor->OpenBook();
     }
 
-    // 4. 白からフェードイン (From: 1.0 -> To: 0.0)
+    //演出を見せるため一定時間待機した後にホワイトアウトを開始
+    GetWorldTimerManager().SetTimer(TimerHandle, this, &ATitleManager::StartWhiteout, HoldBeforeFadeDuration);
+}
+
+void ATitleManager::StartWhiteout()
+{
     APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
     if (CameraManager)
     {
-        CameraManager->StartCameraFade(1.0f, 0.0f, FadeInDuration, FLinearColor::White, false, false);
+        // 白へフェードアウト (From: 0.0 -> To: 1.0)
+        // bHoldWhenFinished を true にすることで白くなったまま画面を維持します
+        FLinearColor WhiteColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        CameraManager->StartCameraFade(0.0f, 1.0f, FadeOutDuration, WhiteColor, false, true);
     }
 
-    // フェードイン完了後にレベル移動
-    GetWorldTimerManager().SetTimer(TimerHandle, this, &ATitleManager::FinishSequenceAndOpenLevel, FadeInDuration);
+    // ホワイトアウト完了後にレベル移動
+    GetWorldTimerManager().SetTimer(TimerHandle, this, &ATitleManager::FinishSequenceAndOpenLevel, FadeOutKeepDuration);
 }
 
 void ATitleManager::FinishSequenceAndOpenLevel()
@@ -77,4 +70,3 @@ void ATitleManager::FinishSequenceAndOpenLevel()
         UGameplayStatics::OpenLevel(this, NextLevelName);
     }
 }
-

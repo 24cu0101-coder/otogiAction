@@ -24,37 +24,38 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    // レベル上に配置した各アクターの参照を設定
-    UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Title Management")
-    TObjectPtr<ABookActor> TargetBookActor;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    USoundManagerComponent* SoundManager;
 
     UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Title Management")
-    TObjectPtr<AChainActor> TargetChainActor;
+    ABookActor* TargetBookActor;
 
-    //サウンドマネージャー
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
-    TObjectPtr<USoundManagerComponent> SoundManager;
+    UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Title Management")
+    AChainActor* TargetChainActor;
 
-    //BGM
-    UPROPERTY(EditAnywhere, Category = "Sound")
-    TObjectPtr<USoundBase> TitleBGM;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Title Settings")
+    USoundBase* TitleBGM;
 
-    // 演出・遷移設定
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Title Settings")
     FName NextLevelName;
 
+    // 本が開いてからホワイトアウトが始まるまでの待ち時間（演出を見せる時間）
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Title Settings")
+    float HoldBeforeFadeDuration = 1.0f;
+
+    // ホワイトアウトにかける時間
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Title Settings")
     float FadeOutDuration = 1.0f;
 
+    // ホワイトアウトを維持する時間
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Title Settings")
-    float FadeInDuration = 1.0f;
+    float FadeOutKeepDuration = 3.0f;
 
-    // デリゲート受け取り用（UIまたはレベルBPから呼び出す）
     UFUNCTION(BlueprintCallable, Category = "Title Sequences")
     void OnButtonPressed();
 
 private:
-    void SwapBookAndFadeIn();
+    void StartWhiteout();
     void FinishSequenceAndOpenLevel();
 
     FTimerHandle TimerHandle;
