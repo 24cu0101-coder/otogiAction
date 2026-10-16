@@ -499,8 +499,6 @@ void APlayerCharacter::OnAbsorb()
 				}
 			}
 
-			// 1‚Â‹zû‘ÎÛ‚ªŒ©‚Â‚©‚Á‚½‚çI—¹
-			break;
 		}
 	}
 }

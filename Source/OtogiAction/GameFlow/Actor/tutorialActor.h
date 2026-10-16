@@ -21,6 +21,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Tutorial")
     void CompleteStep(int32 StepIndex);
 
+    // レベル内の敵をすべて消す
+    void RemoveAllEnemies();
+
 protected:
     virtual void BeginPlay() override;
 
@@ -28,6 +31,10 @@ protected:
     // 画面に表示するWidgetのクラス
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
     TSubclassOf<UTutorialGuideWidget> TutorialWidgetClass;
+
+    // 配列のインデックス5をクリアしたら解除する壁
+    UPROPERTY(EditInstanceOnly, Category = "Tutorial")
+    AActor* TutorialWall5;
 
     // 最後に通れるようにする壁
     UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Tutorial")

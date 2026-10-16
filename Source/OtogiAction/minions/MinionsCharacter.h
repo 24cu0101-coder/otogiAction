@@ -104,7 +104,10 @@ public:
 	//攻撃速度
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float AttackPlayRate = 1.0f;
-	
+
+	// Minionごとの攻撃力
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Status")
+	float AttackPower = 20.f;
 public:
 
 	void CancelAttack();
