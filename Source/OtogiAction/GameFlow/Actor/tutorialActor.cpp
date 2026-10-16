@@ -34,26 +34,30 @@ void ATutorialActor::BeginPlay()
         }
     }
 
-    // チュートリアル開始時の文章を表示
-    UpdateTutorialText();
+    // チュートリアル開始時の画像を表示
+    UpdateTutorialImage();
 }
 
-void ATutorialActor::UpdateTutorialText()
+void ATutorialActor::UpdateTutorialImage()
 {
     if (!TutorialWidget)
     {
         return;
     }
 
-    if (TutorialTexts.IsValidIndex(CurrentStep))
+    // 全ステップ完了
+    if (CurrentStep >= TutorialImages.Num())
     {
-        TutorialWidget->SetTutorialText(TutorialTexts[CurrentStep]);
+        TutorialWidget->SetTutorialImage(
+            TutorialCompleteImage);
+        return;
     }
-    else
+
+    // 現在のステップに対応する画像を表示
+    if (TutorialImages.IsValidIndex(CurrentStep))
     {
-        TutorialWidget->SetTutorialText(
-            FText::FromString(TEXT("チュートリアル完了！"))
-        );
+        TutorialWidget->SetTutorialImage(
+            TutorialImages[CurrentStep]);
     }
 }
 
@@ -65,18 +69,22 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
         return;
     }
 
+    // 次のステップへ進む
     CurrentStep++;
 
     // すべての目的地を達成した
-    if (CurrentStep >= TutorialTexts.Num())
+    if (CurrentStep >= TutorialImages.Num())
     {
-        UpdateTutorialText();
+        // チュートリアル完了画像を表示
+        UpdateTutorialImage();
+
+        // 壁を解除
         UnlockWall();
         return;
     }
 
-    // 次の目的地の文章へ
-    UpdateTutorialText();
+    // 次のステップの画像へ切り替える
+    UpdateTutorialImage();
 }
 
 void ATutorialActor::UnlockWall()

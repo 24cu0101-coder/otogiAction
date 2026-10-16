@@ -131,7 +131,7 @@ void USkillComponent::RequestSkillTrigger(int32 ButtonIndex)
 
 					if (TutorialManager)
 					{
-						TutorialManager->CompleteStep(3);
+						TutorialManager->CompleteStep(5);
 					}
 
 					if (CurrentSet.MaxUseCount > 0)

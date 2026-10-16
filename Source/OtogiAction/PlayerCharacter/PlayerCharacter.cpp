@@ -430,7 +430,7 @@ void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 
 		if (TutorialManager)
 		{
-			TutorialManager->CompleteStep(2);
+			TutorialManager->CompleteStep(4);
 		}
 	}
 }
@@ -480,6 +480,27 @@ void APlayerCharacter::OnAbsorb()
 		{
 			// OrbにPlayerを目標として設定し、吸い込み状態にする
 			Orb->StartAbsorb(this);
+
+			// Orb吸収のチュートリアルをクリア
+			TArray<AActor*> TutorialActors;
+			UGameplayStatics::GetAllActorsOfClass(
+				GetWorld(),
+				ATutorialActor::StaticClass(),
+				TutorialActors);
+
+			if (TutorialActors.Num() > 0)
+			{
+				ATutorialActor* TutorialManager =
+					Cast<ATutorialActor>(TutorialActors[0]);
+
+				if (TutorialManager)
+				{
+					TutorialManager->CompleteStep(2);
+				}
+			}
+
+			// 1つ吸収対象が見つかったら終了
+			break;
 		}
 	}
 }

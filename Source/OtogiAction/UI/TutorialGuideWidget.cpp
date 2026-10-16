@@ -1,11 +1,11 @@
-
 #include "TutorialGuideWidget.h"
-#include "Components/TextBlock.h"
+#include "Components/Image.h"
 
-void UTutorialGuideWidget::SetTutorialText(const FText& NewText)
+void UTutorialGuideWidget::SetTutorialImage(
+    UTexture2D* NewTexture)
 {
-    if (TutorialText)
+    if (TutorialImage && NewTexture)
     {
-        TutorialText->SetText(NewText);
+        TutorialImage->SetBrushFromTexture(NewTexture);
     }
 }

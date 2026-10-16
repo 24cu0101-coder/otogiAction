@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/Texture2D.h"
 #include "tutorialActor.generated.h"
 
 class UTutorialGuideWidget;
@@ -23,9 +24,6 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-    // チュートリアル文章
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
-    TArray<FText> TutorialTexts;
 
     // 画面に表示するWidgetのクラス
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
@@ -35,12 +33,23 @@ protected:
     UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Tutorial")
     TObjectPtr<AActor> TutorialWall;
 
+    // 各チュートリアルステップの画像
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial|Images")
+    TArray<TObjectPtr<UTexture2D>> TutorialImages;
+
+    // チュートリアル完了時の画像
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial|Images")
+    TObjectPtr<UTexture2D> TutorialCompleteImage;
+
+ 
+
 private:
     UPROPERTY()
     TObjectPtr<UTutorialGuideWidget> TutorialWidget;
 
     int32 CurrentStep = 0;
 
-    void UpdateTutorialText();
+    // 画像更新関数
+    void UpdateTutorialImage();
     void UnlockWall();
 };

@@ -1,23 +1,25 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "TutorialGuideWidget.generated.h"
 
-class UTextBlock;
+class UImage;
+class UTexture2D;
 
 UCLASS()
-class OTOGIACTION_API UTutorialGuideWidget : public UUserWidget
+class OTOGIACTION_API UTutorialGuideWidget
+    : public UUserWidget
 {
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "Tutorial")
-    void SetTutorialText(const FText& NewText);
+    // チュートリアル画像を変更
+    UFUNCTION(BlueprintCallable)
+    void SetTutorialImage(UTexture2D* NewTexture);
 
 protected:
-    // WBP_TutorialGuide内のText Blockと名前を一致させる
+    // Widget BlueprintのImageと接続
     UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> TutorialText;
+    TObjectPtr<UImage> TutorialImage;
 };
