@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/Texture2D.h"
 #include "tutorialActor.generated.h"
 
 class UTutorialGuideWidget;
@@ -20,20 +21,34 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Tutorial")
     void CompleteStep(int32 StepIndex);
 
+    // レベル内の敵をすべて消す
+    void RemoveAllEnemies();
+
 protected:
     virtual void BeginPlay() override;
 
-    // チュートリアル文章
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
-    TArray<FText> TutorialTexts;
 
     // 画面に表示するWidgetのクラス
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
     TSubclassOf<UTutorialGuideWidget> TutorialWidgetClass;
 
+    // 配列のインデックス5をクリアしたら解除する壁
+    UPROPERTY(EditInstanceOnly, Category = "Tutorial")
+    AActor* TutorialWall5;
+
     // 最後に通れるようにする壁
     UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Tutorial")
     TObjectPtr<AActor> TutorialWall;
+
+    // 各チュートリアルステップの画像
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial|Images")
+    TArray<TObjectPtr<UTexture2D>> TutorialImages;
+
+    // チュートリアル完了時の画像
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial|Images")
+    TObjectPtr<UTexture2D> TutorialCompleteImage;
+
+ 
 
 private:
     UPROPERTY()
@@ -41,6 +56,7 @@ private:
 
     int32 CurrentStep = 0;
 
-    void UpdateTutorialText();
+    // 画像更新関数
+    void UpdateTutorialImage();
     void UnlockWall();
 };

@@ -6,6 +6,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h" 
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "OtogiAction/GameFlow/Actor/tutorialActor.h"
+#include "Kismet/GameplayStatics.h"
 #include "../PlayerComponent/PlayerTargetComponent.h"
 
 UGAIaiAttack::UGAIaiAttack()
@@ -115,6 +117,21 @@ void UGAIaiAttack::IaiSlash(FGameplayEventData Payload)
 
 	StartMontage();
 	IaiWarping();
+
+	// チュートリアルを取得
+	ATutorialActor* TutorialManager =
+		Cast<ATutorialActor>(
+			UGameplayStatics::GetActorOfClass(
+				GetWorld(),
+				ATutorialActor::StaticClass()
+			)
+		);
+
+	// チュートリアルが存在すれば次のステップへ
+	if (TutorialManager)
+	{
+		TutorialManager->CompleteStep(3);
+	}
 }
 
 

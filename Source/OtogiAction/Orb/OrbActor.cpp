@@ -3,6 +3,7 @@
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/SkillGaugeComponent.h"
+#include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include "OrbSpawnComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -80,29 +81,21 @@ void AOrbActor::Tick(float DeltaTime)
                 GetActorLocation(),
                 TargetActor->GetActorLocation());
 
+
             // Playerに到着したら
             if (Distance < 50.f)
             {
-               
-
                 APlayerCharacter* Player = Cast<APlayerCharacter>(TargetActor);
 
                 if (Player)
                 {
-
-                    if (USkillGaugeComponent* Gauge = Player->FindComponentByClass<USkillGaugeComponent>())
+                    if (USkillGaugeComponent* Gauge =
+                        Player->FindComponentByClass<USkillGaugeComponent>())
                     {
-
                         Gauge->ModifyGauge(SkillGaugeAmount);
-
                         Player->UpdateSkillGaugeUI();
                     }
-                    else
-                    {
-                    }
-                }
-                else
-                {
+
                 }
 
                 if (SpawnComponent)

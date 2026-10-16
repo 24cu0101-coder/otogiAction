@@ -259,6 +259,7 @@ void UminionsAttackComponent::Attack()
 	}
 
 }
+
 void UminionsAttackComponent::ExecuteAttackHit()
 {
 	AActor* OwnerActor = GetOwner();
@@ -268,19 +269,15 @@ void UminionsAttackComponent::ExecuteAttackHit()
 		return;
 	}
 
-
 	FVector Center =
 		OwnerActor->GetActorLocation();
-
 
 	float Radius = 200.f;
 
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(OwnerActor);
 
-
 	TArray<AActor*> OutActors;
-
 
 	UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(),
@@ -291,7 +288,14 @@ void UminionsAttackComponent::ExecuteAttackHit()
 		IgnoreActors,
 		OutActors);
 
+	// Minionの攻撃力を取得
+	AMinionsCharacter* Minion =
+		Cast<AMinionsCharacter>(OwnerActor);
 
+	if (!Minion)
+	{
+		return;
+	}
 
 	for (AActor* Actor : OutActors)
 	{
@@ -299,20 +303,21 @@ void UminionsAttackComponent::ExecuteAttackHit()
 			TEXT("Hit Actor = %s"),
 			*Actor->GetName());
 
-		APlayerCharacter* Player =Cast<APlayerCharacter>(Actor);
-
+		APlayerCharacter* Player =
+			Cast<APlayerCharacter>(Actor);
 
 		if (Player)
 		{
 			UGameplayStatics::ApplyDamage(
 				Player,
-				20.f,
+				Minion->AttackPower,
 				OwnerActor->GetInstigatorController(),
 				OwnerActor,
 				UDamageType::StaticClass());
 
-
-			UE_LOG(LogTemp, Warning, TEXT("Notify Damage"));
+			UE_LOG(LogTemp, Warning,
+				TEXT("Notify Damage: %f"),
+				Minion->AttackPower);
 		}
 	}
 }
