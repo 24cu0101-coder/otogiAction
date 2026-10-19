@@ -5,7 +5,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+
+#include "OtogiAction/PlayerCharacter/PlayerComponent/NormalAttack/NormalComboAttackComponent.h"
+
 #include "MoveComponent.generated.h"
+
 
 //前方宣言
 class ACharacter;
@@ -53,6 +57,8 @@ public:
 	void StartWarping(float FoftLockRadius);
 
 	void StopMoving(bool StopMove);
+
+	void CancelAttackMove();
 
 protected:
 	//歩きスピード

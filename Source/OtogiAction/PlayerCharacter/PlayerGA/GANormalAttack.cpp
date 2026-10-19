@@ -17,7 +17,7 @@ UGANormalAttack::UGANormalAttack():
 	Countlimit(3)
 
 {
-
+	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Attacking")));
 }
 
 
