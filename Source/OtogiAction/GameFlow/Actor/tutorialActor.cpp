@@ -4,30 +4,61 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/InputComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "InputCoreTypes.h"
 #include "OtogiAction/UI/TutorialGuideWidget.h"
+#include "LevelSequencePlayer.h"
+#include "LevelSequenceActor.h"
+#include "MovieSceneSequencePlaybackSettings.h"
+#include "TimerManager.h"
+#include "GameFramework/Character.h"
 #include "Blueprint/UserWidget.h"
 
 ATutorialActor::ATutorialActor()
 {
     PrimaryActorTick.bCanEverTick = false;
+
+    // キーボード入力を受け付ける
+    AutoReceiveInput = EAutoReceiveInput::Player0;
 }
+
 
 void ATutorialActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    //Widgetを作成して画面に表示
-    if (TutorialWidgetClass)
-    {
-        APlayerController* PC = GetWorld()->GetFirstPlayerController();
+    UE_LOG(LogTemp, Warning,
+        TEXT("TutorialActor BeginPlay OK"));
 
-        if (PC)
+    APlayerController* PC =
+        UGameplayStatics::GetPlayerController(this, 0);
+
+    if (PC)
+    {
+        EnableInput(PC);
+
+        if (InputComponent)
         {
-            TutorialWidget = CreateWidget<UTutorialGuideWidget>(
-                PC,
-                TutorialWidgetClass
+            InputComponent->BindKey(
+                EKeys::P,
+                IE_Pressed,
+                this,
+                &ATutorialActor::ForceCompleteTutorial
             );
+
+            UE_LOG(LogTemp, Warning,
+                TEXT("Pキー入力を登録しました"));
+        }
+
+        // Widgetを作成して画面に表示
+        if (TutorialWidgetClass)
+        {
+            TutorialWidget =
+                CreateWidget<UTutorialGuideWidget>(
+                    PC,
+                    TutorialWidgetClass
+                );
 
             if (TutorialWidget)
             {
@@ -39,6 +70,13 @@ void ATutorialActor::BeginPlay()
     // チュートリアル開始時の画像を表示
     UpdateTutorialImage();
 }
+
+
+void ATutorialActor::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+}
+
 
 void ATutorialActor::UpdateTutorialImage()
 {
@@ -62,7 +100,6 @@ void ATutorialActor::UpdateTutorialImage()
             TutorialImages[CurrentStep]);
     }
 }
-
 
 void ATutorialActor::CompleteStep(int32 StepIndex)
 {
@@ -110,8 +147,56 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
     if (StepIndex == 6)
     {
         RemoveAllEnemies();
-    }
 
+        // Playerの操作を20秒間無効にする
+        APlayerController* PC = GetWorld()->GetFirstPlayerController();
+
+        if (PC)
+        {
+            PC->SetIgnoreMoveInput(true);
+            PC->SetIgnoreLookInput(true);
+
+            // 20秒後に操作を再開
+            GetWorld()->GetTimerManager().SetTimer(
+                PlayerControlTimerHandle,
+                [PC]()
+                {
+                    if (IsValid(PC))
+                    {
+                        PC->SetIgnoreMoveInput(false);
+                        PC->SetIgnoreLookInput(false);
+                    }
+                },
+                20.0f,
+                false
+            );
+        }
+
+        // チュートリアルWidgetを20秒間非表示にする
+        if (TutorialWidget)
+        {
+            TutorialWidget->SetVisibility(ESlateVisibility::Collapsed);
+
+            // 20秒後にチュートリアルWidgetを再表示
+            GetWorld()->GetTimerManager().SetTimer(
+                TutorialWidgetTimerHandle,
+                [this]()
+                {
+                    if (TutorialWidget)
+                    {
+                        TutorialWidget->SetVisibility(ESlateVisibility::Visible);
+                    }
+                },
+                20.0f,
+                false
+            );
+        }
+
+        // ランプの色を変えて中央に画像を表示
+        PlayTutorialClearSequence();
+
+
+    }
     // すべての目的地を達成した
     if (CurrentStep >= TutorialImages.Num())
     {
@@ -198,4 +283,168 @@ void ATutorialActor::RemoveAllEnemies()
 
     UE_LOG(LogTemp, Warning,
         TEXT("チュートリアル条件達成：敵をすべて削除しました"));
+}
+
+void ATutorialActor::PlayTutorialClearSequence()
+{
+    if (!TutorialClearSequence)
+    {
+        UE_LOG(LogTemp, Error,
+            TEXT("TutorialClearSequenceが設定されていません"));
+        return;
+    }
+
+    // すでに再生中なら二重再生しない
+    if (TutorialSequencePlayer &&
+        TutorialSequencePlayer->IsPlaying())
+    {
+        return;
+    }
+
+    // 演出用画像を表示
+    if (TutorialCutsceneWidgetClass)
+    {
+        APlayerController* PC = GetWorld()->GetFirstPlayerController();
+
+        if (PC && !TutorialCutsceneWidget)
+        {
+            TutorialCutsceneWidget = CreateWidget<UUserWidget>(
+                PC, TutorialCutsceneWidgetClass);
+
+            if (TutorialCutsceneWidget)
+            {
+                TutorialCutsceneWidget->AddToViewport(100);
+            }
+        }
+    }
+
+    // レベルシーケンスを再生
+    FMovieSceneSequencePlaybackSettings Settings;
+
+    // ライトの演出を無限ループ
+    Settings.LoopCount.Value = -1;
+
+    // CreateLevelSequencePlayerの第4引数には通常のポインタを渡す
+    ALevelSequenceActor* SequenceActor = nullptr;
+
+    TutorialSequencePlayer =
+        ULevelSequencePlayer::CreateLevelSequencePlayer(
+            GetWorld(),
+            TutorialClearSequence,
+            Settings,
+            SequenceActor
+        );
+
+    // 作成したシーケンスアクターを保存
+    TutorialSequenceActor = SequenceActor;
+
+    if (TutorialSequencePlayer)
+    {
+        // 無限ループするため、終了イベントで完了画像を切り替えない
+        TutorialSequencePlayer->Play();
+
+        UE_LOG(LogTemp, Warning,
+            TEXT("チュートリアル演出を無限ループで開始しました"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error,
+            TEXT("レベルシーケンスのプレイヤー作成に失敗しました"));
+    }
+}
+
+void ATutorialActor::OnTutorialSequenceFinished()
+{
+    // 演出用画像を消す
+    if (TutorialCutsceneWidget)
+    {
+        TutorialCutsceneWidget->RemoveFromParent();
+        TutorialCutsceneWidget = nullptr;
+    }
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("チュートリアル演出終了"));
+}
+
+void ATutorialActor::ForceCompleteTutorial()
+{
+    // 二重実行を防止
+    if (CurrentStep >= 6)
+    {
+        return;
+    }
+
+    // 配列のインデックスを6にする
+    CurrentStep = 6;
+    // レベル内の敵をすべて削除
+    RemoveAllEnemies();
+
+    // 20秒後に実行するタイマーを停止
+    GetWorld()->GetTimerManager().ClearTimer(
+        PlayerControlTimerHandle);
+
+    GetWorld()->GetTimerManager().ClearTimer(
+        TutorialWidgetTimerHandle);
+
+    // プレイヤーの操作を再開
+    APlayerController* PC = GetWorld()->GetFirstPlayerController();
+
+    if (PC)
+    {
+        PC->SetIgnoreMoveInput(false);
+        PC->SetIgnoreLookInput(false);
+    }
+
+    // チュートリアルUIを削除
+    if (TutorialWidget)
+    {
+        TutorialWidget->RemoveFromParent();
+        TutorialWidget = nullptr;
+    }
+
+    // 演出用UIを削除
+    if (TutorialCutsceneWidget)
+    {
+        TutorialCutsceneWidget->RemoveFromParent();
+        TutorialCutsceneWidget = nullptr;
+    }
+
+    // レベルシーケンスを停止
+    if (TutorialSequencePlayer)
+    {
+        TutorialSequencePlayer->Stop();
+    }
+
+    // 演出用のレベルシーケンスActorを削除
+    if (TutorialSequenceActor)
+    {
+        TutorialSequenceActor->Destroy();
+        TutorialSequenceActor = nullptr;
+    }
+
+    TutorialSequencePlayer = nullptr;
+
+    // 配列インデックス5の壁も解除
+    if (TutorialWall5)
+    {
+        TArray<UPrimitiveComponent*> Components;
+        TutorialWall5->GetComponents<UPrimitiveComponent>(Components);
+
+        for (UPrimitiveComponent* Component : Components)
+        {
+            if (Component)
+            {
+                Component->SetCollisionEnabled(
+                    ECollisionEnabled::NoCollision);
+
+                Component->SetVisibility(false, true);
+            }
+        }
+    }
+
+    // 最後の壁を解除
+    UnlockWall();
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("Pキー：チュートリアルを強制クリアしました"));
 }

@@ -25,13 +25,22 @@ void UOrbSpawnComponent::SpawnOrbs(AActor* OwnerEnemy, float Damage)
     {
         float OrbDamage = FMath::Min(10.f, RemainingDamage);
 
-        float Radius = 300.f;
+        // 敵を中心に、ランダムな位置へOrbを生成
+        float MinRadius = 100.f;
+        float MaxRadius = 600.f;
 
-        FVector RandomOffset =
-            FMath::VRand() * FMath::RandRange(50.f, Radius);
+        // 水平方向の角度をランダムに決める
+        float Angle = FMath::RandRange(0.f, 360.f);
 
-        RandomOffset.Z = FMath::RandRange(50.f, 300.f);
+        // 敵からの距離をランダムに決める
+        float Radius = FMath::RandRange(MinRadius, MaxRadius);
 
+        // X・Y方向に大きく散らばらせる
+        FVector RandomOffset(
+            FMath::Cos(FMath::DegreesToRadians(Angle)) * Radius,
+            FMath::Sin(FMath::DegreesToRadians(Angle)) * Radius,
+            FMath::RandRange(50.f, 350.f)
+        );
         FVector SpawnLocation =
             OwnerEnemy->GetActorLocation() + RandomOffset;
 

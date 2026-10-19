@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameStateBase.h"
 #include "Engine/OverlapResult.h"
 #include "../../PlayerCharacter/PlayerCharacter.h"
 #include "../../HitStopComponent.h"
@@ -81,7 +82,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 	);
 
 	// 可視化するかどうか(高山)
-	bool Visualization = true;
+	bool Visualization = false;
 
 	if (bHasOverlap)
 	{
@@ -95,14 +96,14 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 			// アクターが存在し、指定のタグを持っており、まだダメージを与えていない場合
 			if (OverlappedActor && OverlappedActor->ActorHasTag(TargetTag) && !DamagedActors.Contains(OverlappedActor))
 			{
-				// UE5標準のダメージ適用処理
-				UGameplayStatics::ApplyDamage(
-					OverlappedActor,
-					Damage,
-					Owner->GetInstigatorController(),
-					Owner,
-					UDamageType::StaticClass()
-				);
+					UGameplayStatics::ApplyDamage(
+						OverlappedActor,
+						Damage,
+						Owner->GetInstigatorController(),
+						Owner,
+						UDamageType::StaticClass()
+					);
+				
 
 				//ヒットリアクションとスタン値の加算
 				if (UUHitReactionBaseComponent* HitReaction = OverlappedActor->FindComponentByClass<UUHitReactionBaseComponent>())

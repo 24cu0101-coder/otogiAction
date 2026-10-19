@@ -194,8 +194,12 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		bKintaroOnlyEnemy,
 		bCanTakeDamage);
 
-	StatusComponent->TakeDamage(Damage);
 
+	// Tutorial中はHPを減らさない
+	if (!bTutorialNoDamage)
+	{
+		StatusComponent->TakeDamage(Damage);
+	}
 	// ヒットリアクション
 	if (!bIgnoreHitReaction && HitReactionComponent && DamageCauser)
 	{

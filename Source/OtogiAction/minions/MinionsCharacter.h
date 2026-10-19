@@ -108,6 +108,9 @@ public:
 	// Minionごとの攻撃力
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Status")
 	float AttackPower = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
+	bool bTutorialNoDamage = false;
 public:
 
 	void CancelAttack();

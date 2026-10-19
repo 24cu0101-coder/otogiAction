@@ -49,8 +49,9 @@ void UMinionsAttackNotify::Notify(USkeletalMeshComponent* MeshComp,UAnimSequence
 
 
 
-	// 攻撃判定
+	UE_LOG(LogTemp, Warning, TEXT("Minion Attack Notify Called"));
 
+	// 攻撃判定
 	SphereCollision->ExcuteAreaAttack(
 		Radius,
 		FName("Player"),

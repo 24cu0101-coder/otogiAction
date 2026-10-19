@@ -4,10 +4,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/Texture2D.h"
+#include "LevelSequence.h"
 #include "tutorialActor.generated.h"
 
 class UTutorialGuideWidget;
 class AActor;
+class ULevelSequencePlayer;
+class ALevelSequenceActor;
+class UUserWidget;
 
 UCLASS()
 class OTOGIACTION_API ATutorialActor : public AActor
@@ -26,7 +30,6 @@ public:
 
 protected:
     virtual void BeginPlay() override;
-
 
     // 画面に表示するWidgetのクラス
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
@@ -48,11 +51,44 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial|Images")
     TObjectPtr<UTexture2D> TutorialCompleteImage;
 
- 
+    virtual void Tick(float DeltaTime) override;
+
+public:
+    //レベルシーケンス系
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial|Sequence")
+    TObjectPtr<ULevelSequence> TutorialClearSequence;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial|Sequence")
+    TSubclassOf<UUserWidget> TutorialCutsceneWidgetClass;
+
+    UPROPERTY()
+    TObjectPtr<ULevelSequencePlayer> TutorialSequencePlayer;
+
+    UPROPERTY()
+    TObjectPtr<ALevelSequenceActor> TutorialSequenceActor;
+
+    UPROPERTY()
+    TObjectPtr<UUserWidget> TutorialCutsceneWidget;
+
+    UFUNCTION()
+    void PlayTutorialClearSequence();
+
+    UFUNCTION()
+    void OnTutorialSequenceFinished();
+
+    // チュートリアルを強制的にクリアする
+    UFUNCTION(BlueprintCallable, Category = "Tutorial")
+    void ForceCompleteTutorial();
 
 private:
     UPROPERTY()
     TObjectPtr<UTutorialGuideWidget> TutorialWidget;
+
+    // チュートリアルWidgetを一時的に非表示にする
+    FTimerHandle TutorialWidgetTimerHandle;
+
+    // Playerの操作を再開するためのタイマー
+    FTimerHandle PlayerControlTimerHandle;
 
     int32 CurrentStep = 0;
 
