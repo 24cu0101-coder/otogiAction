@@ -32,6 +32,7 @@ void UMoveStopedNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSe
 			MoveComp->SetMovementLock(false);
 		}
 
+		// 髙山記述(なるべく変更しないでください)
 		if (UNormalComboAttackComponent* AttackComp = Owner->FindComponentByClass<UNormalComboAttackComponent>())
 		{
 			AttackComp->SetCancelAttackFlag();
