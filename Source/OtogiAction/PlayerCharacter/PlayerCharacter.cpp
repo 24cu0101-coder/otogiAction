@@ -412,6 +412,10 @@ void APlayerCharacter::OnSwitchSkillGroup(const FInputActionValue& Value)
 		//スキル選択を変更
 		SkillComp->SwitchSkillGroup(Direction);
 
+		if (m_SkillChangeSound)
+		{
+			SoundMngComp->PlaySound(m_SkillChangeSound);
+		}
 
 		//CIrcleを回す
 		if (SkillCircle)

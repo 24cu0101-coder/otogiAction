@@ -17,6 +17,8 @@ enum class  EPlayerWeaponStyle : uint8
 
 //前方宣言
 class UNiagaraComponent;
+class USoundBase;
+class UAudioComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UWeaponComponent : public UActorComponent
@@ -42,6 +44,14 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	//金太郎ループサウンドのセット
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<USoundBase> m_KintaroSound;
+
+	//ループサウンドのコンポネント
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> m_KintaroAudioComponent;
 
 
 protected:

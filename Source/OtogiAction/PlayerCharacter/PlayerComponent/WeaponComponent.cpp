@@ -9,6 +9,8 @@
 #include "GameFramework/Character.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "../../Component/Audio/BGMManager.h"
+#include "Sound/SoundBase.h"
 
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent()
@@ -108,6 +110,10 @@ void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 	AActor* TargetWeaponActor = nullptr;
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 
+	USoundManagerComponent* SoundMng = OwnerCharacter->FindComponentByClass<USoundManagerComponent>();
+
+	if (!SoundMng)return;
+
 	if (WeaponActorClass && OwnerCharacter)
 	{
 		TArray<AActor*> AttachedActors;
@@ -138,6 +144,15 @@ void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 		{
 			KintaroEffectComp->Deactivate();
 		}
+	
+		//金太郎状態ループサウンドを停止
+		if (m_KintaroAudioComponent)
+		{
+			SoundMng->StopLoopSound(m_KintaroAudioComponent);
+			m_KintaroAudioComponent = nullptr;
+		}
+
+		
 		break;
 
 	case EPlayerWeaponStyle::Kintaro:
@@ -150,6 +165,14 @@ void UWeaponComponent::SetWeaponStyle(EPlayerWeaponStyle PlayerStyle)
 		{
 			KintaroEffectComp->Activate(true);
 		}
+
+		// 金太郎状態サウンド再生
+		if (m_KintaroSound && !m_KintaroAudioComponent)
+		{
+			m_KintaroAudioComponent = SoundMng->PlayLoopSound(m_KintaroSound);
+		}
+
+
 		break;
 	}
 }

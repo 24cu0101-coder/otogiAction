@@ -56,6 +56,7 @@ class USkillCircle;
 
 //Sound
 class USoundManagerComponent;
+class USoundBase;
 
 //dataasset
 class UCameraModifierDataAsset;
@@ -103,6 +104,12 @@ public:
 	//死亡処理
 	UFUNCTION()
 	virtual void OnDeath();
+
+public:
+	//Soundのセット
+	//スキル変更サウンド
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<USoundBase> m_SkillChangeSound;
 
 private:
 	//スプリングアームコンポーネント
