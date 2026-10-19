@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/NormalAttack/NormalComboAttackComponent.h"
 #include "../PlayerTargetComponent.h"
 
 //コンストラクタ
@@ -117,6 +118,17 @@ void UMoveComponent::StartWarping(float SoftLockRadius)
 	}
 }
 
+void UMoveComponent::CancelAttackMove()
+{
+	if (!OwnerCharacter) return;
+
+	// キャラクターから NormalComboAttackComponent を取得してキャンセルを依頼
+	if (UNormalComboAttackComponent* AttackComp = OwnerCharacter->FindComponentByClass<UNormalComboAttackComponent>())
+	{
+		AttackComp->CancelAttackAbility();
+	}
+}
+
 //動きをロックする関数
 void UMoveComponent::SetMovementLock(bool bLock)
 {
@@ -134,7 +146,7 @@ void UMoveComponent::MoveForword(float Value)
 	if (IsMovementLocked()) return;
 	if (!OwnerCharacter || !OwnerCharacter->GetController() || Value == 0.0f) return;
 
-	
+	CancelAttackMove();
 
 	if (UCameraComponent* PlayerCamera = OwnerCharacter->FindComponentByClass<UCameraComponent>())
 	{
@@ -155,6 +167,9 @@ void UMoveComponent::MoveRight(float Value)
 {
 	if (IsMovementLocked()) return;
 	if (!OwnerCharacter || !OwnerCharacter->GetController() || Value == 0.0f) return;
+
+	CancelAttackMove();
+
 
 	if (UCameraComponent* PlayerCamera = OwnerCharacter->FindComponentByClass<UCameraComponent>())
 	{

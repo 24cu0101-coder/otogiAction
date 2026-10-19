@@ -8,7 +8,8 @@
 
 
 //コンストラクタ
-UNormalComboAttackComponent::UNormalComboAttackComponent()
+UNormalComboAttackComponent::UNormalComboAttackComponent():
+AttackCancel(false)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
@@ -83,9 +84,69 @@ void UNormalComboAttackComponent::BeginPlay()
 			//プレイヤーにNAttackAbility3付与
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(KintaroAttack3, 1));
 		}
+
+		SetAbilityTag();
+
 	}
 }
 
+
+void UNormalComboAttackComponent::CancelAttackAbility()
+{
+
+	//FGameplayTag DontAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
+
+	//if (!AbilitySystemComponent) return;
+
+	if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("【NormalComboAttackComponent.cpp】: ggggggggg"));
+
+	}
+	if (AttackCancel)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("【NormalComboAttackComponent.cpp】: ttt"));
+
+	}
+
+	
+
+	if (AttackCancel)
+	{
+		FGameplayTagContainer AttackTags;
+		AttackTags.AddTag(FGameplayTag::RequestGameplayTag(FName("State.Attacking")));
+
+		AbilitySystemComponent->CancelAbilities(&AttackTags);
+
+		AttackCancel = false;
+	}
+
+}
+
+void UNormalComboAttackComponent::SetAbilityTag()
+{
+	//タグ
+//入力が可能かどうかのタグ
+	PossibleNAttack = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.CantAttack"));
+
+	//五段攻撃派生タグ
+	NextTag0 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag0"));
+	NextTag1 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag1"));
+	NextTag2 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag2"));
+	NextTag3 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag3"));
+	NextTag4 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag4"));
+
+	//カウンターアタック
+	//FGameplayTag CounterAttack = FGameplayTag::RequestGameplayTag(TEXT("IsCounterAttackTag"));
+
+
+	//金太郎タグ
+	kintaroTag = FGameplayTag::RequestGameplayTag(TEXT("State.Skill.Kintaro"));
+
+	SkillAttack = FGameplayTag::RequestGameplayTag(TEXT("State.Attacking.Skill"));
+	//
+
+}
 
 //通常攻撃アビリティ実行(プレイヤーキャラクターで呼ばれる)
 void UNormalComboAttackComponent::ExecuteNormalAttackAbility()
@@ -102,26 +163,6 @@ void UNormalComboAttackComponent::ExecuteNormalAttackAbility()
 
 void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 {
-	//タグ
-	//入力が可能かどうかのタグ
-	FGameplayTag PossibleNAttack = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.CantAttack"));
-
-	//五段攻撃派生タグ
-	FGameplayTag NextTag0 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag0"));
-	FGameplayTag NextTag1 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag1"));
-	FGameplayTag NextTag2 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag2"));
-	FGameplayTag NextTag3 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag3"));
-	FGameplayTag NextTag4 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag4"));
-
-	//カウンターアタック
-	//FGameplayTag CounterAttack = FGameplayTag::RequestGameplayTag(TEXT("IsCounterAttackTag"));
-
-
-	//金太郎タグ
-	FGameplayTag kintaroTag = FGameplayTag::RequestGameplayTag(TEXT("State.Skill.Kintaro"));
-
-	FGameplayTag SkillAttack = FGameplayTag::RequestGameplayTag(TEXT("State.Attacking.Skill"));
-	//
 
 
 	if (!AbilitySystemComponent || AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack) || AbilitySystemComponent->HasMatchingGameplayTag(SkillAttack))
@@ -135,6 +176,8 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 	//{
 
 	//}
+	
+
 	
 
 
@@ -245,4 +288,9 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 	}
 }
 
+ 
+void UNormalComboAttackComponent::SetCancelAttackFlag()
+{
+	AttackCancel = true;
+}
 

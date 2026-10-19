@@ -23,7 +23,7 @@ UCLASS()
 class OTOGIACTION_API UNormalComboAttackComponent : public UBaseAttackComponent
 {
 	GENERATED_BODY()
-	
+
 public:
 	UNormalComboAttackComponent();
 
@@ -73,6 +73,9 @@ protected:
 	FGameplayAbilitySpecHandle NAttackHandle;
 
 
+	UFUNCTION()
+	void SetAbilityTag();
+
 
 public:
 	// Called every frame
@@ -83,11 +86,19 @@ public:
 	//アビリティを起動する関数
 	void ExectueNormalAttackAbility2();
 
+	void CancelAttackAbility();
+
+	void SetCancelAttackFlag();
+
+
 	//ノーティファイにASCを渡す関数(多分辞めた方がいい)
 	UAbilitySystemComponent* GetNAttackACS()const { return AbilitySystemComponent; }
 
 
 private:
+
+
+
 	//キャラ移動コンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.MovementComp", meta = (AllowPrivateAccess = "true"))
 	UMoveComponent* MCC;
@@ -96,7 +107,25 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.InputBufferComp", meta = (AllowPrivateAccess = "true"))
 	UInputBufferComponent* NAInputBufferComp;
 
+	// 攻撃ability中のみcancelが効くようにするためのフラグ
+	bool AttackCancel;
 
 
+	FGameplayTag PossibleNAttack;
 
+	//五段攻撃派生タグ
+	FGameplayTag NextTag0;
+	FGameplayTag NextTag1;
+	FGameplayTag NextTag2;
+	FGameplayTag NextTag3;
+	FGameplayTag NextTag4;
+
+	//カウンターアタック
+	//FGameplayTag CounterAttack = FGameplayTag::RequestGameplayTag(TEXT("IsCounterAttackTag"));
+
+
+	//金太郎タグ
+	FGameplayTag kintaroTag;
+
+	FGameplayTag SkillAttack;
 };

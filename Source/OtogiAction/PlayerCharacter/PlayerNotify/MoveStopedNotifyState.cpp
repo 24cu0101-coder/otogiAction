@@ -3,6 +3,8 @@
 
 #include "MoveStopedNotifyState.h"
 #include "../PlayerComponent/Move/MoveComponent.h"
+#include "../PlayerComponent/NormalAttack/NormalComboAttackComponent.h"
+
 
 void UMoveStopedNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
@@ -29,5 +31,11 @@ void UMoveStopedNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSe
 		{
 			MoveComp->SetMovementLock(false);
 		}
+
+		if (UNormalComboAttackComponent* AttackComp = Owner->FindComponentByClass<UNormalComboAttackComponent>())
+		{
+			AttackComp->SetCancelAttackFlag();
+		}
+
 	}
 }
