@@ -391,10 +391,10 @@ float ABossEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 		bIsFlashWhite = true;
 
 		// --------------------------------------------------
-				// 高速点滅タイマーのスタート
-				// --------------------------------------------------
+		// 高速点滅タイマーのスタート
+		// --------------------------------------------------
 		GetWorldTimerManager().SetTimer(
-			BlinkTimerHandle,
+			FlashTimerHandle,
 			this,
 			&ABossEnemyCharacter::ToggleScreenFlash,
 			FlashInterval,

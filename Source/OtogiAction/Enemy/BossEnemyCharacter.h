@@ -208,7 +208,6 @@ protected:
 
 private:
 	FTimerHandle FlashTimerHandle;
-	FTimerHandle BlinkTimerHandle;
 
 	// 点滅した回数をカウントするフラグ
 	bool bIsFlashWhite = true;
