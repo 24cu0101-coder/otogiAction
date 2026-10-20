@@ -17,7 +17,7 @@ UMovePressDecorator::UMovePressDecorator()
 
 bool UMovePressDecorator::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-    if (UWorld* World = GetWorld())
+    if (UWorld* World = OwnerComp.GetWorld())
     {
         if (UGameInstance* GI = World->GetGameInstance())
         {
