@@ -310,6 +310,10 @@ void UGAPlayerDodge::DodgeLocationStart()
 	DodgeForward.Z = 0.0f;
 	DodgeForward.Normalize();
 
+	float w = (3 / 4);
+
+	float DodgeTime2 = DodgeTime * w;
+
 	// 移動速度
 	float Speed = DodgeDistance / DodgeTime;
 

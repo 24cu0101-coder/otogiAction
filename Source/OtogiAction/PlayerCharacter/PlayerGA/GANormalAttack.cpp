@@ -84,7 +84,7 @@ void UGANormalAttack::PlayNAttackMontage()
 		//アニメーション再生
 		NAttackMontageTask->ReadyForActivation();
 		
-		AttackMove();
+		//AttackMove();
 	}
 }
 
