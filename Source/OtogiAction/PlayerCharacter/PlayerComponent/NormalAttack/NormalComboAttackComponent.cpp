@@ -98,19 +98,6 @@ void UNormalComboAttackComponent::CancelAttackAbility()
 
 	//if (!AbilitySystemComponent) return;
 
-	if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ÅyNormalComboAttackComponent.cppÅz: ggggggggg"));
-
-	}
-	if (AttackCancel)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ÅyNormalComboAttackComponent.cppÅz: ttt"));
-
-	}
-
-	
-
 	if (AttackCancel)
 	{
 		FGameplayTagContainer AttackTags;
