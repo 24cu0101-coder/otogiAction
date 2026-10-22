@@ -13,23 +13,23 @@ UMovePressComponent::UMovePressComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ãƒ€ãƒƒã‚·ãƒ¥ã¯é è·é›¢ï¼ˆ600ã€œ1500ï¼‰ã®ã¨ãã«è©•ä¾¡ãŒé«˜ããªã‚‹ã‚ˆã†è¨­å®š
+	// ƒ_ƒbƒVƒ…‚Í‰“‹——£i600?1500j‚Ì‚Æ‚«‚É•]‰¿‚ª‚‚­‚È‚é‚æ‚¤İ’è
 	MinRange = 600.f;
 	MaxRange = 1500.f;
 	FadeOutRange = 2500.f;
-	BasePriority = 0.8f; // é€šå¸¸ç§»å‹•ã‚ˆã‚Šå„ªå…ˆåº¦ã‚’é«˜ãè¨­å®š
+	BasePriority = 0.8f; // ’ÊíˆÚ“®‚æ‚è—Dæ“x‚ğ‚‚­İ’è
 }
 
 void UMovePressComponent::SetEnemyState()
 {
 	if (UWorld* World = GetWorld())
 	{
-		// 2. GameInstance ã‚’å–å¾—ã—ã¦ Subsystem ã‚’å‘¼ã³å‡ºã™
+		// 2. GameInstance ‚ğæ“¾‚µ‚Ä Subsystem ‚ğŒÄ‚Ño‚·
 		if (UGameInstance* GI = World->GetGameInstance())
 		{
 			if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
 			{
-				// çŠ¶æ…‹ã®å¤‰æ›´
+				// ó‘Ô‚Ì•ÏX
 				StateSubsystem->CurrentState = EEnemyState::MovePress;
 			}
 		}
@@ -39,6 +39,8 @@ void UMovePressComponent::SetEnemyState()
 
 bool UMovePressComponent::StartDashTracking()
 {
+	SetEnemyState();
+
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (!OwnerPawn) return false;
 
@@ -47,7 +49,7 @@ bool UMovePressComponent::StartDashTracking()
 
 	if (!AIController || !TargetPawn) return false;
 
-	// ãƒ€ãƒƒã‚·ãƒ¥é€Ÿåº¦ã®è¨­å®š
+	// ƒ_ƒbƒVƒ…‘¬“x‚Ìİ’è
 	if (ACharacter* OwnerCharacter = Cast<ACharacter>(OwnerPawn))
 	{
 		if (UCharacterMovementComponent* MoveComp = OwnerCharacter->GetCharacterMovement())
@@ -56,7 +58,7 @@ bool UMovePressComponent::StartDashTracking()
 		}
 	}
 
-	// ç§»å‹•é–‹å§‹
+	// ˆÚ“®ŠJn
 	EPathFollowingRequestResult::Type MoveResult = AIController->MoveToActor(TargetPawn, 200.0f);
 	bIsDashTracking = (MoveResult != EPathFollowingRequestResult::Type::Failed);
 
@@ -66,4 +68,13 @@ bool UMovePressComponent::StartDashTracking()
 void UMovePressComponent::FinishDashTracking()
 {
 	bIsDashTracking = false;
+
+	//I—¹‚µ‚½‚çIdle‚É–ß‚·
+	if (UWorld* World = GetWorld()) {
+		if (UGameInstance* GI = World->GetGameInstance()) {
+			if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>()) {
+				StateSubsystem->CurrentState = EEnemyState::Idle;
+			}
+		}
+	}
 }
