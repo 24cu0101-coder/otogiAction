@@ -9,6 +9,7 @@
 
 class UTutorialGuideWidget;
 class AActor;
+class ULevelSequence;
 class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class UUserWidget;
@@ -75,6 +76,19 @@ public:
 
     UFUNCTION()
     void OnTutorialSequenceFinished();
+
+    //カメラのシーケンス系
+    UPROPERTY(EditAnywhere, Category = "Tutorial|Sequence")
+    TObjectPtr<ULevelSequence> CameraSequence;
+
+    UPROPERTY()
+    TObjectPtr<ULevelSequencePlayer> CameraSequencePlayer;
+
+    UPROPERTY()
+    TObjectPtr<ALevelSequenceActor> CameraSequenceActor;
+
+    void PlayCameraSequence();
+
 
     // チュートリアルを強制的にクリアする
     UFUNCTION(BlueprintCallable, Category = "Tutorial")

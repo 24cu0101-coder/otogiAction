@@ -65,28 +65,14 @@ void ATutorialMinionCharacter::PlayTutorialAttack()
         return;
     }
 
-    // 再生中なら次の攻撃を開始しない
     if (AnimInstance->Montage_IsPlaying(AttackMontage))
     {
         return;
     }
 
-    // 攻撃アニメーションを再生
-    const float MontageLength =
-        AnimInstance->Montage_Play(AttackMontage);
-
-    // 再生できた場合だけ、攻撃判定を予約
-    if (MontageLength > 0.0f)
-    {
-        GetWorldTimerManager().SetTimer(
-            HitTimerHandle,
-            this,
-            &ATutorialMinionCharacter::ApplyTutorialAttackDamage,
-            AttackHitDelay,
-            false
-        );
-    }
+    AnimInstance->Montage_Play(AttackMontage);
 }
+
 // Called every frame
 void ATutorialMinionCharacter::Tick(float DeltaTime)
 {

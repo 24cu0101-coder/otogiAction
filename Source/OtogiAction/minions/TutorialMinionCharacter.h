@@ -33,9 +33,6 @@ public:
 
 	void PlayTutorialAttack();
 
-	// 攻撃が当たるまでの時間（秒）
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial Minion")
-	float AttackHitDelay = 0.85f;
 
 	// 攻撃ダメージ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial Minion")
@@ -49,8 +46,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tutorial Minion")
 	float HitDistance = 220.0f;
 
-	// 攻撃判定用タイマー
-	FTimerHandle HitTimerHandle;
 
 	// 攻撃判定を実行
 	void ApplyTutorialAttackDamage();

@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "InputCoreTypes.h"
 #include "OtogiAction/UI/TutorialGuideWidget.h"
+#include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
 #include "LevelSequenceActor.h"
 #include "MovieSceneSequencePlaybackSettings.h"
@@ -412,6 +413,9 @@ void ATutorialActor::PlayTutorialClearSequence()
 
         UE_LOG(LogTemp, Warning,
             TEXT("チュートリアル演出を無限ループで開始しました"));
+
+        // 続いてカメラ演出を開始
+        PlayCameraSequence();
     }
     else
     {
@@ -518,4 +522,43 @@ void ATutorialActor::ForceCompleteTutorial()
 void ATutorialActor::StartTutorialSequenceAfterDelay()
 {
     PlayTutorialClearSequence();
+}
+void ATutorialActor::PlayCameraSequence()
+{
+    if (!CameraSequence)
+    {
+        UE_LOG(LogTemp, Error,
+            TEXT("CameraSequenceにLS_cameraが設定されていません"));
+        return;
+    }
+
+    FMovieSceneSequencePlaybackSettings Settings;
+
+    // カメラ演出は1回だけ再生
+    Settings.LoopCount.Value = 0;
+
+    ALevelSequenceActor* SequenceActor = nullptr;
+
+    CameraSequencePlayer =
+        ULevelSequencePlayer::CreateLevelSequencePlayer(
+            GetWorld(),
+            CameraSequence,
+            Settings,
+            SequenceActor
+        );
+
+    CameraSequenceActor = SequenceActor;
+
+    if (CameraSequencePlayer)
+    {
+        CameraSequencePlayer->Play();
+
+        UE_LOG(LogTemp, Warning,
+            TEXT("LS_cameraを開始しました"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error,
+            TEXT("LS_cameraのプレイヤー作成に失敗しました"));
+    }
 }
