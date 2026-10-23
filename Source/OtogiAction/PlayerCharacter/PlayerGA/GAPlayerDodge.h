@@ -148,7 +148,7 @@ protected:
 
 private:
 
-	//回避の数値
+	//回避の距離
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.NormalDodge", meta = (AllowPrivateAccess = "true"))
 	float DodgeDistance;
 

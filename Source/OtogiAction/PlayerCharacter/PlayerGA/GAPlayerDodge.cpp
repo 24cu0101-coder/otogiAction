@@ -205,7 +205,7 @@ void UGAPlayerDodge::PlayJustDodge()
 	// ジャスト回避のチュートリアルをクリア
 	if (TutorialManager)
 	{
-		TutorialManager->CompleteStep(6);
+		TutorialManager->CompleteStep(7);
 	}
 
 	// 回避の移動タスクがあるなら
@@ -309,6 +309,10 @@ void UGAPlayerDodge::DodgeLocationStart()
 	FVector DodgeForward = PlayerActor->GetActorForwardVector();
 	DodgeForward.Z = 0.0f;
 	DodgeForward.Normalize();
+
+	float w = (3 / 4);
+
+	float DodgeTime2 = DodgeTime * w;
 
 	// 移動速度
 	float Speed = DodgeDistance / DodgeTime;

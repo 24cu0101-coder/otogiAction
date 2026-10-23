@@ -29,13 +29,13 @@ EBTNodeResult::Type UMoveBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
     if (!BuildComp) return EBTNodeResult::Failed;
 
-    //ã‚¹ãƒ†ãƒ¼ãƒˆã‚’MovePressã«æ›´æ–°
+    //ˆÚ“®ŠJŽnŽž‚ÉƒXƒe[ƒg‚ð•ÏX‚·‚é
     BuildComp->SetEnemyState();
 
-    //è¿½è·¡ã‚’é–‹å§‹
+    //’ÇÕ‚ðŠJŽn
     bool bStarted = BuildComp->StartTracking();
 
-    //è¿½è·¡ãŒé–‹å§‹ã•ã‚Œã¦ã„ãŸã‚‰InProgressã‚’è¿”ã™
+    //’ÇÕ‚ªŠJŽn‚³‚ê‚Ä‚¢‚½‚çInProgress‚ð•Ô‚·
     if (bStarted)
     {
         return EBTNodeResult::InProgress;
@@ -57,26 +57,16 @@ void UMoveBuildTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
     }
 
     UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
-    if (BuildComp && !BuildComp->StartTracking())
+    if (!BuildComp)
     {
-        if (UWorld* World = OwnerComp.GetWorld())
-        {
-            if (UGameInstance* GI = World->GetGameInstance())
-            {
-                if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
-                {
-                    StateSubsystem->CurrentState = EEnemyState::Idle;
-                }
-            }
-        }
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
         return;
     }
 
-    //è¿½è·¡çŠ¶æ…‹ã®æ›´æ–°å‡¦ç†ã‚’å‘¼ã¶
+    //’ÇÕó‘Ô‚ÌXVˆ—‚ðŒÄ‚Ô
     BuildComp->UpdateTrackingStatus();
 
-    // è¿½è·¡å®Œäº†åˆ¤å®šï¼ˆã¾ãŸã¯ç›®æ¨™åˆ°é”æ™‚ãªã©ï¼‰
+    // ’ÇÕŠ®—¹”»’èi‚Ü‚½‚Í–Ú•W“ž’BŽž‚È‚Çj
     if (!BuildComp->IsTracking())
     {
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

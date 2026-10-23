@@ -80,6 +80,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Tutorial")
     void ForceCompleteTutorial();
 
+    void StartTutorialSequenceAfterDelay();
+
 private:
     UPROPERTY()
     TObjectPtr<UTutorialGuideWidget> TutorialWidget;
@@ -90,9 +92,14 @@ private:
     // Playerの操作を再開するためのタイマー
     FTimerHandle PlayerControlTimerHandle;
 
+    FTimerHandle TutorialSequenceDelayTimerHandle;
+
     int32 CurrentStep = 0;
 
     // 画像更新関数
     void UpdateTutorialImage();
     void UnlockWall();
+
+    // 7番目のチュートリアル演出を開始
+    void StartStep7Sequence();
 };

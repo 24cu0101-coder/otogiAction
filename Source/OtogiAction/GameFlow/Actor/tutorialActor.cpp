@@ -13,6 +13,7 @@
 #include "MovieSceneSequencePlaybackSettings.h"
 #include "TimerManager.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
 #include "Blueprint/UserWidget.h"
 
 ATutorialActor::ATutorialActor()
@@ -144,34 +145,37 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
     }
 
     // インデックス6をクリアしたら敵をすべて削除
-    if (StepIndex == 6)
+    /*if (StepIndex == 6)
     {
         RemoveAllEnemies();
 
-        // Playerの操作を20秒間無効にする
+        // Playerの入力を20秒間無効にする
         APlayerController* PC = GetWorld()->GetFirstPlayerController();
 
         if (PC)
         {
-            PC->SetIgnoreMoveInput(true);
-            PC->SetIgnoreLookInput(true);
+            APawn* PlayerPawn = PC->GetPawn();
 
-            // 20秒後に操作を再開
-            GetWorld()->GetTimerManager().SetTimer(
-                PlayerControlTimerHandle,
-                [PC]()
-                {
-                    if (IsValid(PC))
+            if (PlayerPawn)
+            {
+                // 移動・攻撃・回避・スキルなどの入力を停止
+                PlayerPawn->DisableInput(PC);
+
+                // 20秒後に入力を再開
+                GetWorld()->GetTimerManager().SetTimer(
+                    PlayerControlTimerHandle,
+                    [PC, PlayerPawn]()
                     {
-                        PC->SetIgnoreMoveInput(false);
-                        PC->SetIgnoreLookInput(false);
-                    }
-                },
-                20.0f,
-                false
-            );
+                        if (IsValid(PC) && IsValid(PlayerPawn))
+                        {
+                            PlayerPawn->EnableInput(PC);
+                        }
+                    },
+                    20.0f,
+                    false
+                );
+            }
         }
-
         // チュートリアルWidgetを20秒間非表示にする
         if (TutorialWidget)
         {
@@ -192,10 +196,17 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
             );
         }
 
-        // ランプの色を変えて中央に画像を表示
-        PlayTutorialClearSequence();
+        // 3秒後にレベルシーケンスを再生
+        GetWorld()->GetTimerManager().SetTimer(TutorialSequenceDelayTimerHandle, this, &ATutorialActor::StartTutorialSequenceAfterDelay, 3.0f, false);
 
+    }*/
 
+    if (StepIndex == 7)
+    {
+        RemoveAllEnemies();
+
+        // インデックス7に入ってから3秒後に演出を開始
+        GetWorld()->GetTimerManager().SetTimer(TutorialSequenceDelayTimerHandle, this, &ATutorialActor::StartStep7Sequence, 3.0f, false);
     }
     // すべての目的地を達成した
     if (CurrentStep >= TutorialImages.Num())
@@ -210,6 +221,62 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
 
     // 次のステップの画像へ切り替える
     UpdateTutorialImage();
+}
+
+void ATutorialActor::StartStep7Sequence()
+{
+    APlayerController* PC = GetWorld()->GetFirstPlayerController();
+
+    // チュートリアルWidgetを非表示にする
+    if (TutorialWidget)
+    {
+        TutorialWidget->SetVisibility(
+            ESlateVisibility::Collapsed
+        );
+
+        // 20秒後にWidgetを再表示する
+        GetWorld()->GetTimerManager().SetTimer(TutorialWidgetTimerHandle, [this]()
+            {
+                if (IsValid(this) && IsValid(TutorialWidget))
+                {
+                    TutorialWidget->SetVisibility(
+                        ESlateVisibility::Visible
+                    );
+                }
+            },
+            20.0f,
+            false
+        );
+    }
+    // プレイヤーの入力を20秒間停止
+    if (PC)
+    {
+        APawn* PlayerPawn = PC->GetPawn();
+
+        if (PlayerPawn)
+        {
+            PlayerPawn->DisableInput(PC);
+
+            GetWorld()->GetTimerManager().SetTimer(
+                PlayerControlTimerHandle,
+                [PC, PlayerPawn]()
+                {
+                    if (IsValid(PC) && IsValid(PlayerPawn))
+                    {
+                        PlayerPawn->EnableInput(PC);
+                    }
+                },
+                20.0f,
+                false
+            );
+        }
+    }
+
+    // レベルシーケンスを再生
+    PlayTutorialClearSequence();
+
+    // インデックス8をクリアして次へ進む
+    CompleteStep(8);
 }
 
 void ATutorialActor::UnlockWall()
@@ -369,13 +436,13 @@ void ATutorialActor::OnTutorialSequenceFinished()
 void ATutorialActor::ForceCompleteTutorial()
 {
     // 二重実行を防止
-    if (CurrentStep >= 6)
+    if (CurrentStep >= 7)
     {
         return;
     }
 
-    // 配列のインデックスを6にする
-    CurrentStep = 6;
+    // 配列のインデックスを7にする
+    CurrentStep = 7;
     // レベル内の敵をすべて削除
     RemoveAllEnemies();
 
@@ -391,8 +458,7 @@ void ATutorialActor::ForceCompleteTutorial()
 
     if (PC)
     {
-        PC->SetIgnoreMoveInput(false);
-        PC->SetIgnoreLookInput(false);
+        PC->DisableInput(PC);
     }
 
     // チュートリアルUIを削除
@@ -447,4 +513,9 @@ void ATutorialActor::ForceCompleteTutorial()
 
     UE_LOG(LogTemp, Warning,
         TEXT("Pキー：チュートリアルを強制クリアしました"));
+}
+
+void ATutorialActor::StartTutorialSequenceAfterDelay()
+{
+    PlayTutorialClearSequence();
 }

@@ -86,9 +86,15 @@ public:
 	//アビリティを起動する関数
 	void ExectueNormalAttackAbility2();
 
+	// 攻撃をキャンセルする関数
 	void CancelAttackAbility();
-
+	// ↑のフラグ
 	void SetCancelAttackFlag();
+
+	// 攻撃時前進する関数
+	
+
+
 
 
 	//ノーティファイにASCを渡す関数(多分辞めた方がいい)
