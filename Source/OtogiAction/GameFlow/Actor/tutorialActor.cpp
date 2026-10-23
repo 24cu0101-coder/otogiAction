@@ -201,7 +201,7 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
 
     }*/
 
-    if (StepIndex == 6)
+    if (StepIndex == 7)
     {
         RemoveAllEnemies();
 
@@ -275,8 +275,8 @@ void ATutorialActor::StartStep7Sequence()
     // レベルシーケンスを再生
     PlayTutorialClearSequence();
 
-    // インデックス7をクリアして次へ進む
-    CompleteStep(7);
+    // インデックス8をクリアして次へ進む
+    CompleteStep(8);
 }
 
 void ATutorialActor::UnlockWall()
@@ -436,13 +436,13 @@ void ATutorialActor::OnTutorialSequenceFinished()
 void ATutorialActor::ForceCompleteTutorial()
 {
     // 二重実行を防止
-    if (CurrentStep >= 6)
+    if (CurrentStep >= 7)
     {
         return;
     }
 
-    // 配列のインデックスを6にする
-    CurrentStep = 6;
+    // 配列のインデックスを7にする
+    CurrentStep = 7;
     // レベル内の敵をすべて削除
     RemoveAllEnemies();
 

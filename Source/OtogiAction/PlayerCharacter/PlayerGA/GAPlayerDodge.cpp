@@ -205,7 +205,7 @@ void UGAPlayerDodge::PlayJustDodge()
 	// ジャスト回避のチュートリアルをクリア
 	if (TutorialManager)
 	{
-		TutorialManager->CompleteStep(6);
+		TutorialManager->CompleteStep(7);
 	}
 
 	// 回避の移動タスクがあるなら

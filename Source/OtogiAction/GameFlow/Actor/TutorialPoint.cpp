@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/PointLightComponent.h"
 #include "GameFramework/Character.h"
+#include "NiagaraComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 ATutorialPoint::ATutorialPoint()
 {
@@ -53,14 +55,7 @@ void ATutorialPoint::BeginPlay()
     }
 }
 
-void ATutorialPoint::OnTriggerBeginOverlap(
-    UPrimitiveComponent* OverlappedComponent,
-    AActor* OtherActor,
-    UPrimitiveComponent* OtherComp,
-    int32 OtherBodyIndex,
-    bool bFromSweep,
-    const FHitResult& SweepResult
-)
+void ATutorialPoint::OnTriggerBeginOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,const FHitResult& SweepResult)
 {
     // プレイヤー以外は無視
     if (OtherActor != UGameplayStatics::GetPlayerCharacter(this, 0))
@@ -68,12 +63,41 @@ void ATutorialPoint::OnTriggerBeginOverlap(
         return;
     }
     // Pointのライトを消す
-    if (UPointLightComponent* Light =
-        FindComponentByClass<UPointLightComponent>())
+    TArray<UPointLightComponent*> Lights;
+    GetComponents<UPointLightComponent>(Lights);
+
+    for (UPointLightComponent* Light : Lights)
     {
-        Light->SetVisibility(false);
+        if (Light)
+        {
+            Light->SetVisibility(false);
+        }
     }
 
+    // Niagaraエフェクトを消す
+    TArray<UNiagaraComponent*> NiagaraComponents;
+    GetComponents<UNiagaraComponent>(NiagaraComponents);
+
+    for (UNiagaraComponent* Niagara : NiagaraComponents)
+    {
+        if (Niagara)
+        {
+            Niagara->Deactivate();
+            Niagara->SetVisibility(false);
+        }
+    }
+
+    // Cascadeエフェクトを消す（旧式のParticle System）
+    TArray<UParticleSystemComponent*> ParticleComponents;
+    GetComponents<UParticleSystemComponent>(ParticleComponents);
+    for (UParticleSystemComponent* Particle : ParticleComponents)
+    {
+        if (Particle)
+        {
+            Particle->Deactivate();
+            Particle->SetVisibility(false);
+        }
+    }
     if (TutorialManager)
     {
         TutorialManager->CompleteStep(StepIndex);
