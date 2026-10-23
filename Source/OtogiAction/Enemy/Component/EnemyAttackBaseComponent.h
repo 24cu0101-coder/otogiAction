@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
 #include "../FBossActionData.h"
+#include "../EnemyStateSubsystem.h"
 #include "EnemyAttackBaseComponent.generated.h"
 
 class AAIController;
@@ -51,13 +52,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ActionData")
 	virtual void InitializeActionData(const FBossActionData& NewData);
 
+	//指定したインデックスのモンタージュを再生する関数
+	virtual bool PlayAttackMontageAtIndex(int32 Index);
+
+	//登録されているモンタージュの総数を返す関数
+	int32 GetMontageCount() const { return AttackMontages.Num(); }
+
+	UAnimMontage* GetCurrentAttackMontage() const {
+		return AttackMontages.IsValidIndex(CurrentMontageIndex) ? AttackMontages[CurrentMontageIndex] : nullptr;
+	}
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// 攻撃で使用するアニメーションモンタージュなどを共通データとして持てる
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attack|Visual")
-	TObjectPtr<UAnimMontage> AttackMontage;
+	TArray<UAnimMontage*> AttackMontages;
+
+	//現在再生するモンタージュのインデックス
+	int32 CurrentMontageIndex = 0;
+
+	bool bIsAttacking = false;
 
 	//評価用パラメータ
 
@@ -77,7 +92,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UtilityAI|Weight")
 	float BasePriority = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UtilityAI|State")
+	EEnemyState TargetState = EEnemyState::Idle;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	EEnemyState GetTargetState() const { return TargetState; }
+
 };

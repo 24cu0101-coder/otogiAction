@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
+#include "BehaviorTree/BehaviorTreeTypes.h"
 #include "ChangeActionService.generated.h"
 
 /**

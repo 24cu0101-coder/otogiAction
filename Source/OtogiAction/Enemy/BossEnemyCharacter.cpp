@@ -257,13 +257,6 @@ void ABossEnemyCharacter::RotateTowardsPlayer(float DeltaTime)
 	SetActorRotation(FRotator(0.0f, NewRotation.Yaw, 0.0f));
 }
 
-//JumpAttackNotifyから呼び出す関数
-void ABossEnemyCharacter::TriggerJumpAttack()
-{
-	//Notifyが作動したらdelegateを発火する
-	OnJumpAttackNotify.Broadcast();
-}
-
 //第二形態かどうかを確認
 bool ABossEnemyCharacter::GetIsPhaseTwo()
 {

@@ -25,11 +25,12 @@ void UAttackPressComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (!bIsAttacking) return;
 
-	// AnimInstance が無効、あるいはモンタージュが再生終了（またはキャンセル）されたか確認
-	if (!CachedAnimInstance.IsValid() || !CachedAnimInstance->Montage_IsPlaying(AttackMontage))
+	UAnimMontage* CurrentMontage = GetCurrentAttackMontage();
+
+	if (!CachedAnimInstance.IsValid() || !CurrentMontage || !CachedAnimInstance->Montage_IsPlaying(CurrentMontage))
 	{
 		bIsAttacking = false;
-		SetComponentTickEnabled(false); // 監視TickをOFFにする
+		SetComponentTickEnabled(false);
 	}
 }
 
@@ -65,7 +66,8 @@ void UAttackPressComponent::SetEnemyState()
 
 bool UAttackPressComponent::StartAttackPress()
 {
-	if (!AttackMontage) return false;
+	UAnimMontage* CurrentMontage = GetCurrentAttackMontage();
+	if (!CurrentMontage) return false;
 
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character) return false;
@@ -73,7 +75,7 @@ bool UAttackPressComponent::StartAttackPress()
 	UAnimInstance* AnimInstance = Character->GetMesh() ? Character->GetMesh()->GetAnimInstance() : nullptr;
 	if (!AnimInstance) return false;
 
-	float Duration = AnimInstance->Montage_Play(AttackMontage);
+	float Duration = AnimInstance->Montage_Play(CurrentMontage);
 	if (Duration <= 0.0f)
 	{
 		return false;

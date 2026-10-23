@@ -25,6 +25,9 @@ EBTNodeResult::Type UAttackPressTask::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	UAttackPressComponent* EnemyAttackComp = EnemyCharacter->FindComponentByClass<UAttackPressComponent>();
 	if (!EnemyAttackComp) return EBTNodeResult::Failed;
 
+	//Stateをセット
+	EnemyAttackComp->SetEnemyState();
+
 	//AttackBuildComponentで攻撃処理を呼ぶ
 	bool IsAttack = EnemyAttackComp->StartAttackPress();
 

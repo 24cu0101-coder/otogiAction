@@ -26,8 +26,10 @@ void UAttackBuildComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (!bIsAttacking) return;
 
+	UAnimMontage* CurrentMontage = GetCurrentAttackMontage();
+
 	//AnimInstanceが無効、あるいはモンタージュが再生終了されたか確認
-	if (!CachedAnimInstance.IsValid() || !CachedAnimInstance->Montage_IsPlaying(AttackMontage))
+	if (!CachedAnimInstance.IsValid() || !CurrentMontage || !CachedAnimInstance->Montage_IsPlaying(CurrentMontage))
 	{
 		bIsAttacking = false;
 		SetComponentTickEnabled(false); //監視TickをOFFにする
@@ -67,7 +69,8 @@ void UAttackBuildComponent::SetEnemyState()
 
 bool UAttackBuildComponent::StartAttackBuild()
 {
-	if (!AttackMontage) return false;
+	UAnimMontage* CurrentMontage = GetCurrentAttackMontage();
+	if (!CurrentMontage) return false;
 
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character) return false;
@@ -89,8 +92,8 @@ bool UAttackBuildComponent::StartAttackBuild()
 	UAnimInstance* AnimInstance = Character->GetMesh() ? Character->GetMesh()->GetAnimInstance() : nullptr;
 	if (!AnimInstance) return false;
 
-	//モンタージュ再生を開始
-	float Duration = AnimInstance->Montage_Play(AttackMontage);
+	// 配列から取得したモンタージュを再生
+	float Duration = AnimInstance->Montage_Play(CurrentMontage);
 	if (Duration <= 0.0f)
 	{
 		return false;

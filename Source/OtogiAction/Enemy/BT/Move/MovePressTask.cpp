@@ -22,6 +22,9 @@ EBTNodeResult::Type UMovePressTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     UMovePressComponent* PressComp = EnemyCharacter->FindComponentByClass<UMovePressComponent>();
     if (!PressComp) return EBTNodeResult::Failed;
 
+    //Stateをセット
+    PressComp->SetEnemyState();
+
     bool bStarted = PressComp->StartDashTracking();
     if (bStarted)
     {
@@ -45,9 +48,20 @@ void UMovePressTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 
     UMovePressComponent* PressComp = EnemyCharacter->FindComponentByClass<UMovePressComponent>();
 
-    // 追跡完了判定（または目標到達時など）
     if (PressComp && !PressComp->IsDashTracking())
     {
+        //完了時に State を Idle に戻す
+        if (UWorld* World = OwnerComp.GetWorld())
+        {
+            if (UGameInstance* GI = World->GetGameInstance())
+            {
+                if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
+                {
+                    StateSubsystem->CurrentState = EEnemyState::Idle;
+                }
+            }
+        }
+
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
     }
 }

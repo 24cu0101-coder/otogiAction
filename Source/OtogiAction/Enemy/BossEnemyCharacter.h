@@ -110,11 +110,6 @@ public:
 
 	//‰ñ“]‚·‚éŠÖ”
 	void RotateTowardsPlayer(float DeltaTime);
-
-	//JumpAttackNotify‚©‚çŒÄ‚Ño‚·ŠÖ”
-	UFUNCTION(BlueprintCallable, Category = "Animation")
-	void TriggerJumpAttack();
-
 	//‘æ“ñŒ`‘Ô‚©‚Ç‚¤‚©‚ğæ“¾
 	UFUNCTION(BlueprintCallable, Category = "AI|PhaseTwo")
 	bool GetIsPhaseTwo();

@@ -29,6 +29,9 @@ EBTNodeResult::Type UMoveBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
     if (!BuildComp) return EBTNodeResult::Failed;
 
+    //ステートをMovePressに更新
+    BuildComp->SetEnemyState();
+
     //追跡を開始
     bool bStarted = BuildComp->StartTracking();
 
@@ -54,8 +57,18 @@ void UMoveBuildTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
     }
 
     UMoveBuildComponent* BuildComp = EnemyCharacter->FindComponentByClass<UMoveBuildComponent>();
-    if (!BuildComp)
+    if (BuildComp && !BuildComp->StartTracking())
     {
+        if (UWorld* World = OwnerComp.GetWorld())
+        {
+            if (UGameInstance* GI = World->GetGameInstance())
+            {
+                if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
+                {
+                    StateSubsystem->CurrentState = EEnemyState::Idle;
+                }
+            }
+        }
         FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
         return;
     }

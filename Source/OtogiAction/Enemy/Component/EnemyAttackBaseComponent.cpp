@@ -35,7 +35,6 @@ float UEnemyAttackBaseComponent::CalculateScore(AAIController* Controller, APawn
 
 	//プレイヤーとの距離を取得
 	float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), TargetPawn->GetActorLocation());
-
 	//距離によるスコアの簡易判定
 	float DistanceScore = 0.0f;
 
@@ -59,11 +58,6 @@ float UEnemyAttackBaseComponent::CalculateScore(AAIController* Controller, APawn
 			Distance
 		);
 	}
-	else
-	{
-		// 完全に届かない範囲
-		DistanceScore = 0.0f;
-	}
 
 	//基礎優先度を掛けて最終スコア算出
 	return DistanceScore * BasePriority;
@@ -77,6 +71,27 @@ void UEnemyAttackBaseComponent::SetEnemyState()
 void UEnemyAttackBaseComponent::InitializeActionData(const FBossActionData& NewData)
 {
 	ActionData = NewData;
+}
+
+//指定したインデックスのモンタージュを再生する関数
+bool UEnemyAttackBaseComponent::PlayAttackMontageAtIndex(int32 Index)
+{
+	if (!AttackMontages.IsValidIndex(Index)) return false;
+
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (!Character) return false;
+
+	UAnimInstance* AnimInstance = Character->GetMesh() ? Character->GetMesh()->GetAnimInstance() : nullptr;
+	if (!AnimInstance) return false;
+
+	UAnimMontage* SelectedMontage = AttackMontages[Index];
+	if (SelectedMontage)
+	{
+		float Duration = Character->PlayAnimMontage(SelectedMontage);
+		return (Duration > 0.0f);
+	}
+
+	return false;
 }
 
 // Called when the game starts

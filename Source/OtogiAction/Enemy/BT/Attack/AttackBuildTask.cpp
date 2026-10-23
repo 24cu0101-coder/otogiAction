@@ -16,27 +16,29 @@ UAttackBuildTask::UAttackBuildTask()
 	bNotifyTick = true;
 }
 
+//タスク実行時に呼ばれる関数
 EBTNodeResult::Type UAttackBuildTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* EnemyController = OwnerComp.GetAIOwner();
 	ACharacter* EnemyCharacter = EnemyController ? Cast<ACharacter>(EnemyController->GetPawn()) : nullptr;
-	if (!EnemyController || !PlayMontage) return EBTNodeResult::Failed;
+	if (!EnemyCharacter) return EBTNodeResult::Failed;
 
-	UAttackBuildComponent* EnemyAttackComp = EnemyCharacter->FindComponentByClass<UAttackBuildComponent>();
-	if (!EnemyAttackComp) return EBTNodeResult::Failed;
+	UEnemyAttackBaseComponent* AttackComp = EnemyCharacter->FindComponentByClass<UEnemyAttackBaseComponent>();
+	if (!AttackComp || AttackComp->GetMontageCount() == 0) return EBTNodeResult::Failed;
 
-	bool IsAttack = EnemyAttackComp->StartAttackBuild();
+	//Stateをセット
+	AttackComp->SetEnemyState();
 
-	if (IsAttack)
+	// コンボの開始（最初の要素 0 番目を再生）
+	CurrentComboIndex = 0;
+	bool bStarted = AttackComp->PlayAttackMontageAtIndex(CurrentComboIndex);
+
+	if (bStarted)
 	{
-		//アニメーション再生に成功したら攻撃発生を呼ぶ
-		EnemyAttackComp->ExecuteAttack();
-
-		//アニメーション再生終了までTickTaskで待機
 		return EBTNodeResult::InProgress;
 	}
 
-	return EBTNodeResult::Succeeded;
+	return EBTNodeResult::Failed;
 }
 
 void UAttackBuildTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
@@ -51,12 +53,48 @@ void UAttackBuildTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 		return;
 	}
 
-	UAttackBuildComponent* EnemyAttackComp = EnemyCharacter->FindComponentByClass<UAttackBuildComponent>();
+	UEnemyAttackBaseComponent* AttackComp = EnemyCharacter->FindComponentByClass<UEnemyAttackBaseComponent>();
+	UAnimInstance* AnimInstance = EnemyCharacter->GetMesh() ? EnemyCharacter->GetMesh()->GetAnimInstance() : nullptr;
 
-	// Component側で bIsAttacking が false（再生終了）になったらタスク完了を通知
-	if (EnemyAttackComp && !EnemyAttackComp->IsAttacking())
+	if (!AttackComp || !AnimInstance)
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+
+	//現在のモンタージュ再生が終了したか確認
+	if (!AnimInstance->IsAnyMontagePlaying())
+	{
+		//次のコンボ段数へ進める
+		CurrentComboIndex++;
+
+		//まだ再生すべきモンタージュが残っている場合
+		if (CurrentComboIndex < AttackComp->GetMontageCount())
+		{
+			bool bPlayedNext = AttackComp->PlayAttackMontageAtIndex(CurrentComboIndex);
+			if (!bPlayedNext)
+			{
+				//再生失敗時はコンボ中断
+				FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+			}
+		}
+		else
+		{
+			//全てのコンボ（配列の全要素）の再生完了！
+			//State を Idle に戻して Task を終了
+			if (UWorld* World = OwnerComp.GetWorld())
+			{
+				if (UGameInstance* GI = World->GetGameInstance())
+				{
+					if (UEnemyStateSubsystem* StateSubsystem = GI->GetSubsystem<UEnemyStateSubsystem>())
+					{
+						StateSubsystem->CurrentState = EEnemyState::Idle;
+					}
+				}
+			}
+
+			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		}
 	}
 }
 

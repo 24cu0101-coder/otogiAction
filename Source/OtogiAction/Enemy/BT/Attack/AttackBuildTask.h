@@ -26,7 +26,7 @@ public:
 
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
-	// 再生したいモンタージュ
-	UPROPERTY(EditAnywhere, Category = "Animation")
-	TObjectPtr<UAnimMontage> PlayMontage;
+private:
+	//現在進行中のコンボインデックス
+	int32 CurrentComboIndex = 0;
 };
