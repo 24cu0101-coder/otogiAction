@@ -91,8 +91,8 @@ public:
 	// ↑のフラグ
 	void SetCancelAttackFlag();
 
-	// 攻撃時前進する関数
-	
+	// 攻撃時跳躍する関数
+	void AttackJump();
 
 
 

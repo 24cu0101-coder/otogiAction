@@ -281,3 +281,13 @@ void UNormalComboAttackComponent::SetCancelAttackFlag()
 	AttackCancel = true;
 }
 
+// UŒ‚Žž‚Ì’µ–ô
+void UNormalComboAttackComponent::AttackJump()
+{
+	if (!PlayerActor) return;
+
+	float UpPower = 600.0f;
+
+	PlayerActor->LaunchCharacter(FVector(0.0f, 0.0f, UpPower), false, true);
+}
+
