@@ -235,7 +235,7 @@ void ATutorialActor::StartStep7Sequence()
             ESlateVisibility::Collapsed
         );
 
-        // 20秒後にWidgetを再表示する
+        // 15秒後にWidgetを再表示する
         GetWorld()->GetTimerManager().SetTimer(TutorialWidgetTimerHandle, [this]()
             {
                 if (IsValid(this) && IsValid(TutorialWidget))
@@ -245,11 +245,11 @@ void ATutorialActor::StartStep7Sequence()
                     );
                 }
             },
-            20.0f,
+            15.0f,
             false
         );
     }
-    // プレイヤーの入力を20秒間停止
+    // プレイヤーの入力を15秒間停止
     if (PC)
     {
         APawn* PlayerPawn = PC->GetPawn();
@@ -267,7 +267,7 @@ void ATutorialActor::StartStep7Sequence()
                         PlayerPawn->EnableInput(PC);
                     }
                 },
-                20.0f,
+                15.0f,
                 false
             );
         }
