@@ -245,7 +245,7 @@ void ATutorialActor::StartStep7Sequence()
                     );
                 }
             },
-            15.0f,
+            13.0f,
             false
         );
     }
@@ -267,7 +267,7 @@ void ATutorialActor::StartStep7Sequence()
                         PlayerPawn->EnableInput(PC);
                     }
                 },
-                15.0f,
+                13.0f,
                 false
             );
         }
