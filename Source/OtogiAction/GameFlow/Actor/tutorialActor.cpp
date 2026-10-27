@@ -16,6 +16,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
 #include "Blueprint/UserWidget.h"
+#include "Sound/SoundBase.h"
 
 ATutorialActor::ATutorialActor()
 {
@@ -111,6 +112,12 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
         return;
     }
 
+    // ステップクリア音
+    if (TutorialClearSound)
+    {
+        UGameplayStatics::PlaySound2D(this, TutorialClearSound);
+    }
+
     // 次のステップへ進む
     CurrentStep++;
 
@@ -202,6 +209,7 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
 
     }*/
 
+
     if (StepIndex == 7)
     {
         RemoveAllEnemies();
@@ -245,7 +253,7 @@ void ATutorialActor::StartStep7Sequence()
                     );
                 }
             },
-            13.0f,
+            12.0f,
             false
         );
     }
@@ -267,7 +275,7 @@ void ATutorialActor::StartStep7Sequence()
                         PlayerPawn->EnableInput(PC);
                     }
                 },
-                13.0f,
+                12.0f,
                 false
             );
         }

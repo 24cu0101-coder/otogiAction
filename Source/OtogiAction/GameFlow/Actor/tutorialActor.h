@@ -13,6 +13,7 @@ class ULevelSequence;
 class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class UUserWidget;
+class USoundBase;
 
 UCLASS()
 class OTOGIACTION_API ATutorialActor : public AActor
@@ -96,6 +97,10 @@ public:
 
     void StartTutorialSequenceAfterDelay();
 
+    // チュートリアルクリア時の効果音
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Sound")
+    TObjectPtr<USoundBase> TutorialClearSound;
+
 private:
     UPROPERTY()
     TObjectPtr<UTutorialGuideWidget> TutorialWidget;
@@ -116,4 +121,6 @@ private:
 
     // 7番目のチュートリアル演出を開始
     void StartStep7Sequence();
+
+
 };

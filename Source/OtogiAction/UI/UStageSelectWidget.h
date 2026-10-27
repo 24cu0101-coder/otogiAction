@@ -88,4 +88,6 @@ protected:
     // 選択中のステージ番号。0=1つ目、1=2つ目、2=3つ目
     UPROPERTY(BlueprintReadOnly, Category = "Stage Select")
     int32 SelectedStageIndex = 0;
+
+
 };
