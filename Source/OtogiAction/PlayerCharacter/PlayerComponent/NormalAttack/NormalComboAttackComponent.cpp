@@ -5,6 +5,7 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/Move/MoveComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
+//#include "CharacterMovementComponent.h"
 
 
 //コンストラクタ
@@ -27,6 +28,17 @@ void UNormalComboAttackComponent::BeginPlay()
 	AActor* OwnerActor = GetOwner();
 	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
 	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
+
+	UCharacterMovementComponent* MoveComp = PlayerActor->GetCharacterMovement();
+	if (MoveComp)
+	{
+
+
+		MoveComp->GravityScale = 100.0f;
+
+		MoveComp->AirControl = 0.3f;
+	}
+
 
 	if (!AbilitySystemComponent)
 	{
@@ -282,12 +294,27 @@ void UNormalComboAttackComponent::SetCancelAttackFlag()
 }
 
 // 攻撃時の跳躍
-void UNormalComboAttackComponent::AttackJump()
+void UNormalComboAttackComponent::AttackJump(float upPower)
+{
+	//if (!PlayerActor) return;
+
+	//PlayerActor->LaunchCharacter(FVector(0.0f, 0.0f, upPower), false, true);
+}
+
+void UNormalComboAttackComponent::AttackMove(float forward, float upPower)
 {
 	if (!PlayerActor) return;
 
-	float UpPower = 600.0f;
+	// プレイヤー正面のVector
+	FVector ForwardVector = PlayerActor->GetActorForwardVector() * forward;
+	
+	if (upPower > 0)
+	{
+		ForwardVector.Z = upPower;
+	}
+	
 
-	PlayerActor->LaunchCharacter(FVector(0.0f, 0.0f, UpPower), false, true);
+	PlayerActor->LaunchCharacter(ForwardVector, false, true);
+
+
 }
-

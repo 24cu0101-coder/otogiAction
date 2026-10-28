@@ -92,7 +92,10 @@ public:
 	void SetCancelAttackFlag();
 
 	// 攻撃時跳躍する関数
-	void AttackJump();
+	void AttackJump(float upPower);
+
+	// 攻撃時移動する関数()
+	void AttackMove(float upPower,float forward);
 
 
 
