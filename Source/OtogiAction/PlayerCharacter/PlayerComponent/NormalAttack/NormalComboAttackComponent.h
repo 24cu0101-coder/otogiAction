@@ -119,6 +119,9 @@ private:
 	// 攻撃ability中のみcancelが効くようにするためのフラグ
 	bool AttackCancel;
 
+	// わーピングするかどうかのフラグ
+	bool AttackWarp;
+
 
 	FGameplayTag PossibleNAttack;
 

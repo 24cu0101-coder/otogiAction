@@ -10,7 +10,8 @@
 
 //コンストラクタ
 UNormalComboAttackComponent::UNormalComboAttackComponent():
-AttackCancel(false)
+AttackWarp(false)
+
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
@@ -44,6 +45,9 @@ void UNormalComboAttackComponent::BeginPlay()
 	{
 		return;
 	}
+
+	AttackCancel = false;
+
 
 	//AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
 	{
@@ -282,6 +286,7 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 		}
 		if (MCC)
 		{
+			//AttackWarp = true;
 			MCC->StartWarping(600.f);
 		}
 	}
@@ -303,7 +308,7 @@ void UNormalComboAttackComponent::AttackJump(float upPower)
 
 void UNormalComboAttackComponent::AttackMove(float forward, float upPower)
 {
-	if (!PlayerActor) return;
+	if (!PlayerActor || AttackWarp) return;
 
 	// プレイヤー正面のVector
 	FVector ForwardVector = PlayerActor->GetActorForwardVector() * forward;

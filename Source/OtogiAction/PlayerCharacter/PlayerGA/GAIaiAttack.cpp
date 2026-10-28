@@ -56,6 +56,11 @@ void UGAIaiAttack::ActivateAbility
 	{
 		SheathingEvent->EventReceived.AddDynamic(this, &UGAIaiAttack::Sheathing);
 
+		//SheathingEvent->OnCompleted.AddDynamic(this, &UGAIaiAttack::IaiAttackMontageEnd);
+		//SheathingEvent->OnInterrupted.AddDynamic(this, &UGAIaiAttack::IaiAttackMontageEnd);
+		//SheathingEvent->OnCancelled.AddDynamic(this, &UGAIaiAttack::IaiAttackMontageEnd);
+
+
 		SheathingEvent->ReadyForActivation();
 	}
 
@@ -76,9 +81,9 @@ void UGAIaiAttack::SheathingSword()
 
 		if (IaiMontageTask)
 		{
-			//IaiMontageTask->OnCompleted.AddDynamic(this, &UGAIaiAttack::IaiAttackAbilityEnd);
-			//IaiMontageTask->OnInterrupted.AddDynamic(this, &UGAIaiAttack::IaiAttackAbilityEnd);
-			//IaiMontageTask->OnCancelled.AddDynamic(this, &UGAIaiAttack::IaiAttackAbilityEnd);
+			IaiMontageTask->OnCompleted.AddDynamic(this, &UGAIaiAttack::IaiAttackAbilityEnd);
+			IaiMontageTask->OnInterrupted.AddDynamic(this, &UGAIaiAttack::IaiAttackAbilityEnd);
+			IaiMontageTask->OnCancelled.AddDynamic(this, &UGAIaiAttack::IaiAttackAbilityEnd);
 		}
 
 
@@ -99,9 +104,9 @@ void UGAIaiAttack::SheathingSword()
 		FTimerHandle EndDodgTimer;
 		GetWorld()->GetTimerManager().SetTimer(EndDodgTimer, this, &UGAIaiAttack::Iaistep, m_montageLength, false);
 
-		FGameplayTag SecondInputTag = FGameplayTag::RequestGameplayTag(FName("Iai.SecondInput"));
+		m_secondInputTag = FGameplayTag::RequestGameplayTag(FName("Iai.SecondInput"));
 		UAbilityTask_WaitGameplayEvent* WiatEvetnTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-			this,SecondInputTag,nullptr ,false,false);
+			this, m_secondInputTag,nullptr ,false,false);
 		if (WiatEvetnTask)
 		{
 			WiatEvetnTask->EventReceived.AddDynamic(this, &UGAIaiAttack::IaiSlash);
@@ -114,6 +119,8 @@ void UGAIaiAttack::SheathingSword()
 void UGAIaiAttack::IaiSlash(FGameplayEventData Payload)
 {
 	UE_LOG(LogTemp, Warning, TEXT("IaiSlash"));
+
+	IaiAttackMontageEnd();
 
 	StartMontage();
 	IaiWarping();
@@ -353,7 +360,6 @@ void UGAIaiAttack::StartMontage()
 			SAttackAnimInstance->Montage_SetPlayRate(m_iaiAttackMontage, 1.0f);
 		}
 	}
-
 }
 
 void UGAIaiAttack::RestartMontage()
@@ -369,11 +375,11 @@ void UGAIaiAttack::RestartMontage()
 }
 
 
-
-
 //モンタージュ終了時呼び出す
 void UGAIaiAttack::IaiAttackMontageEnd()
 {
+	m_ASC->RemoveLooseGameplayTag(m_secondInputTag);
+
 	IaiAttackAbilityEnd();
 }
 
