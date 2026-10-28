@@ -5,11 +5,13 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/Move/MoveComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
+//#include "CharacterMovementComponent.h"
 
 
 //コンストラクタ
 UNormalComboAttackComponent::UNormalComboAttackComponent():
-AttackCancel(false)
+AttackWarp(false)
+
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
@@ -28,10 +30,24 @@ void UNormalComboAttackComponent::BeginPlay()
 	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
 	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
 
+	UCharacterMovementComponent* MoveComp = PlayerActor->GetCharacterMovement();
+	if (MoveComp)
+	{
+
+
+		MoveComp->GravityScale = 100.0f;
+
+		MoveComp->AirControl = 0.3f;
+	}
+
+
 	if (!AbilitySystemComponent)
 	{
 		return;
 	}
+
+	AttackCancel = false;
+
 
 	//AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
 	{
@@ -270,6 +286,7 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 		}
 		if (MCC)
 		{
+			//AttackWarp = true;
 			MCC->StartWarping(600.f);
 		}
 	}
@@ -282,12 +299,27 @@ void UNormalComboAttackComponent::SetCancelAttackFlag()
 }
 
 // 攻撃時の跳躍
-void UNormalComboAttackComponent::AttackJump()
+void UNormalComboAttackComponent::AttackJump(float upPower)
 {
-	if (!PlayerActor) return;
+	//if (!PlayerActor) return;
 
-	float UpPower = 600.0f;
-
-	PlayerActor->LaunchCharacter(FVector(0.0f, 0.0f, UpPower), false, true);
+	//PlayerActor->LaunchCharacter(FVector(0.0f, 0.0f, upPower), false, true);
 }
 
+void UNormalComboAttackComponent::AttackMove(float forward, float upPower)
+{
+	if (!PlayerActor || AttackWarp) return;
+
+	// プレイヤー正面のVector
+	FVector ForwardVector = PlayerActor->GetActorForwardVector() * forward;
+	
+	if (upPower > 0)
+	{
+		ForwardVector.Z = upPower;
+	}
+	
+
+	PlayerActor->LaunchCharacter(ForwardVector, false, true);
+
+
+}

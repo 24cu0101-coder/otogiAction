@@ -135,4 +135,6 @@ private:
 
 	float m_montageLength;
 
+	FGameplayTag m_secondInputTag;
+
 };
