@@ -71,11 +71,7 @@ void UStageSelectWidget::ConfirmSelection()
     // レベル遷移前に入力をロック
     bIsTransitioning = true;
 
-    // 選択したステージへ遷移
-    UGameplayStatics::OpenLevel(
-        this,
-        StageLevelNames[SelectedStageIndex]
-    );
+  
 }
 
 FName UStageSelectWidget::GetSelectedLevelName() const

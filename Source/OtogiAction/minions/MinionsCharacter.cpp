@@ -270,35 +270,23 @@ void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
 //死
 void AMinionsCharacter::Dead()
 {
-	// 死亡処理の重複実行を防ぐ
-	if (bIsDead)
-	{
-		return;
-	}
+	if (bIsDead) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Minion Death Started"));
-
-	// 死亡フラグ
 	bIsDead = true;
 
-
-	// 大ダウン・起き上がりのタイマーを停止
 	if (HitReactionComponent)
 	{
 		HitReactionComponent->CancelStunRecovery();
 	}
 
-	// 攻撃停止
 	bIsAttacking = false;
 	bIsAttackInProgress = false;
 
-	// GASの攻撃Abilityをすべてキャンセル
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->CancelAllAbilities();
 	}
 
-	// AI停止
 	if (AAIController* AI = Cast<AAIController>(GetController()))
 	{
 		if (AI->BrainComponent)
@@ -307,30 +295,31 @@ void AMinionsCharacter::Dead()
 		}
 	}
 
-	// 当たり判定を無効化する
+	// 当たり判定を無効化
 	SetActorEnableCollision(false);
 
+	// 再生中のMontageを停止
 	if (GetMesh() && GetMesh()->GetAnimInstance())
 	{
 		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 	}
 
-	// 死亡アニメーションを再生
+	// DeathAnimationを再生
 	float AnimDuration = 0.0f;
 
 	if (DeathMontage && GetMesh() && GetMesh()->GetAnimInstance())
 	{
-		AnimDuration = PlayAnimMontage(DeathMontage);
+		AnimDuration = PlayAnimMontage(DeathMontage, 1.0f);
 	}
 
-	// アニメーションがない場合は、すぐにエフェクトへ進む
+	// Montageが再生できなかった場合は即座に削除
 	if (AnimDuration <= 0.0f)
 	{
-		PlayDeathEffect();
+		Destroy();
 		return;
 	}
 
-	// アニメーション終了後にエフェクトを再生する
+	// Montage終了後に削除
 	GetWorldTimerManager().SetTimer(
 		DeathTimerHandle,
 		this,
@@ -420,46 +409,28 @@ void AMinionsCharacter::SetAttackInProgress(bool bInProgress)
 
 void AMinionsCharacter::PlayDeathEffect()
 {
-	// 死亡エフェクトが設定されている場合
+	// Blueprint側でラグドール化
+	OnDeathAnimationFinished();
+
+	// 死亡エフェクト
 	if (DeathEffect)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 			GetWorld(),
 			DeathEffect,
-			GetActorLocation(),
-			GetActorRotation(),
-			FVector(DeathEffectScale),
-			true,
-			true
-		);
-
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("Death Effect Played. Scale: %f"),
-			DeathEffectScale
-		);
-
-		// エフェクト再生後にMinionを削除
-		GetWorldTimerManager().SetTimer(
-			DeathTimerHandle,
-			this,
-			&AMinionsCharacter::FinishDeath,
-			DeathEffectDuration,
-			false
+			GetActorLocation() + FVector(0.f, 0.f, 40.f)
 		);
 	}
-	else
-	{
-		// エフェクト未設定の場合はそのまま削除
-		FinishDeath();
-	}
+
+	// すぐには削除しない
 }
 
 void AMinionsCharacter::FinishDeath()
 {
 	Destroy();
 }
+
+
 
 void AMinionsCharacter::SetAttackRotationLock(bool bLock)
 {

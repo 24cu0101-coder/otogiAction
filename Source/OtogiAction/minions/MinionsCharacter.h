@@ -169,6 +169,14 @@ public:
 		meta = (ClampMin = "0.1"))
 	float DeathEffectDuration = 2.0f;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Death")
+	void OnDead();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Death")
+	void OnDeathAnimationFinished();
+
+
+
 	// 死亡演出用の関数
 	void PlayDeathEffect();
 	void FinishDeath();
