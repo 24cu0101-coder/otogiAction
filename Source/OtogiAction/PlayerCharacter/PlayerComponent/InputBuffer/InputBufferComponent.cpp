@@ -83,16 +83,18 @@ void UInputBufferComponent::KeepOrExeFunction(TFunction<void()> Function)
 //保存していた関数を実行する関数(タグを検知して呼び出す)
 void UInputBufferComponent::ExecuteBoffereFunction(const FGameplayTag Tag, int32 NewCount)
 {
+	if (NewCount > 0)return;
+
 	//関数があれば
 	if (NextFunction)
 	{
 		//保存していた関数を実行
-		TFunction<void()> LocalFunction = NextFunction;
-
-		LocalFunction();
+		TFunction<void()> LocalFunction = NextFunction;		
 
 		//保存していた関数を消去
 		NextFunction = nullptr;
+
+		LocalFunction();
 	}
 }
 
