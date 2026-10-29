@@ -173,8 +173,15 @@ public:
 	void PlayDeathEffect();
 	void FinishDeath();
 
+	// 攻撃中の回転をロックする
+	void SetAttackRotationLock(bool bLock);
+
+
 private:
 	bool bIsHit = false;
+
+	bool bOriginalUseControllerDesiredRotation = true;
+
 
 public:
 	bool GetIsHitFlg() const { return bIsHit; }

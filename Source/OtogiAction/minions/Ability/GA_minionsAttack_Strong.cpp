@@ -47,10 +47,12 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 		// 攻撃開始
 		Minion->SetIsAttacking(true);
 
+		// 攻撃中は回転をロック
+		Minion->SetAttackRotationLock(true);
+
 		// 攻撃中は移動を止める
 		Minion->GetCharacterMovement()->StopMovementImmediately();
 	}
-
 
 	// 再生速度
 	float PlayRate = 1.0f;
@@ -181,6 +183,7 @@ void UGA_minionsAttack_Strong::OnPreAttackCompleted()
 		if (Minion)
 		{
 			Minion->SetIsAttacking(false);
+			Minion->SetAttackRotationLock(false);
 		}
 
 
@@ -212,6 +215,7 @@ void UGA_minionsAttack_Strong::OnPreAttackInterrupted()
 	if (Minion)
 	{
 		Minion->SetIsAttacking(false);
+		Minion->SetAttackRotationLock(false);
 	}
 
 
@@ -242,6 +246,7 @@ void UGA_minionsAttack_Strong::OnMontageCompleted()
 	if (Minion)
 	{
 		Minion->SetIsAttacking(false);
+		Minion->SetAttackRotationLock(false);
 	}
 
 
@@ -272,6 +277,7 @@ void UGA_minionsAttack_Strong::OnMontageInterrupted()
 	if (Minion)
 	{
 		Minion->SetIsAttacking(false);
+		Minion->SetAttackRotationLock(false);
 	}
 
 
