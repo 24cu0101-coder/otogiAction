@@ -10,6 +10,7 @@ enum class EBossPhase : uint8
 {
 	Phase1		UMETA(DisplayName = "Phase1-Minion"),
 	Phase2		UMETA(DisplayName = "Phase2-Minion"),
+	Phase3      UMETA(DisplayName = "Phase3-Minion"),
 	BossPhase1	UMETA(DisplayName = "BossPhase1"),
 	BossPhase2	UMETA(DisplayName = "BossPhase2"),
 	Clear		UMETA(DisplayName = "Clear"),
@@ -117,6 +118,44 @@ public:
 	void SpawnPhase2Minions();
 
 
+	// Phase3
+
+    // Phase3でSpawnする雑魚敵
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Phase3"
+	)
+	TSubclassOf<AMinionsCharacter> Phase3MinionClass;
+
+	// Phase3のMinion数
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Phase3"
+	)
+	int32 Phase3MinionCount = 3;
+
+	// Phase3のMinion出現位置
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Phase3"
+	)
+	TArray<FTransform> Phase3SpawnTransforms;
+
+	// Phase3でSpawnしたMinion
+	UPROPERTY()
+	TArray<class AMinionsCharacter*> Phase3Minions;
+
+	// Phase2の雑魚敵が全滅したか確認
+	void CheckPhase3Clear();
+
+	// Phase2の敵をSpawn
+	void SpawnPhase3Minions();
+
+
+
 	// Boss Phase1
 
 	// Bossクラス
@@ -151,7 +190,11 @@ public:
 	// Phase1 → Phase2
 	void StartPhase2();
 
-	// Phase2 → BossPhase1
+
+	// Phase2 → Phase3
+	void StartPhase3();
+
+	// Phase3 → BossPhase1
 	void StartBossPhase1();
 
 
@@ -170,6 +213,13 @@ public:
 		Category = "Boss Phase|Respawn"
 	)
 	FTransform Phase2RespawnTransform;
+
+	UPROPERTY(
+		EditAnywhere,
+		BlueprintReadOnly,
+		Category = "Boss Phase|Respawn"
+	)
+	FTransform Phase3RespawnTransform;
 
 	UPROPERTY(
 		EditAnywhere,

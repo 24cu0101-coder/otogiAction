@@ -22,7 +22,7 @@ public:
 
 	//攻撃範囲
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	float Radius = 200.f;
+	float Radius = 100.f;
 
 
 	//ダメージ
@@ -35,7 +35,7 @@ public:
 
 	//前方向へのずらし
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	float ForwardOffset = 100.f;
+	float ForwardOffset = 50.f;
 
 
 	//横方向へのずらし

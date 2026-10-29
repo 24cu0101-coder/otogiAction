@@ -54,6 +54,10 @@ void AphaseManager::Tick(float DeltaTime)
 	{
 		CheckPhase2Clear();
 	}
+	else if (CurrentPhase == EBossPhase::Phase3)
+	{
+		CheckPhase3Clear();
+	}
 	else if (CurrentPhase == EBossPhase::BossPhase1)
 	{
 		CheckBossPhase1Clear();
@@ -154,6 +158,67 @@ void AphaseManager::SpawnPhase2Minions()
 		}
 	}
 }
+
+
+// Phase3 Minion Spawn
+
+void AphaseManager::SpawnPhase3Minions()
+{
+	Phase3Minions.Empty();
+
+	if (!Phase3MinionClass)
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("Phase3MinionClass is not set!")
+		);
+
+		return;
+	}
+
+	for (int32 i = 0; i < Phase3MinionCount; i++)
+	{
+		if (!Phase3SpawnTransforms.IsValidIndex(i))
+		{
+			UE_LOG(
+				LogTemp,
+				Error,
+				TEXT("Phase3 SpawnTransform is missing for Minion %d"),
+				i
+			);
+
+			continue;
+		}
+
+		FTransform SpawnTransform =Phase3SpawnTransforms[i];
+
+		FActorSpawnParameters SpawnParams;
+
+		SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		AMinionsCharacter* Minion =
+			GetWorld()->SpawnActor<AMinionsCharacter>(
+				Phase3MinionClass,
+				SpawnTransform,
+				SpawnParams
+			);
+
+		if (Minion)
+		{
+			Phase3Minions.Add(Minion);
+
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("Phase3 Minion Spawned: %d"),
+				i
+			);
+		}
+	}
+}
+
+
 
 
 // Boss Spawn
@@ -319,15 +384,67 @@ void AphaseManager::CheckPhase2Clear()
 		}
 	}
 
+	StartPhase3();
+}
+
+// Phase2 → Phase3
+
+void AphaseManager::StartPhase3()
+{
+	if (CurrentPhase != EBossPhase::Phase2)
+	{
+		return;
+	}
+
+	CurrentPhase = EBossPhase::Phase3;
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("===== PHASE 2 CLEAR =====")
+	);
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("==== Phase 3 Start =====")
+	);
+
+	SpawnPhase3Minions();
+}
+
+// Phase3 Clear
+
+void AphaseManager::CheckPhase3Clear()
+{
+	if (bIsRespawning)
+	{
+		return;
+	}
+
+	for (AMinionsCharacter* Minion : Phase3Minions)
+	{
+		if (!IsValid(Minion))
+		{
+			continue;
+		}
+
+		if (!Minion->IsDead())
+		{
+			return;
+		}
+	}
+
 	StartBossPhase1();
 }
 
 
-// Phase2 → BossPhase1
+
+// Phase3 → BossPhase1
 
 void AphaseManager::StartBossPhase1()
 {
-	if (CurrentPhase != EBossPhase::Phase2)
+	if (CurrentPhase != EBossPhase::Phase3)
 	{
 		return;
 	}
@@ -337,7 +454,7 @@ void AphaseManager::StartBossPhase1()
 	UE_LOG(
 		LogTemp,
 		Warning,
-		TEXT("===== PHASE 2 CLEAR =====")
+		TEXT("===== PHASE 3 CLEAR =====")
 	);
 
 	UE_LOG(
@@ -443,6 +560,34 @@ void AphaseManager::RespawnCurrentPhaseMinions()
 		return;
 	}
 
+	// Phase3
+
+	if (CurrentPhase == EBossPhase::Phase3)
+	{
+		// 現在のPhase3 Minionを削除
+		for (AMinionsCharacter* Minion : Phase3Minions)
+		{
+			if (IsValid(Minion))
+			{
+				Minion->Destroy();
+			}
+		}
+
+		Phase3Minions.Empty();
+
+		// Phase3 Minion再生成
+		SpawnPhase3Minions();
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Phase3 Respawn")
+		);
+
+		return;
+	}
+
+
 
 	// BossPhase1
 
@@ -470,6 +615,10 @@ FTransform AphaseManager::GetRespawnTransform() const
 
 
 	case EBossPhase::Phase2:
+
+		return Phase2RespawnTransform;
+
+	case EBossPhase::Phase3:
 
 		return Phase2RespawnTransform;
 

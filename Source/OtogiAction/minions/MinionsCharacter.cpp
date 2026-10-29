@@ -15,6 +15,9 @@
 #include "NiagaraFunctionLibrary.h"
 #include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include "OtogiAction/minions/MinionsHitReactionComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
+#include "TimerManager.h"
 
 
 
@@ -267,12 +270,25 @@ void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
 //死
 void AMinionsCharacter::Dead()
 {
-	UE_LOG(LogTemp, Warning, TEXT("minions dead"));
+	// 死亡処理の重複実行を防ぐ
+	if (bIsDead)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Minion Death Started"));
 
 	// 死亡フラグ
 	bIsDead = true;
 
-	// 攻撃中フラグを解除
+
+	// 大ダウン・起き上がりのタイマーを停止
+	if (HitReactionComponent)
+	{
+		HitReactionComponent->CancelStunRecovery();
+	}
+
+	// 攻撃停止
 	bIsAttacking = false;
 	bIsAttackInProgress = false;
 
@@ -280,12 +296,6 @@ void AMinionsCharacter::Dead()
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->CancelAllAbilities();
-	}
-
-	// アニメーションのモンタージュを停止
-	if (GetMesh() && GetMesh()->GetAnimInstance())
-	{
-		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 	}
 
 	// AI停止
@@ -297,18 +307,38 @@ void AMinionsCharacter::Dead()
 		}
 	}
 
-	// コリジョン停止
+	// 当たり判定を無効化する
 	SetActorEnableCollision(false);
 
-	// 非表示
-	SetActorHiddenInGame(true);
-
-	if (AttackComponent)
+	if (GetMesh() && GetMesh()->GetAnimInstance())
 	{
-		AttackComponent->SetShowDebug(false);
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 	}
-}
 
+	// 死亡アニメーションを再生
+	float AnimDuration = 0.0f;
+
+	if (DeathMontage && GetMesh() && GetMesh()->GetAnimInstance())
+	{
+		AnimDuration = PlayAnimMontage(DeathMontage);
+	}
+
+	// アニメーションがない場合は、すぐにエフェクトへ進む
+	if (AnimDuration <= 0.0f)
+	{
+		PlayDeathEffect();
+		return;
+	}
+
+	// アニメーション終了後にエフェクトを再生する
+	GetWorldTimerManager().SetTimer(
+		DeathTimerHandle,
+		this,
+		&AMinionsCharacter::PlayDeathEffect,
+		AnimDuration,
+		false
+	);
+}
 
 void AMinionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -386,4 +416,47 @@ void AMinionsCharacter::UpdateHPWidgetVisibility()
 void AMinionsCharacter::SetAttackInProgress(bool bInProgress)
 {
 	bIsAttackInProgress = bInProgress;
+}
+
+void AMinionsCharacter::PlayDeathEffect()
+{
+	// 死亡エフェクトが設定されている場合
+	if (DeathEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			DeathEffect,
+			GetActorLocation(),
+			GetActorRotation(),
+			FVector(DeathEffectScale),
+			true,
+			true
+		);
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Death Effect Played. Scale: %f"),
+			DeathEffectScale
+		);
+
+		// エフェクト再生後にMinionを削除
+		GetWorldTimerManager().SetTimer(
+			DeathTimerHandle,
+			this,
+			&AMinionsCharacter::FinishDeath,
+			DeathEffectDuration,
+			false
+		);
+	}
+	else
+	{
+		// エフェクト未設定の場合はそのまま削除
+		FinishDeath();
+	}
+}
+
+void AMinionsCharacter::FinishDeath()
+{
+	Destroy();
 }

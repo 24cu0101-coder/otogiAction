@@ -58,6 +58,9 @@ public:
 
 	bool IsStanceBroken() const;
 
+	// 死亡時に大ダウンの復帰処理をキャンセル
+	void CancelStunRecovery();
+
 
 
 private:
@@ -102,7 +105,7 @@ private:
 
 
 	UPROPERTY(EditAnywhere, Category = "Stun")
-	float StunDownDuration = 8.f;
+	float StunDownDuration = 3.f;
 
 
 
@@ -150,6 +153,8 @@ private:
 
 	// 攻撃キャンセル用
 	void CancelAttack();
+
+
 
 	private:
 
