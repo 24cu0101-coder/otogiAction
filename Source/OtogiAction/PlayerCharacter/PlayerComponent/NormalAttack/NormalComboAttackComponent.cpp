@@ -5,7 +5,7 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/Move/MoveComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
-//#include "CharacterMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 //コンストラクタ
