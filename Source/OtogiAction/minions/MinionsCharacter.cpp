@@ -460,3 +460,27 @@ void AMinionsCharacter::FinishDeath()
 {
 	Destroy();
 }
+
+void AMinionsCharacter::SetAttackRotationLock(bool bLock)
+{
+	if (!GetCharacterMovement())
+	{
+		return;
+	}
+
+	if (bLock)
+	{
+		// 元の設定を保存
+		bOriginalUseControllerDesiredRotation =
+			GetCharacterMovement()->bUseControllerDesiredRotation;
+
+		// AIコントローラーに合わせた回転を停止
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
+	else
+	{
+		// 攻撃終了後に元へ戻す
+		GetCharacterMovement()->bUseControllerDesiredRotation =
+			bOriginalUseControllerDesiredRotation;
+	}
+}
