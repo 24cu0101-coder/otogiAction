@@ -203,6 +203,7 @@ private:
 	// ジャスト回避後のプレイヤーの向き
 	FVector m_justDodgeRelativeAngle;
 
+	FGameplayTag m_justDodgeAttack;
 
 	UFUNCTION()
 	void StickRotate();

@@ -83,6 +83,8 @@ void UGAPlayerDodge::DodgeStart()
 	// just回避のタグを受け取る
 	m_justDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.JustDodge"));
 
+	m_justDodgeAttack = FGameplayTag::RequestGameplayTag("IsDodge.DodgeAttack");
+
 
 	PlayDodge();
 }
@@ -208,6 +210,31 @@ void UGAPlayerDodge::PlayJustDodge()
 		TutorialManager->CompleteStep(7);
 	}
 
+	//if (ASC)return;
+
+	ASC->AddLooseGameplayTag(m_justDodgeAttack);
+
+
+	if (ACharacter* Player = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		//アニメーションインスタンスを取得
+		if (UAnimInstance* SAttackAnimInstance = Player->GetMesh()->GetAnimInstance())
+		{
+			//通常攻撃のアニメーションを再生するタスクがすでになければ
+			if (!DodgeMontage)
+			{
+				//returnする	
+				return;
+			}
+
+			//アニメーションを止める
+			if (SAttackAnimInstance) {
+				SAttackAnimInstance->Montage_SetPlayRate(DodgeMontage, 0.01f);
+			}
+		}
+	}
+
+
 	// 回避の移動タスクがあるなら
 	if (IsValid(m_moveTask))
 	{
@@ -290,6 +317,10 @@ void UGAPlayerDodge::EndJustDodge()
 
 	//カウンター攻撃のタグを破棄
 	ASC->RemoveLooseGameplayTag(IsCounterAttackTag);
+
+	// ジャスト回避攻撃のタグ削除
+	ASC->RemoveLooseGameplayTag(m_justDodgeAttack);
+
 	m_justDodgeWind = true;
 
 	EndJustDodgeWindow();
