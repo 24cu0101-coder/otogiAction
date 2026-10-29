@@ -29,7 +29,6 @@
 #include "OtogiAction/UI/SkillCircle.h"
 #include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include"PlayerDeathComponent.h"
-#include "PlayerComponent/Camera/CameraDirectorComponent.h"
 #include "../Component/Audio/BGMManager.h"
 
 //コンストラクタ
@@ -123,9 +122,6 @@ APlayerCharacter::APlayerCharacter()
 	
 	//デッドコンポーネント
 	DeathComp = CreateDefaultSubobject<UPlayerDeathComponent>(TEXT("DeathComp"));
-
-	//カメラディレクター
-	CameraDirectorComp = CreateDefaultSubobject<UCameraDirectorComponent>(TEXT("CameraDirectorComp"));
 
 	//サウンドコンポーネント
 	SoundMngComp = CreateDefaultSubobject<USoundManagerComponent>(TEXT("SoundComp"));
@@ -593,11 +589,6 @@ void APlayerCharacter::OnDeath()
 {
 	if (bIsDead) return;
 	bIsDead = true;
-
-	if (CameraDirectorComp && m_DeathCameraModifier)
-	{
-		CameraDirectorComp->SetModifier(m_DeathCameraModifier, 1.0f);
-	}
 	
 	//UIのリセット
 	if (SkillCircle)

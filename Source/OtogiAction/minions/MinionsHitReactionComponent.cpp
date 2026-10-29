@@ -495,3 +495,27 @@ void UMinionsHitReactionComponent::FinishRecover()
 	UE_LOG(LogTemp, Warning,
 		TEXT("STUN RECOVER"));
 }
+
+void UMinionsHitReactionComponent::CancelStunRecovery()
+{
+	// 大ダウンからの復帰タイマーを停止
+	GetWorld()->GetTimerManager().ClearTimer(StunRecoverTimerHandle);
+
+	// 起き上がりモーションのタイマーを停止
+	GetWorld()->GetTimerManager().ClearTimer(GetUpTimerHandle);
+
+	// 起き上がりモーションを停止
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+
+	if (Character && Character->GetMesh())
+	{
+		if (UAnimInstance* AnimInstance =
+			Character->GetMesh()->GetAnimInstance())
+		{
+			if (GetUpMontage)
+			{
+				AnimInstance->Montage_Stop(0.0f, GetUpMontage);
+			}
+		}
+	}
+}
