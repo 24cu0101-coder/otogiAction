@@ -224,7 +224,7 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 			}
 
 			//“ü—Í‚ª‰Â”\‚¾‚Á‚½‚ç
-			else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
+			else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack)&&!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
 			{
 				MCC->StartWarping(600.f);
 
