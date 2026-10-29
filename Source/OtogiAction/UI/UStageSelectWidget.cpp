@@ -4,6 +4,7 @@
 #include "Components/Image.h"
 #include "Components/Widget.h"
 #include "Engine/Texture2D.h"
+#include "Kismet/GameplayStatics.h"
 
 void UStageSelectWidget::NativeConstruct()
 {
@@ -31,24 +32,31 @@ void UStageSelectWidget::NativeConstruct()
 
 void UStageSelectWidget::MoveSelection(int32 Direction)
 {
-    // ステージ情報が3つ揃っていなければ移動しない
+    // 決定後は操作を受け付けない
+    if (bIsTransitioning)
+    {
+        return;
+    }
+
     if (StageNames.Num() != 3)
     {
         return;
     }
 
-    // 選択番号を0～2の範囲で循環させる
-    // 例：0から左へ移動すると2になる
     SelectedStageIndex =
         (SelectedStageIndex + Direction % 3 + 3) % 3;
 
-    // 選択が変わったので画面を更新する
     UpdateStageDisplay();
 }
-
 void UStageSelectWidget::ConfirmSelection()
 {
-    // 現在の選択番号に対応するレベルが存在するか確認する
+    // すでに決定済みなら何もしない
+    if (bIsTransitioning)
+    {
+        return;
+    }
+
+    // 遷移先レベルを確認
     if (!StageLevelNames.IsValidIndex(SelectedStageIndex) ||
         StageLevelNames[SelectedStageIndex].IsNone())
     {
@@ -57,13 +65,17 @@ void UStageSelectWidget::ConfirmSelection()
             Error,
             TEXT("StageSelectWidget: 遷移先レベルが設定されていません")
         );
-
         return;
     }
 
-    // ここではレベル遷移しない
-    // WBP側でフェードを実行したあと、
-    // GetSelectedLevelName() の戻り値を Change Level に渡す
+    // レベル遷移前に入力をロック
+    bIsTransitioning = true;
+
+    // 選択したステージへ遷移
+    UGameplayStatics::OpenLevel(
+        this,
+        StageLevelNames[SelectedStageIndex]
+    );
 }
 
 FName UStageSelectWidget::GetSelectedLevelName() const

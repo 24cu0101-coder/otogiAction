@@ -36,6 +36,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Stage Select")
     void UpdateStageDisplay();
 
+    // ステージ決定後の入力ロック
+    bool bIsTransitioning = false;
+
 protected:
 
     // ウィジェット生成時に呼ばれる

@@ -5,6 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
+#include "OtogiAction/Orb/OrbActor.h"
+#include "EngineUtils.h"
+
 #include "OtogiAction/phase/phaseManager.h"
 
 
@@ -82,6 +85,12 @@ void AOtogiActionGameModeBase::RespawmPlayer(AController* TargetController)
 	if (PhaseManager)
 	{
 		PhaseManager->RespawnCurrentPhaseMinions();
+	}
+
+	// レベル内に残っているOrbをすべて削除
+	for (TActorIterator<AOrbActor> It(GetWorld()); It; ++It)
+	{
+		It->Destroy();
 	}
 
 	// リスポーン位置
