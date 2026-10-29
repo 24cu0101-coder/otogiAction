@@ -83,8 +83,16 @@ void UPlayerDodgeComponent::ExecuteAbility2()
 
 	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
 
+	FGameplayTag DontDogeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DontDodge"));
+
+
 	//アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
 	if (AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) || AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
+	{
+		return;
+	}
+
+	if (AbilitySystemComponent->HasMatchingGameplayTag(DontDogeTag))
 	{
 		return;
 	}
