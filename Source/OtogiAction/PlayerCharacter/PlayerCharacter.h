@@ -17,8 +17,6 @@ class UAbilitySystemComponent;
 //camera
 class USpringArmComponent;
 class UCameraComponent;
-class UCameraDirectorComponent;	
-
 //move
 class UMoveComponent;
 class UMoveCameraComponent;
@@ -57,9 +55,6 @@ class USkillCircle;
 //Sound
 class USoundManagerComponent;
 class USoundBase;
-
-//dataasset
-class UCameraModifierDataAsset;
 
 UCLASS()
 class OTOGIACTION_API APlayerCharacter : public ACharacter , public IAbilitySystemInterface
@@ -118,10 +113,6 @@ private:
 	//カメラコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* m_CameraComp;
-
-	//カメラディレクターコンポーネント
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Camera",meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraDirectorComponent> CameraDirectorComp;
 
 	//AbilitySystemコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
@@ -304,7 +295,5 @@ protected:
 	UFUNCTION()
 	void HandleDamaged(float NewHP);
 
-	// 死亡時カメラ用DataAsset
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
-	TObjectPtr<UCameraModifierDataAsset> m_DeathCameraModifier = nullptr;
+
 };
