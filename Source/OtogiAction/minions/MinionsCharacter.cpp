@@ -183,7 +183,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 	// 被弾エフェクト
 	if (HitEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, GetActorLocation() + FVector(0, 0, 80.f));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, GetActorLocation() + FVector(0, 0, 40.f));
 	}
 
 	if (!StatusComponent)

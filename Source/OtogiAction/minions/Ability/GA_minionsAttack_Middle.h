@@ -28,6 +28,7 @@ public:
 	) override;
 
 
+
 protected:
 	// 予備動作Montage
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
