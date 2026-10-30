@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Sound/SoundBase.h"
 #include "phaseManager.generated.h"
 
 
@@ -227,6 +228,20 @@ public:
 		Category = "Boss Phase|Respawn"
 	)
 	FTransform BossPhase1RespawnTransform;
+
+	// フェーズBGM
+	UPROPERTY(EditAnywhere, Category = "Phase Sound")
+	TObjectPtr<USoundBase> NormalPhaseBGM;
+
+	UPROPERTY(EditAnywhere, Category = "Phase Sound")
+	TObjectPtr<USoundBase> BossPhase1BGM;
+
+	// ボス撃破SE
+	UPROPERTY(EditAnywhere, Category = "Phase Sound")
+	TObjectPtr<USoundBase> BossDefeatSE;
+
+	// BGM再生関数
+	void PlayPhaseBGM(USoundBase* Sound);
 
 
 private:

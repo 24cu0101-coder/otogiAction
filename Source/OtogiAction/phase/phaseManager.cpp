@@ -3,6 +3,7 @@
 #include "OtogiAction/minions/MinionsCharacter.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Actor.h"
@@ -28,6 +29,8 @@ void AphaseManager::BeginPlay()
 
 	// 最初はPhase1
 	CurrentPhase = EBossPhase::Phase1;
+
+	PlayPhaseBGM(NormalPhaseBGM);
 
 	// レベルに配置されているPhase1 Minionを取得
 	FindPhase1Minions();
@@ -463,6 +466,7 @@ void AphaseManager::StartBossPhase1()
 		TEXT("==== BossPhase 1 Start =====")
 	);
 
+
 	SpawnBossPhase1();
 }
 
@@ -648,5 +652,19 @@ void AphaseManager::SetRespawning(bool bRespawning)
 		bIsRespawning
 		? TEXT("TRUE")
 		: TEXT("FALSE")
+	);
+}
+
+void AphaseManager::PlayPhaseBGM(USoundBase* Sound)
+{
+	if (!Sound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BGM is not set!"));
+		return;
+	}
+
+	UGameplayStatics::PlaySound2D(
+		this,
+		Sound
 	);
 }
