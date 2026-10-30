@@ -96,6 +96,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Camera|Target")
 	AActor* GetCurrentTarget() const;
 
+	//敵のターゲット注視点を取得
+	UFUNCTION(BlueprintPure, Category = "Camera|Target")
+	FVector GetEnemyTargetPoint() const;
+
 	//ターゲット中か
 	UFUNCTION(BlueprintPure, Category = "Camera|Target")
 	bool IsTargeting() const;
