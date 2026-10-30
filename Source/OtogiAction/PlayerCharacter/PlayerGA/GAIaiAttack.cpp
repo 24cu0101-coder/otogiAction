@@ -120,7 +120,6 @@ void UGAIaiAttack::IaiSlash(FGameplayEventData Payload)
 {
 	UE_LOG(LogTemp, Warning, TEXT("IaiSlash"));
 
-	IaiAttackMontageEnd();
 
 	StartMontage();
 	IaiWarping();
@@ -139,6 +138,9 @@ void UGAIaiAttack::IaiSlash(FGameplayEventData Payload)
 	{
 		TutorialManager->CompleteStep(3);
 	}
+
+	IaiAttackMontageEnd();
+
 }
 
 
@@ -225,23 +227,20 @@ void UGAIaiAttack::Rotate(FVector TargetLocation)
 			CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 		}
 
-
-
 		//相手のアクターの角度を取得
 		FVector MyLoc = m_ownerCharacter->GetActorLocation();
 		FVector Direction = TargetLocation - MyLoc;
 		Direction.Z = 0.f;
 		Direction.Normalize();
-
 		FRotator TargetRot = Direction.Rotation();
-		TargetRot.Yaw += 180.f;
+		//TargetRot.Yaw += 180.f;
 
-		//RestartIaiAttackMontage();
+		////RestartIaiAttackMontage();
 
-		FVector IaiLocation = TargetLocation - (Direction * m_iaiDistance);
-		IaiLocation.Z = MyLoc.Z;
+		//FVector IaiLocation = TargetLocation - (Direction * m_iaiDistance);
+		//IaiLocation.Z = MyLoc.Z;
 
-		m_ownerCharacter->SetActorLocation(IaiLocation, false);
+		//m_ownerCharacter->SetActorLocation(IaiLocation, false);
 
 		//アクターを回転
 		m_ownerCharacter->SetActorRotation(TargetRot);

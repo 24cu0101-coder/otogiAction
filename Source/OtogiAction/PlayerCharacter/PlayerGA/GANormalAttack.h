@@ -62,9 +62,6 @@ protected:
 	UFUNCTION()
 	void EventTaskEnd(UAbilityTask_WaitGameplayEvent* EventTask);
 
-	//攻撃時前進する関数
-	UFUNCTION()
-	void AttackMove();
 
 	//アニメーション終了時に呼ばれるタスク
 	UFUNCTION()
@@ -76,6 +73,9 @@ protected:
 
 	void NAttackAbilityEnd();
 
+	//回避時の無敵の時間
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.Attack", meta = (AllowPrivateAccess = "true"))
+	float AttackD;
 
 
 	////次に再生するアニメーションのタグを渡す関数
@@ -106,10 +106,6 @@ protected:
 	//FGameplayTag IsNormalAttackTag;
 
 private:
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.AttackMoveDistance", meta = (AllowPrivateAccess = "true"))
-	float AttackMoveDistance;
-
 
 	int32 Count;
 	int32 Countlimit;

@@ -59,6 +59,9 @@ protected:
 	TSubclassOf<UGameplayAbility> NAttackAbilityFinish;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DodgeAttack.Gas")
+	TSubclassOf<UGameplayAbility> DAttackAbility;
+
 	//通常攻撃のアビリティ
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KintaroAttack.Gas")
 	TSubclassOf<UGameplayAbility> KintaroAttack1;
@@ -132,8 +135,8 @@ private:
 	FGameplayTag NextTag3;
 	FGameplayTag NextTag4;
 
-	//カウンターアタック
-	//FGameplayTag CounterAttack = FGameplayTag::RequestGameplayTag(TEXT("IsCounterAttackTag"));
+	// 
+	FGameplayTag m_dodgeAttackTag;
 
 
 	//金太郎タグ

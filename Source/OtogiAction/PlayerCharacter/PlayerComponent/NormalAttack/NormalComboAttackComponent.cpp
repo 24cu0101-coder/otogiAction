@@ -81,6 +81,11 @@ void UNormalComboAttackComponent::BeginPlay()
 			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(NAttackAbilityFinish, 1));
 		}
 
+		if (GetOwner()->HasAuthority() && DAttackAbility)
+		{
+			//プレイヤーにNAttackAbility3付与
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DAttackAbility, 1));
+		}
 
 
 		if (GetOwner()->HasAuthority() && KintaroAttack1)
@@ -139,8 +144,8 @@ void UNormalComboAttackComponent::SetAbilityTag()
 	NextTag3 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag3"));
 	NextTag4 = FGameplayTag::RequestGameplayTag(TEXT("PlayerNotify.NextTag4"));
 
-	//カウンターアタック
-	//FGameplayTag CounterAttack = FGameplayTag::RequestGameplayTag(TEXT("IsCounterAttackTag"));
+	//ジャスト回避攻撃
+	m_dodgeAttackTag = FGameplayTag::RequestGameplayTag(TEXT("IsDodge.DodgeAttack"));
 
 
 	//金太郎タグ
@@ -174,120 +179,127 @@ void UNormalComboAttackComponent::ExectueNormalAttackAbility2()
 		return;
 	}
 
-	////ジャスト回避中のタグがあれば
-	//if (AbilitySystemComponent->HasMatchingGameplayTag(CounterAttack))
-	//{
-
-	//}
-	
-
-	
-
-
-	//金太郎タグがあったら
-	if (AbilitySystemComponent->HasMatchingGameplayTag(kintaroTag))
+	//ジャスト回避中のタグがあれば
+	if (AbilitySystemComponent->HasMatchingGameplayTag(m_dodgeAttackTag))
 	{
-		//アビリティがあるなら
-		//現在のコンボ進行タグが2なら
-		if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag2))
+		if (DAttackAbility)
 		{
-			//アビリティがあるなら
-			if (KintaroAttack3)
-			{
-				//アビリティ実行
-				AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack3);
-				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
-			}
-		}
-
-		//現在のコンボ進行タグが1なら
-		else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag1))
-		{
-			//アビリティがあるなら
-			if (KintaroAttack2)
-			{
-				//アビリティ実行
-				AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack2);
-				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag1);
-			}
-		}
-
-		//入力が可能だったら
-		else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
-		{
-			MCC->StartWarping(600.f);
-
-
-			AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack1);
+			//アビリティ実行
+			AbilitySystemComponent->TryActivateAbilityByClass(DAttackAbility);
+			AbilitySystemComponent->RemoveLooseGameplayTag(m_dodgeAttackTag);
 		}
 	}
-
-
+	
 	else
 	{
-		//現在のコンボ進行タグが2なら
-		if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag4))
+
+
+
+		//金太郎タグがあったら
+		if (AbilitySystemComponent->HasMatchingGameplayTag(kintaroTag))
 		{
 			//アビリティがあるなら
-			if (NAttackAbilityFinish)
+			//現在のコンボ進行タグが2なら
+			if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag2))
 			{
-				//アビリティ実行as
-				AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbilityFinish);
-				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag4);
+				//アビリティがあるなら
+				if (KintaroAttack3)
+				{
+					//アビリティ実行
+					AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack3);
+					AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
+				}
+			}
+
+			//現在のコンボ進行タグが1なら
+			else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag1))
+			{
+				//アビリティがあるなら
+				if (KintaroAttack2)
+				{
+					//アビリティ実行
+					AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack2);
+					AbilitySystemComponent->RemoveLooseGameplayTag(NextTag1);
+				}
+			}
+
+			//入力が可能だったら
+			else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack)&&!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
+			{
+				MCC->StartWarping(600.f);
+
+
+				AbilitySystemComponent->TryActivateAbilityByClass(KintaroAttack1);
 			}
 		}
 
-		//現在のコンボ進行タグが2なら
-		else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag3))
+
+		else
 		{
-			//アビリティがあるなら
-			if (NAttackAbility4)
+			//現在のコンボ進行タグが2なら
+			if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag4))
 			{
-				//アビリティ実行as
-				AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility4);
-				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag3);
+				//アビリティがあるなら
+				if (NAttackAbilityFinish)
+				{
+					//アビリティ実行as
+					AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbilityFinish);
+					AbilitySystemComponent->RemoveLooseGameplayTag(NextTag4);
+				}
 			}
-		}
 
-		//現在のコンボ進行タグが2なら
-		else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag2))
-		{
-			//アビリティがあるなら
-			if (NAttackAbility3)
+			//現在のコンボ進行タグが2なら
+			else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag3))
 			{
-				//アビリティ実行as
-				AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility3);
-				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
+				//アビリティがあるなら
+				if (NAttackAbility4)
+				{
+					//アビリティ実行as
+					AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility4);
+					AbilitySystemComponent->RemoveLooseGameplayTag(NextTag3);
+				}
 			}
-		}
 
-		//現在のコンボ進行タグが1なら
-		else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag1))
-		{
-			//アビリティがあるなら
-			if (NAttackAbility2)
+			//現在のコンボ進行タグが2なら
+			else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag2))
 			{
-				//アビリティ実行
-				AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility2);
-				AbilitySystemComponent->RemoveLooseGameplayTag(NextTag1);
+				//アビリティがあるなら
+				if (NAttackAbility3)
+				{
+					//アビリティ実行as
+					AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility3);
+					AbilitySystemComponent->RemoveLooseGameplayTag(NextTag2);
+				}
 			}
-		}
 
-		//else if(AbilitySystemComponent->HasMatchingGameplayTag(NextTag0))
-		//{
-		//	AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility1);
-		//	AbilitySystemComponent->RemoveLooseGameplayTag(NextTag0);
-		//}
+			//現在のコンボ進行タグが1なら
+			else if (AbilitySystemComponent->HasMatchingGameplayTag(NextTag1))
+			{
+				//アビリティがあるなら
+				if (NAttackAbility2)
+				{
+					//アビリティ実行
+					AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility2);
+					AbilitySystemComponent->RemoveLooseGameplayTag(NextTag1);
+				}
+			}
 
-		//入力が可能だったら
-		else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
-		{
-			AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility1);
-		}
-		if (MCC)
-		{
-			//AttackWarp = true;
-			MCC->StartWarping(600.f);
+			//else if(AbilitySystemComponent->HasMatchingGameplayTag(NextTag0))
+			//{
+			//	AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility1);
+			//	AbilitySystemComponent->RemoveLooseGameplayTag(NextTag0);
+			//}
+
+			//入力が可能だったら
+			else if (!AbilitySystemComponent->HasMatchingGameplayTag(PossibleNAttack))
+			{
+				AbilitySystemComponent->TryActivateAbilityByClass(NAttackAbility1);
+			}
+			if (MCC)
+			{
+				//AttackWarp = true;
+				MCC->StartWarping(600.f);
+			}
 		}
 	}
 }

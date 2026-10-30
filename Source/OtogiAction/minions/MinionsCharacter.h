@@ -16,6 +16,8 @@ class UminionsAttackComponent;
 class UWidgetComponent;
 class USphereCollisionComponent;
 class UMinionsHitReactionComponent;
+class UAnimMontage;
+class UNiagaraSystem;
 
 
 UCLASS()
@@ -28,6 +30,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	FTimerHandle DeathTimerHandle;
+
 
 public:
 
@@ -146,8 +151,45 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool bIsAttackInProgress = false;
 
+	// 死亡アニメーション
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death")
+	TObjectPtr<UAnimMontage> DeathMontage;
+
+	// 死亡時のNiagaraエフェクト
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death")
+	TObjectPtr<UNiagaraSystem> DeathEffect;
+
+	// エフェクトの大きさ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death",
+		meta = (ClampMin = "0.1"))
+	float DeathEffectScale = 1.0f;
+
+	// エフェクト再生時間（秒）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Death",
+		meta = (ClampMin = "0.1"))
+	float DeathEffectDuration = 2.0f;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Death")
+	void OnDead();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Death")
+	void OnDeathAnimationFinished();
+
+
+
+	// 死亡演出用の関数
+	void PlayDeathEffect();
+	void FinishDeath();
+
+	// 攻撃中の回転をロックする
+	void SetAttackRotationLock(bool bLock);
+
+
 private:
 	bool bIsHit = false;
+
+	bool bOriginalUseControllerDesiredRotation = true;
+
 
 public:
 	bool GetIsHitFlg() const { return bIsHit; }

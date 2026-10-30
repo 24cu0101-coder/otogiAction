@@ -82,7 +82,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 	);
 
 	// ‰Â‹‰»‚·‚é‚©‚Ç‚¤‚©(‚R)
-	bool Visualization = false;
+	bool Visualization = true;
 
 	if (bHasOverlap)
 	{

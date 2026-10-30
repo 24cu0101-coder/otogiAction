@@ -15,6 +15,9 @@
 #include "NiagaraFunctionLibrary.h"
 #include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include "OtogiAction/minions/MinionsHitReactionComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
+#include "TimerManager.h"
 
 
 
@@ -180,7 +183,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 	// 被弾エフェクト
 	if (HitEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, GetActorLocation() + FVector(0, 0, 80.f));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, GetActorLocation() + FVector(0, 0, 40.f));
 	}
 
 	if (!StatusComponent)
@@ -267,28 +270,23 @@ void AMinionsCharacter::UpdateHPWidget(float CurrentHP)
 //死
 void AMinionsCharacter::Dead()
 {
-	UE_LOG(LogTemp, Warning, TEXT("minions dead"));
+	if (bIsDead) return;
 
-	// 死亡フラグ
 	bIsDead = true;
 
-	// 攻撃中フラグを解除
+	if (HitReactionComponent)
+	{
+		HitReactionComponent->CancelStunRecovery();
+	}
+
 	bIsAttacking = false;
 	bIsAttackInProgress = false;
 
-	// GASの攻撃Abilityをすべてキャンセル
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->CancelAllAbilities();
 	}
 
-	// アニメーションのモンタージュを停止
-	if (GetMesh() && GetMesh()->GetAnimInstance())
-	{
-		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
-	}
-
-	// AI停止
 	if (AAIController* AI = Cast<AAIController>(GetController()))
 	{
 		if (AI->BrainComponent)
@@ -297,18 +295,39 @@ void AMinionsCharacter::Dead()
 		}
 	}
 
-	// コリジョン停止
+	// 当たり判定を無効化
 	SetActorEnableCollision(false);
 
-	// 非表示
-	SetActorHiddenInGame(true);
-
-	if (AttackComponent)
+	// 再生中のMontageを停止
+	if (GetMesh() && GetMesh()->GetAnimInstance())
 	{
-		AttackComponent->SetShowDebug(false);
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 	}
-}
 
+	// DeathAnimationを再生
+	float AnimDuration = 0.0f;
+
+	if (DeathMontage && GetMesh() && GetMesh()->GetAnimInstance())
+	{
+		AnimDuration = PlayAnimMontage(DeathMontage, 1.0f);
+	}
+
+	// Montageが再生できなかった場合は即座に削除
+	if (AnimDuration <= 0.0f)
+	{
+		Destroy();
+		return;
+	}
+
+	// Montage終了後に削除
+	GetWorldTimerManager().SetTimer(
+		DeathTimerHandle,
+		this,
+		&AMinionsCharacter::PlayDeathEffect,
+		AnimDuration,
+		false
+	);
+}
 
 void AMinionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -386,4 +405,53 @@ void AMinionsCharacter::UpdateHPWidgetVisibility()
 void AMinionsCharacter::SetAttackInProgress(bool bInProgress)
 {
 	bIsAttackInProgress = bInProgress;
+}
+
+void AMinionsCharacter::PlayDeathEffect()
+{
+	// Blueprint側でラグドール化
+	OnDeathAnimationFinished();
+
+	// 死亡エフェクト
+	if (DeathEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			DeathEffect,
+			GetActorLocation() + FVector(0.f, 0.f, 40.f)
+		);
+	}
+
+	// すぐには削除しない
+}
+
+void AMinionsCharacter::FinishDeath()
+{
+	Destroy();
+}
+
+
+
+void AMinionsCharacter::SetAttackRotationLock(bool bLock)
+{
+	if (!GetCharacterMovement())
+	{
+		return;
+	}
+
+	if (bLock)
+	{
+		// 元の設定を保存
+		bOriginalUseControllerDesiredRotation =
+			GetCharacterMovement()->bUseControllerDesiredRotation;
+
+		// AIコントローラーに合わせた回転を停止
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
+	else
+	{
+		// 攻撃終了後に元へ戻す
+		GetCharacterMovement()->bUseControllerDesiredRotation =
+			bOriginalUseControllerDesiredRotation;
+	}
 }
