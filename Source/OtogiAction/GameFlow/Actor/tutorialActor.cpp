@@ -216,8 +216,8 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
     {
         RemoveAllEnemies();
 
-        // インデックス7に入ってから3秒後に演出を開始
-        GetWorld()->GetTimerManager().SetTimer(TutorialSequenceDelayTimerHandle, this, &ATutorialActor::StartStep7Sequence, 3.0f, false);
+        // インデックス7に入ってから10秒後に演出を開始
+        GetWorld()->GetTimerManager().SetTimer(TutorialSequenceDelayTimerHandle, this, &ATutorialActor::StartStep7Sequence, 10.0f, false);
     }
     // すべての目的地を達成した
     if (CurrentStep >= TutorialImages.Num())
@@ -447,7 +447,7 @@ void ATutorialActor::ForceCompleteTutorial()
     // レベル内の敵をすべて削除
     RemoveAllEnemies();
 
-    // 20秒後に実行するタイマーを停止
+    // 13秒後に実行するタイマーを停止
     GetWorld()->GetTimerManager().ClearTimer(
         PlayerControlTimerHandle);
 

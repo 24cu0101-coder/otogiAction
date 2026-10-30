@@ -64,9 +64,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// 消滅時に再生するエフェクト
-	UPROPERTY(EditAnywhere, Category = "Tutorial Minion")
-	TObjectPtr<UNiagaraSystem> DisappearEffect;
 
 public:
 	void DisappearWithEffect();
@@ -81,6 +78,9 @@ public:
 	bool bIsDying = false;
 
 public:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Tutorial")
+	void SpawnDisappearEffect();
 
 	// アニメーション終了時
 private:
