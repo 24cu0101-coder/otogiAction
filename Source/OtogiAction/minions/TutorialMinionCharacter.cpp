@@ -214,28 +214,20 @@ void ATutorialMinionCharacter::DisappearWithEffect()
         Duration);
 }
 
+
 void ATutorialMinionCharacter::OnDisappearMontageEnded(
     UAnimMontage* Montage,
     bool bInterrupted)
 {
-    UE_LOG(LogTemp, Warning,
-        TEXT("① OnDisappearMontageEnded 呼び出し！"));
-
     if (!IsValid(this))
     {
         return;
     }
 
     UE_LOG(LogTemp, Warning,
-        TEXT("② SpawnDisappearEffect 呼び出し前"));
+        TEXT("消滅Montage終了！ Interrupted: %d"),
+        bInterrupted);
 
     SpawnDisappearEffect();
 
-    UE_LOG(LogTemp, Warning,
-        TEXT("③ SpawnDisappearEffect 呼び出し後"));
-
-    Destroy();
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("④ Destroy実行"));
 }

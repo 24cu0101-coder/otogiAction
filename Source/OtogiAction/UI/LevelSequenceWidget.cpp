@@ -53,17 +53,14 @@ void ULevelSequenceWidget::NativeDestruct()
 
 void ULevelSequenceWidget::ShowCurrentImage()
 {
-    // Imageウィジェットと画像のインデックスを確認
     if (!SequenceImage ||
         !SequenceImages.IsValidIndex(CurrentImageIndex))
     {
         return;
     }
 
-    // 現在の画像を取得
     UTexture2D* Texture = SequenceImages[CurrentImageIndex];
 
-    // 画像が設定されている場合は表示
     if (Texture)
     {
         SequenceImage->SetBrushFromTexture(Texture, true);
@@ -77,8 +74,15 @@ void ULevelSequenceWidget::ShowCurrentImage()
             CurrentImageIndex
         );
     }
-}
 
+    // 画像ごとの位置を設定
+    if (ImagePositions.IsValidIndex(CurrentImageIndex))
+    {
+        SequenceImage->SetRenderTranslation(
+            ImagePositions[CurrentImageIndex]
+        );
+    }
+}
 void ULevelSequenceWidget::SwitchNextImage()
 {
     if (SequenceImages.Num() <= 0 || !SequenceImage)

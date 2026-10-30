@@ -217,7 +217,7 @@ void ATutorialActor::CompleteStep(int32 StepIndex)
         RemoveAllEnemies();
 
         // インデックス7に入ってから10秒後に演出を開始
-        GetWorld()->GetTimerManager().SetTimer(TutorialSequenceDelayTimerHandle, this, &ATutorialActor::StartStep7Sequence, 10.0f, false);
+        GetWorld()->GetTimerManager().SetTimer(TutorialSequenceDelayTimerHandle, this, &ATutorialActor::StartStep7Sequence, 6.0f, false);
     }
     // すべての目的地を達成した
     if (CurrentStep >= TutorialImages.Num())
@@ -331,14 +331,6 @@ void ATutorialActor::RemoveAllEnemies()
     {
         if (!IsValid(Actor))
         {
-            continue;
-        }
-
-        // チュートリアルMinionならエフェクトを再生して消す
-        if (ATutorialMinionCharacter* TutorialMinion =
-            Cast<ATutorialMinionCharacter>(Actor))
-        {
-            TutorialMinion->DisappearWithEffect();
             continue;
         }
 

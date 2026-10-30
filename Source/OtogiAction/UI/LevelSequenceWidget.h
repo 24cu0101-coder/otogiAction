@@ -30,6 +30,10 @@ protected:
 
     float SwitchInterval = 3.0f;
 
+    // 画像ごとの表示位置
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Sequence")
+    TArray<FVector2D> ImagePositions;
+
 private:
     int32 CurrentImageIndex = 0;
 
