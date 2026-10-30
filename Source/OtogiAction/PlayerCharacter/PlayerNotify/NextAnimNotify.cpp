@@ -13,14 +13,29 @@ void UNextAnimNotify::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenc
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
+	UE_LOG(LogTemp, Warning, TEXT("【UNextAnimNotify.cpp】: ddd"));
+
+
 	if (!MeshComp) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("【UNextAnimNotify.cpp】: MeshComp"));
+
 
 	if (AActor* OwnerActor = MeshComp->GetOwner())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("【UNextAnimNotify.cpp】: OwnerActor"));
+
+
 		if (UNormalComboAttackComponent* NAttackComp = OwnerActor->FindComponentByClass<UNormalComboAttackComponent>())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("【UNextAnimNotify.cpp】: NAttackComp"));
+
+
 			if (UAbilitySystemComponent* ASComponent = NAttackComp->GetNAttackACS())
 			{
+				UE_LOG(LogTemp, Warning, TEXT("【UNextAnimNotify.cpp】: ASComponent"));
+
+
 				ASComponent->AddLooseGameplayTag(NextNAttackTag);
 			}
 		}
