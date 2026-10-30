@@ -22,28 +22,28 @@ class OTOGIACTION_API UGAPlayerJustDodge : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
-	//UGAPlayerJustDodge();
+	UGAPlayerJustDodge();
 
 public:
 
-	/*virtual void ActivateAbility(
+	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Dodging,
 		const FGameplayAbilityActorInfo* playerActorInfo,
 		const FGameplayAbilityActivationInfo AvtivationInfo,
 		const FGameplayEventData* DodgeTriggerEvent
-	) override;*/
+	) override;
 
 
 protected:
 
-	////ジャスト回避のアニメーションモンタージュ
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
-	//UAnimMontage* JustDodgeMontage;
+	//ジャスト回避のアニメーションモンタージュ
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
+	UAnimMontage* JustDodgeMontage;
 
 
-	////プレイヤーの情報
-	//UPROPERTY(Transient)
-	//APlayerCharacter* m_playerActor;
+	//プレイヤーの情報
+	UPROPERTY(Transient)
+	APlayerCharacter* m_playerActor;
 
 
 

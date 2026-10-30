@@ -205,6 +205,9 @@ private:
 
 	FGameplayTag m_justDodgeAttack;
 
+	// 攻撃された敵のアクター
+	AActor* m_enemyActor;
+
 	UFUNCTION()
 	void StickRotate();
 
