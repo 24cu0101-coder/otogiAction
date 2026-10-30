@@ -5,7 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
+#include "Animation/AnimMontage.h"
+#include "NiagaraSystem.h"
+#include "TimerManager.h"
 #include "TutorialMinionCharacter.generated.h"
+
 
 
 class UAnimMontage;
@@ -60,4 +64,28 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
+public:
+	void DisappearWithEffect();
+
+
+	// 消滅アニメーション
+	UPROPERTY(EditAnywhere, Category = "Tutorial Minion|Death")
+	TObjectPtr<UAnimMontage> DisappearMontage;
+
+
+	// 消滅処理中か
+	bool bIsDying = false;
+
+public:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Tutorial")
+	void SpawnDisappearEffect();
+
+	// アニメーション終了時
+private:
+	void OnDisappearMontageEnded(
+		UAnimMontage* Montage,
+		bool bInterrupted
+	);
 };

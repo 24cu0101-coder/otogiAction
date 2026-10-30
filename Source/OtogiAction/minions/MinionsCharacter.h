@@ -175,6 +175,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Death")
 	void OnDeathAnimationFinished();
 
+	UPROPERTY(EditAnywhere, Category = "Death")
+	float DeathEffectDestroyDelay = 2.0f;
+
 
 
 	// 死亡演出用の関数

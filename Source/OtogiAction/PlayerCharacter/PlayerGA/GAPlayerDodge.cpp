@@ -152,6 +152,9 @@ void UGAPlayerDodge::OnPlayerTakeDamage(AActor* DamagedActor, float Damage, cons
 {
 	if (DamageCauser && DamageCauser->ActorHasTag(FName("Enemy")))
 	{
+		// 敵のアクタを保存
+		m_enemyActor = DamageCauser;
+
 		// 攻撃してきた敵の方向を求める
 		m_justDodgeRelativeAngle = GetEnemyAngleVector(DamageCauser);
 

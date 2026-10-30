@@ -409,6 +409,13 @@ void AMinionsCharacter::SetAttackInProgress(bool bInProgress)
 
 void AMinionsCharacter::PlayDeathEffect()
 {
+	// HPバーを非表示
+	if (HPWidgetComponent)
+	{
+		HPWidgetComponent->SetVisibility(false);
+		HPWidgetComponent->SetHiddenInGame(true);
+	}
+
 	// Blueprint側でラグドール化
 	OnDeathAnimationFinished();
 
@@ -421,8 +428,6 @@ void AMinionsCharacter::PlayDeathEffect()
 			GetActorLocation() + FVector(0.f, 0.f, 40.f)
 		);
 	}
-
-	// すぐには削除しない
 }
 
 void AMinionsCharacter::FinishDeath()
