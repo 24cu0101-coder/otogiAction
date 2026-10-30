@@ -6,6 +6,8 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "PlayerCollisionNotifyState.generated.h"
 
+class USoundBase;
+
 UCLASS()
 class OTOGIACTION_API UPlayerCollisionNotifyState : public UAnimNotify
 {
@@ -47,5 +49,10 @@ protected:
 	//攻撃範囲を左右にどれだけ出すか
 	UPROPERTY(EditAnywhere, Category = "Attack Settings")
 	float SideOffset = 0.01f;
+
+	//ヒットサウンド再生
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack|Sound")
+	USoundBase* HitSound = nullptr;
+
 
 };

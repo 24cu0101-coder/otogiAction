@@ -105,16 +105,20 @@ void UCameraSystemComponent::SetMoveCameraComponent(UMoveCameraComponent* Camera
 
 void UCameraSystemComponent::ApplyCameraSetting(float DeltaTime)
 {
-	if (!SpringArmComp || !CameraComp)return;
+	if (!SpringArmComp || !CameraComp) return;
 
-	FCameraSetting Setting =GetCurrentCameraSetting();
+	// TargetLock中はSpringArmを使用しない
+	if (CurrentCameraMode == ECameraMode::TargetLock)
+	{
+		CameraComp->FieldOfView =FMath::FInterpTo(CameraComp->FieldOfView,TargetLockCameraSetting.FOV,DeltaTime,TargetLockCameraSetting.InterpSpeed);
+		return;
+	}
 
+	FCameraSetting Setting = GetCurrentCameraSetting();
 
 	SpringArmComp->TargetArmLength =FMath::FInterpTo(SpringArmComp->TargetArmLength,Setting.ArmLength,DeltaTime,Setting.InterpSpeed);
 
-
 	CameraComp->FieldOfView =FMath::FInterpTo(CameraComp->FieldOfView,Setting.FOV,DeltaTime,Setting.InterpSpeed);
-
 
 	SpringArmComp->SocketOffset =FMath::VInterpTo(SpringArmComp->SocketOffset,Setting.SocketOffset,DeltaTime,Setting.InterpSpeed);
 }
@@ -130,85 +134,162 @@ void UCameraSystemComponent::CameraMove(const FVector2D& InputValue)
 
 void UCameraSystemComponent::ToggleTargetLock()
 {
-	if (!TargetComp) return;
-
-
+	if (!TargetComp)return;
 
 	TargetComp->ToggleTargetLock();
 
 	if (TargetComp->IsTargeting())
 	{
+		// TargetLock開始
+		if (CameraComp)
+		{
+			CameraComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		}
+
 		SetCameraMode(ECameraMode::TargetLock);
 	}
 	else
 	{
+		// TargetLock終了
 		SetCameraMode(ECameraMode::Normal);
+
+		// 通常カメラを完全に再構築
+		ResetNormalCamera();
 	}
 }
 
-void UCameraSystemComponent::UpdateTargetLockCamera(float DeltaTime)
+//ノーマルカメラにリセット
+void UCameraSystemComponent::ResetNormalCamera()
 {
-	if (!TargetComp)return;
-
-	if (!CameraComp)return;
-
-	AActor* TargetActor = TargetComp->GetCurrentTargetActor();
-
-	if (!TargetActor)return;
+	if (!SpringArmComp || !CameraComp)return;
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 
 	if (!OwnerCharacter)return;
 
-	// PlayerとEnemyの位置
+	// CameraをSpringArmへ戻す
+	CameraComp->AttachToComponent(SpringArmComp,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
-	FVector PlayerLocation =OwnerCharacter->GetActorLocation();
+	// Camera自身のTransformを完全リセット
+	CameraComp->SetRelativeLocation(FVector::ZeroVector);
+	CameraComp->SetRelativeRotation(FRotator::ZeroRotator);
+
+	// 通常カメラの回転
+	const float PlayerYaw = OwnerCharacter->GetActorRotation().Yaw;
+
+	// Playerの向きを基準にする
+	// Pitchは少し上から見る
+	FRotator NormalCameraRotation(-20.0f,PlayerYaw,0.0f);
+
+	SpringArmComp->SetWorldRotation(NormalCameraRotation);
+
+	// 通常カメラ設定
+	SpringArmComp->TargetArmLength = NormalCameraSetting.ArmLength;
+
+	SpringArmComp->SocketOffset = NormalCameraSetting.SocketOffset;
+
+	CameraComp->FieldOfView = NormalCameraSetting.FOV;
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Normal Camera Reset : PlayerYaw=%f / SpringArm=%s / Camera=%s"),
+		PlayerYaw,
+		*SpringArmComp->GetComponentRotation().ToString(),
+		*CameraComp->GetComponentLocation().ToString()
+	);
+}
+
+void UCameraSystemComponent::UpdateTargetLockCamera(float DeltaTime)
+{
+	if (!TargetComp || !CameraComp)return;
+
+	AActor* TargetActor = TargetComp->GetCurrentTargetActor();
+
+	if (!TargetActor) return;
+
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+
+	if (!OwnerCharacter) return;
+
+	// Player位置
+
+	FVector PlayerLocation = OwnerCharacter->GetActorLocation();
+
+	PlayerLocation.Z += PlayerTargetPointHeight;
+
+
+	// Enemy位置
 
 	FVector TargetLocation =TargetActor->GetActorLocation();
 
+	TargetLocation.Z += EnemyTargetPointHeight;
+
+
 	// 2人の中心
+	FVector CenterLocation = (PlayerLocation + TargetLocation) * 0.5f;
 
-	FVector CenterLocation =(PlayerLocation + TargetLocation) * 0.5f;
 
-	// 2人の距離
+	// PlayerとEnemyの距離
 
-	float Distance =FVector::Distance(PlayerLocation, TargetLocation);
+	float Distance =FVector::Distance(PlayerLocation,TargetLocation);
 
-	// カメラを離す距離
+	// 最大距離を超えたらTargetLock終了
+	if (Distance >= MaxTargetCameraDistance)
+	{
+		TargetComp->ToggleTargetLock();
 
-	float CameraDistance =FMath::Max(Distance * 1.2f, 400.0f);
+		SetCameraMode(ECameraMode::Normal);
 
-	// Player → Enemy方向
+		ResetNormalCamera();
 
-	FVector Direction =(TargetLocation - PlayerLocation).GetSafeNormal();
+		UE_LOG(LogTemp,Warning,TEXT("Target Lock End : Distance = %f / MaxDistance = %f"),Distance,MaxTargetCameraDistance);
+
+		return;
+	}
+
+
+	// カメラ距離
+	float CameraDistance =FMath::Clamp(Distance * 1.2f,MinTargetCameraDistance,MaxTargetCameraDistance);
+
+
+	// Player → Enemy
+
+	FVector Direction = (TargetLocation - PlayerLocation).GetSafeNormal();
 
 	if (Direction.IsNearlyZero())return;
 
-	// 2人の横方向からカメラを置く
 
-	FVector CameraDirection =-Direction;
+	// カメラを2人の後ろに配置
+	FVector CameraDirection = -Direction;
 
 	CameraDirection.Z = 0.0f;
 	CameraDirection.Normalize();
 
 	// カメラ位置
+	FVector DesiredCameraLocation = CenterLocation + CameraDirection * CameraDistance;
 
-	FVector DesiredCameraLocation =CenterLocation+ CameraDirection * CameraDistance;
+	// カメラ高さ
+	DesiredCameraLocation.Z += 100.0f;
 
-	// 少し上から見る
-	DesiredCameraLocation.Z += 150.0f;
 
-	// カメラが2人の中心を見る
+	//==================================================
+	// 中心を見る
+	//==================================================
 
-	FVector LookDirection =CenterLocation - DesiredCameraLocation;
+	FVector LookDirection = CenterLocation - DesiredCameraLocation;
 
-	FRotator DesiredRotation =LookDirection.Rotation();
+	FRotator DesiredRotation = LookDirection.Rotation();
 
-	// 滑らかに移動
 
-	FVector NewLocation =FMath::VInterpTo(CameraComp->GetComponentLocation(),DesiredCameraLocation,DeltaTime,TargetLockCameraSetting.InterpSpeed);
+	// カメラ移動
+	const float InterpSpeed = TargetLockCameraSetting.InterpSpeed;
 
-	FRotator NewRotation =FMath::RInterpTo(CameraComp->GetComponentRotation(),DesiredRotation,DeltaTime,TargetLockCameraSetting.InterpSpeed);
+	FVector NewLocation =FMath::VInterpTo(CameraComp->GetComponentLocation(),DesiredCameraLocation,DeltaTime,InterpSpeed);
+
+
+	FRotator NewRotation =FMath::RInterpTo(CameraComp->GetComponentRotation(),DesiredRotation,DeltaTime,InterpSpeed);
+
 
 	CameraComp->SetWorldLocation(NewLocation);
 	CameraComp->SetWorldRotation(NewRotation);

@@ -61,11 +61,7 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-
-	//==================================================
 	// Camera
-	//==================================================
-
 	//カメラ操作Componentを設定
 	void SetMoveCameraComponent(UMoveCameraComponent* CameraComponent);
 
@@ -81,6 +77,9 @@ public:
 	//ターゲット
 	void ToggleTargetLock();
 
+	//ノーマルカメラにリセット
+	void ResetNormalCamera();
+
 	//現在のカメラモードを変更
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void SetCameraMode(ECameraMode NewMode);
@@ -89,11 +88,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Camera")
 	ECameraMode GetCameraMode() const { return CurrentCameraMode; }
 
-
-	//==================================================
 	// Target
-	//==================================================
-
 	//ターゲットComponentを設定
 	void SetTargetComponent(UPlayerTargetComponent* TargetComponent);
 
@@ -107,11 +102,7 @@ public:
 
 
 private:
-
-	//==================================================
 	// Camera
-	//==================================================
-
 	//実際にカメラを操作するComponent
 	UPROPERTY()
 	TObjectPtr<UMoveCameraComponent> MoveCameraComp;
@@ -121,10 +112,7 @@ private:
 	ECameraMode CurrentCameraMode;
 
 
-	//==================================================
 	// Target
-	//==================================================
-
 	//ターゲットを管理するComponent
 	UPROPERTY()
 	TObjectPtr<UPlayerTargetComponent> TargetComp;
@@ -146,16 +134,19 @@ private:
 	float TargetCameraInterpSpeed = 8.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
+	float MinTargetCameraDistance = 400.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
+	float MaxTargetCameraDistance = 1000.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
 	float MaxTargetCameraPitch = 60.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
 	float MinTargetCameraPitch = -60.0f;
 		
 
-	//==================================================
 	// Camera Settings
-	//==================================================
-
 	FCameraSetting GetCurrentCameraSetting() const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Camera|Settings",meta = (AllowPrivateAccess = "true"))

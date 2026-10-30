@@ -7,6 +7,7 @@
 #include "SphereCollisionComponent.generated.h"
 
 class USphereComponent;
+class USoundBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API USphereCollisionComponent : public UActorComponent
@@ -19,8 +20,16 @@ public:
 
 	//
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void ExcuteAreaAttack(float Radius, FName TargetTag, float Damage, float StunPoint, float HitStopDuration, float HitStopTimeScale,
-		float ForwardOffset, float SideOffset);
+	void ExcuteAreaAttack(float Radius,
+		FName TargetTag,
+		float Damage,
+		float StunPoint,
+		float HitStopDuration,
+		float HitStopTimeScale,
+		float ForwardOffset,
+		float SideOffset,
+		USoundBase* HitSound
+	);
 
 protected:
 	// Called when the game starts
