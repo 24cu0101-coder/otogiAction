@@ -11,6 +11,8 @@
 #include "../../HitStopComponent.h"
 #include "../UHitReactionBaseComponent.h"
 #include "../../Enemy/Component/EnemyAttackBaseComponent.h"
+#include "../../Component/Audio/BGMManager.h"
+#include "Sound/SoundBase.h"
 
 // Sets default values for this component's properties
 USphereCollisionComponent::USphereCollisionComponent()
@@ -44,7 +46,7 @@ void USphereCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 }
 
 
-void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage,float StunPoint, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset)
+void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage,float StunPoint, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset, USoundBase* HitSound)
 {
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();
@@ -112,6 +114,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					HitReaction->AddStunPoint(StunPoint);
 				}
 
+				//ヒットストップ
 				if (APlayerCharacter* Player = Cast<APlayerCharacter>(Owner))
 				{
 					if (UHitStopComponent* HitStop = Player->GetHitStopComponent())
@@ -119,6 +122,15 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 						HitStop->TriggerHitStop(Player, OverlappedActor, HitStopDuration, HitStopTimeScale);
 					}
 
+				}
+
+				//ヒットサウンド再生
+				if (HitSound)
+				{
+					if (USoundManagerComponent* SoundManager = GetOwner()->FindComponentByClass<USoundManagerComponent>())
+					{
+						SoundManager->PlaySound(HitSound);
+					}
 				}
 				
 				if (Visualization)

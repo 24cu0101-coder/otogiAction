@@ -47,24 +47,36 @@ APlayerCharacter::APlayerCharacter()
 
 	m_SpringArmComp->SetupAttachment(RootComponent);
 
-	m_CameraComp =CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	m_CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	m_CameraComp->SetupAttachment(m_SpringArmComp);
 
+	m_CameraComp->bUsePawnControlRotation = false;
+
+	m_CameraComp->SetRelativeLocation(FVector::ZeroVector);
+	m_CameraComp->SetRelativeRotation(FRotator::ZeroRotator);
+
 	if (m_SpringArmComp)
 	{
+		// Player‚Ì‰ñ“]‚©‚çŠ®‘S‚É“Æ—§
+		m_SpringArmComp->SetUsingAbsoluteRotation(true);
 
-		m_SpringArmComp->TargetArmLength = 400.f;
+		m_SpringArmComp->TargetArmLength = 400.0f;
+
 		m_SpringArmComp->bDoCollisionTest = false;
 
+		// Camera Lag
 		m_SpringArmComp->bEnableCameraLag = true;
-		m_SpringArmComp->CameraLagSpeed = 1000.f;
+		m_SpringArmComp->CameraLagSpeed = 1000.0f;
 
+		// Rotation Lag
 		m_SpringArmComp->bEnableCameraRotationLag = true;
-		m_SpringArmComp->CameraRotationLagSpeed = 10.f;
+		m_SpringArmComp->CameraRotationLagSpeed = 10.0f;
 
+		// Controller‚©‚ç‰ñ“]‚ð‚à‚ç‚í‚È‚¢
 		m_SpringArmComp->bUsePawnControlRotation = false;
 
+		// e‚Ì‰ñ“]‚ðŒp³‚µ‚È‚¢
 		m_SpringArmComp->bInheritPitch = false;
 		m_SpringArmComp->bInheritYaw = false;
 		m_SpringArmComp->bInheritRoll = false;
