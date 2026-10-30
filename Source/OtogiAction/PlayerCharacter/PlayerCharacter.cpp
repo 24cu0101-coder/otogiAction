@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "PlayerComponent/Move/MoveComponent.h"
 #include "PlayerComponent/Camera/MoveCameraComponent.h"
+#include "PlayerComponent/Camera/CameraSystemComponent.h"
 #include "PlayerComponent/PlayerDodgeComponent.h"
 #include "PlayerComponent/SkillComponent.h"
 #include "PlayerComponent/NormalAttack/NormalComboAttackComponent.h"
@@ -30,6 +31,7 @@
 #include "OtogiAction/GameFlow/Actor/tutorialActor.h"
 #include"PlayerDeathComponent.h"
 #include "../Component/Audio/BGMManager.h"
+#include "Components/SceneComponent.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
@@ -41,33 +43,31 @@ APlayerCharacter::APlayerCharacter()
 	// デフォルトプレイヤーとして設定
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	//スプリングアームとカメラの生成
-	m_SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	m_CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	m_SpringArmComp =CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+
+	m_SpringArmComp->SetupAttachment(RootComponent);
+
+	m_CameraComp =CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+
+	m_CameraComp->SetupAttachment(m_SpringArmComp);
 
 	if (m_SpringArmComp)
 	{
-		//スプリングアームのアタッチ
-		m_SpringArmComp->SetupAttachment(RootComponent);
 
-		//スプリングアームの距離
 		m_SpringArmComp->TargetArmLength = 400.f;
-
-		//カメラの子コリジョンテストを行うか設定
 		m_SpringArmComp->bDoCollisionTest = false;
-		// カメラ位置の追従ラグ
+
 		m_SpringArmComp->bEnableCameraLag = true;
-		m_SpringArmComp->CameraLagSpeed = 1000.0f;
+		m_SpringArmComp->CameraLagSpeed = 1000.f;
 
-		// カメラ回転の追従ラグ
 		m_SpringArmComp->bEnableCameraRotationLag = true;
-		m_SpringArmComp->CameraRotationLagSpeed = 10.0f;
-	}
+		m_SpringArmComp->CameraRotationLagSpeed = 10.f;
 
-	if ((m_CameraComp) && (m_SpringArmComp))
-	{
-		//カメラをスプリングアームにアタッチさせる
-		m_CameraComp->SetupAttachment(m_SpringArmComp, USpringArmComponent::SocketName);
+		m_SpringArmComp->bUsePawnControlRotation = false;
+
+		m_SpringArmComp->bInheritPitch = false;
+		m_SpringArmComp->bInheritYaw = false;
+		m_SpringArmComp->bInheritRoll = false;
 	}
 
 	//AbilitySystem
@@ -78,6 +78,9 @@ APlayerCharacter::APlayerCharacter()
 
 	//カメラ操作コンポーネント生成
 	MovementCameraComp = CreateDefaultSubobject<UMoveCameraComponent>(TEXT("CameraComp"));
+
+	//カメラシステムコンポーネントを作成
+	CameraSystemComp = CreateDefaultSubobject<UCameraSystemComponent>(TEXT("CameraSystemComp"));
 
 	//回避コンポーネント生成
 	PlayerDodgeComp = CreateDefaultSubobject<UPlayerDodgeComponent>(TEXT("DodgeComp"));
@@ -136,6 +139,16 @@ void APlayerCharacter::BeginPlay()
 	if (MovementCameraComp && TargetComp)
 	{
 		MovementCameraComp->SetTargetComponent(TargetComp);
+	}
+
+	
+
+	if (CameraSystemComp)
+	{
+		CameraSystemComp->SetMoveCameraComponent(MovementCameraComp);
+
+		CameraSystemComp->SetTargetComponent(TargetComp);
+
 	}
 
 	// Enhanced Input のマッピングコンテキストを追加
@@ -309,16 +322,11 @@ void APlayerCharacter::OnCharacterMovement(const FInputActionValue& Value)
 //カメラ操作
 void APlayerCharacter::OnCameraMovement(const FInputActionValue& Value)
 {
-
-	if (TargetComp && TargetComp->IsTargeting()) return;
-
-	//スティックの傾きの軸を取得
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (MovementCameraComp)
+	if (CameraSystemComp)
 	{
-		//移動関数を呼び出す
-		MovementCameraComp->CameraMove(LookAxisVector);
+		CameraSystemComp->CameraMove(LookAxisVector);
 	}
 }
 
@@ -505,7 +513,10 @@ void APlayerCharacter::OnAbsorb()
 
 void APlayerCharacter::OnTarget()
 {
-	TargetComp->ToggleTargetLock();
+	if (CameraSystemComp)
+	{
+		CameraSystemComp->ToggleTargetLock();
+	}
 }
 
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
