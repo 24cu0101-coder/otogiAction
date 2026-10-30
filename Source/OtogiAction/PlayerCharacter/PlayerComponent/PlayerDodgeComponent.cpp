@@ -79,18 +79,18 @@ void UPlayerDodgeComponent::ExecuteAbility()
 
 void UPlayerDodgeComponent::ExecuteAbility2()
 {
-	FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
+	//FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
 
-	FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
+	//FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
 
 	FGameplayTag DontDogeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DontDodge"));
 
 
-	//アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
-	if (AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) || AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
-	{
-		return;
-	}
+	////アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
+	//if (AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) || AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
+	//{
+	//	return;
+	//}
 
 	if (AbilitySystemComponent->HasMatchingGameplayTag(DontDogeTag))
 	{
@@ -108,8 +108,42 @@ void UPlayerDodgeComponent::ExecuteAbility2()
 			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
 		}
 	}
-
 }
+
+void UPlayerDodgeComponent::JustExecuteAbility2()
+{
+	//FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
+
+	//FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
+
+	FGameplayTag DontDogeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DontDodge"));
+
+
+	////アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
+	//if (AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) || AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
+	//{
+	//	return;
+	//}
+
+	if (AbilitySystemComponent->HasMatchingGameplayTag(DontDogeTag))
+	{
+		return;
+	}
+
+	else
+	{
+		//回避アビリティがあるなら
+		if (JustDodgeAbility)
+		{
+			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
+
+			//アビリティ実行
+			AbilitySystemComponent->TryActivateAbilityByClass(JustDodgeAbility);
+		}
+	}
+}
+
+
 
 UAbilitySystemComponent* UPlayerDodgeComponent::GetDodgeAbilirtSystemComponent()
 {
