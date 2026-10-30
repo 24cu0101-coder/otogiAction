@@ -1,23 +1,17 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "TutorialMinionCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "TutorialMinionCharacter.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
-#include "TimerManager.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
-#include "NiagaraFunctionLibrary.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/DamageType.h"
 
-// Sets default values
+// コンストラクタ
 ATutorialMinionCharacter::ATutorialMinionCharacter()
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -32,6 +26,7 @@ ATutorialMinionCharacter::ATutorialMinionCharacter()
     GetCharacterMovement()->bOrientRotationToMovement = false;
     GetCharacterMovement()->bUseControllerDesiredRotation = false;
 }
+
 void ATutorialMinionCharacter::BeginPlay()
 {
     Super::BeginPlay();
@@ -75,18 +70,15 @@ void ATutorialMinionCharacter::PlayTutorialAttack()
     AnimInstance->Montage_Play(AttackMontage);
 }
 
-// Called every frame
 void ATutorialMinionCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
+    Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
-void ATutorialMinionCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ATutorialMinionCharacter::SetupPlayerInputComponent(
+    UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 void ATutorialMinionCharacter::ApplyTutorialAttackDamage()
@@ -151,7 +143,6 @@ void ATutorialMinionCharacter::ApplyTutorialAttackDamage()
     }
 }
 
-
 void ATutorialMinionCharacter::DisappearWithEffect()
 {
     if (bIsDying)
@@ -167,7 +158,7 @@ void ATutorialMinionCharacter::DisappearWithEffect()
     // 当たり判定を無効化
     SetActorEnableCollision(false);
 
-    // HPバーがある場合は非表示
+    // HPバーを非表示
     TArray<UWidgetComponent*> WidgetComponents;
     GetComponents<UWidgetComponent>(WidgetComponents);
 
@@ -180,20 +171,34 @@ void ATutorialMinionCharacter::DisappearWithEffect()
         }
     }
 
-    // アニメーションを取得
     UAnimInstance* AnimInstance =
         GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
 
     if (!DisappearMontage || !AnimInstance)
     {
-        // アニメーションが設定されていない場合
-        // エフェクトを再生して削除
+        UE_LOG(LogTemp, Error,
+            TEXT("DisappearMontageまたはAnimInstanceがありません"));
+
         OnDisappearMontageEnded(nullptr, false);
         return;
     }
 
-    // アニメーション終了時の処理を登録
+    // 先にアニメーションを再生
+    const float Duration =
+        AnimInstance->Montage_Play(DisappearMontage);
+
+    if (Duration <= 0.0f)
+    {
+        UE_LOG(LogTemp, Error,
+            TEXT("DisappearMontageの再生に失敗しました"));
+
+        OnDisappearMontageEnded(nullptr, false);
+        return;
+    }
+
+    // 再生後に終了通知を登録
     FOnMontageEnded EndDelegate;
+
     EndDelegate.BindUObject(
         this,
         &ATutorialMinionCharacter::OnDisappearMontageEnded
@@ -204,36 +209,33 @@ void ATutorialMinionCharacter::DisappearWithEffect()
         DisappearMontage
     );
 
-    // 消滅アニメーション再生
-    const float Duration =
-        AnimInstance->Montage_Play(DisappearMontage);
-
-    if (Duration <= 0.0f)
-    {
-        OnDisappearMontageEnded(nullptr, false);
-    }
+    UE_LOG(LogTemp, Warning,
+        TEXT("DisappearMontage再生開始：%f秒"),
+        Duration);
 }
 
 void ATutorialMinionCharacter::OnDisappearMontageEnded(
     UAnimMontage* Montage,
     bool bInterrupted)
 {
+    UE_LOG(LogTemp, Warning,
+        TEXT("① OnDisappearMontageEnded 呼び出し！"));
+
     if (!IsValid(this))
     {
         return;
     }
 
-    // Niagaraエフェクトを再生
-    if (DisappearEffect)
-    {
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-            GetWorld(),
-            DisappearEffect,
-            GetActorLocation(),
-            GetActorRotation()
-        );
-    }
+    UE_LOG(LogTemp, Warning,
+        TEXT("② SpawnDisappearEffect 呼び出し前"));
 
-    // Actorを削除
+    SpawnDisappearEffect();
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("③ SpawnDisappearEffect 呼び出し後"));
+
     Destroy();
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("④ Destroy実行"));
 }
