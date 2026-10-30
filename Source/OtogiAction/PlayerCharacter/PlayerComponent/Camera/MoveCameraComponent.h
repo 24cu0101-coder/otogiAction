@@ -6,14 +6,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "CameraSystemComponent.h"
 #include "MoveCameraComponent.generated.h"
+
 
 //‘O•ûéŒ¾
 class ACharacter;
 class USpringArmComponent;
 class UCameraComponent;
 class UPlayerTargetComponent;
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UMoveCameraComponent : public UActorComponent
 {

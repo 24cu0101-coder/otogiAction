@@ -3,6 +3,7 @@
 
 #include "PlayerTargetComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
 
 // Sets default values for this component's properties
@@ -36,13 +37,36 @@ void UPlayerTargetComponent::ToggleTargetLock()
 
 	if (CurrentTargetActor)
 	{
-		UE_LOG(LogTemp, Log, TEXT("TargetLockON : %s"), *CurrentTargetActor->GetName());
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("===== TARGET LOCK =====")
+		);
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Target Actor : %s"),
+			*CurrentTargetActor->GetName()
+		);
+
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Target Location : %s"),
+			*CurrentTargetActor->GetActorLocation().ToString()
+		);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("TargetNotfound"));
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("===== TARGET NOT FOUND =====")
+		);
 	}
 }
+
 
 //攻撃時の吸い寄せ
 AActor* UPlayerTargetComponent::GetSoftLockTarget(float SoftLockRadius)
@@ -77,50 +101,63 @@ AActor* UPlayerTargetComponent::GetSoftLockTarget(float SoftLockRadius)
 AActor* UPlayerTargetComponent::GetCloseEnemyInRadius(float Radius)
 {
 	AActor* Owner = GetOwner();
-	if (!Owner)return nullptr;
+	if (!Owner)
+	{
+		return nullptr;
+	}
 
 	FVector SearchOrigin = Owner->GetActorLocation();
 
-	TArray<AActor*>ActorsToIgnore;
+	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Owner);
 
-	TArray <FHitResult> HitResults;
+	TArray<FHitResult> HitResults;
 
-	//開始と終了を同じ位置に設定して周囲の敵をスキャン
+	// 開始と終了を同じ位置に設定して周囲の敵をスキャン
 	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
 		GetWorld(),
 		SearchOrigin,
 		SearchOrigin,
 		Radius,
-		UEngineTypes::ConvertToTraceType(ECC_Pawn), 
+		UEngineTypes::ConvertToTraceType(ECC_Pawn),
 		false,
 		ActorsToIgnore,
 		EDrawDebugTrace::None,
 		HitResults,
 		true
 	);
+
 	AActor* ClosestEnemy = nullptr;
 	float ClosestDistance = UE_BIG_NUMBER;
-	//スキャンに引っかかったEnemyをターゲットに暫定
+
 	if (bHit)
 	{
-
-
 		for (const FHitResult& Hit : HitResults)
 		{
 			AActor* HitActor = Hit.GetActor();
-			if (HitActor && HitActor != Owner)
-			{
-				//Pawnクラス以外をはじく
-				APawn* TargetPawn = Cast<APawn>(HitActor);
-				if (!TargetPawn) continue;
 
-				float Dist = FVector::Dist(SearchOrigin, HitActor->GetActorLocation());
-				if (Dist < ClosestDistance)
-				{
-					ClosestDistance = Dist;
-					ClosestEnemy = HitActor;
-				}
+			// Enemyタグを持っていないActorは除外
+			if (!IsValidTargetActor(HitActor))
+			{
+				continue;
+			}
+
+			// Pawnクラス以外を除外
+			APawn* TargetPawn = Cast<APawn>(HitActor);
+			if (!TargetPawn)
+			{
+				continue;
+			}
+
+			float Dist = FVector::Dist(
+				SearchOrigin,
+				HitActor->GetActorLocation()
+			);
+
+			if (Dist < ClosestDistance)
+			{
+				ClosestDistance = Dist;
+				ClosestEnemy = HitActor;
 			}
 		}
 	}
@@ -128,72 +165,94 @@ AActor* UPlayerTargetComponent::GetCloseEnemyInRadius(float Radius)
 	return ClosestEnemy;
 }
 
+bool UPlayerTargetComponent::IsValidTargetActor(AActor* Actor) const
+{
+	if (!Actor)return false;
+
+	return Actor->ActorHasTag(TEXT("Enemy"));
+}
+
 //最もターゲットしやすい敵を探索する
 AActor* UPlayerTargetComponent::FindBestTargetForward()
 {
 	AActor* Owner = GetOwner();
-	if (!Owner) return nullptr;
 
-	//カメラ正面の敵を索敵
-	APlayerController* PlayerCon = Cast<APlayerController>(Owner->GetNetOwningPlayer()->GetPlayerController(GetWorld()));
-	if (!PlayerCon) return nullptr;
+	if (!Owner)
+	{
+		return nullptr;
+	}
 
-	//カメラの位置と角度
+	// プレイヤーコントローラー取得
+	APlayerController* PlayerCon =Cast<APlayerController>(Owner->GetNetOwningPlayer()->GetPlayerController(GetWorld()));
+
+	if (!PlayerCon)
+	{
+		return nullptr;
+	}
+
+	// カメラの位置と回転を取得
 	FVector CameraLocation;
 	FRotator CameraRotation;
 
-	//カメラの位置と角度を取得
-	PlayerCon->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	PlayerCon->GetPlayerViewPoint(CameraLocation,CameraRotation);
 
-	// カメラの正面ベクトルを使って、スキャンの開始位置と終了位置を計算
-	FVector StartLoc = CameraLocation;
-	FVector EndLoc = StartLoc + (CameraRotation.Vector() * TargetRange);
+	// カメラ正面方向
+	FVector CameraForward = CameraRotation.Vector();
 
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(Owner);
+	// Enemyタグを持つActorをすべて取得
+	TArray<AActor*> EnemyActors;
 
-	TArray<FHitResult> HitResults;
-
-	//敵をスキャン
-	bool bHit = UKismetSystemLibrary::SphereTraceMulti(
-		GetWorld(),
-		StartLoc,
-		EndLoc,
-		TargetRadius,
-		UEngineTypes::ConvertToTraceType(ECC_Pawn),
-		false,
-		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration, 
-		HitResults,
-		true,
-		FLinearColor::Red,
-		FLinearColor::Green,
-		5.f
-	);
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(),TEXT("Enemy"),EnemyActors);
 
 	AActor* BestTarget = nullptr;
-	float ClosestDistance = UE_BIG_NUMBER;
 
-	if (bHit)
+	// Dot積が大きいほどカメラ正面に近い
+	float BestDot = -1.0f;
+
+	for (AActor* Enemy : EnemyActors)
 	{
-		for (const FHitResult& Hit : HitResults)
+		if (!Enemy)
 		{
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor && HitActor != Owner)
-			{
-				// 当たったアクターがPawnクラスかチェックする
-				APawn* TargetPawn = Cast<APawn>(HitActor);
-				if (!TargetPawn) continue;
+			continue;
+		}
 
-				float Dist = FVector::Dist(StartLoc, HitActor->GetActorLocation());
-				if (Dist < ClosestDistance)
-				{
-					ClosestDistance = Dist;
-					BestTarget = HitActor;
-				}
-			}
+		// プレイヤー自身は除外
+		if (Enemy == Owner)
+		{
+			continue;
+		}
+
+		// カメラから敵への方向
+		FVector DirectionToEnemy =Enemy->GetActorLocation() - CameraLocation;
+
+		float Distance = DirectionToEnemy.Size();
+
+		// ターゲット範囲外なら除外
+		if (Distance > TargetRange)
+		{
+			continue;
+		}
+
+		// 正規化
+		DirectionToEnemy.Normalize();
+
+		// カメラ正面と敵方向のDot積
+		float Dot =FVector::DotProduct(CameraForward,DirectionToEnemy);
+
+		// カメラの後ろにいる敵は除外
+		if (Dot <= 0.0f)
+		{
+			continue;
+		}
+
+		// よりカメラ正面に近い敵を採用
+		if (Dot > BestDot)
+		{
+			BestDot = Dot;
+			BestTarget = Enemy;
 		}
 	}
+
 	return BestTarget;
 }
 

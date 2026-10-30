@@ -1,5 +1,5 @@
 //担当：飯島
-//
+//カメラ操作
 
 #pragma once
 
@@ -7,6 +7,43 @@
 #include "Components/ActorComponent.h"
 #include "CameraSystemComponent.generated.h"
 
+//前方宣言
+class UMoveCameraComponent;
+class UPlayerTargetComponent;
+class AActor;
+class USpringArmComponent;
+class UCameraComponent;
+
+UENUM(BlueprintType)
+enum class ECameraMode : uint8
+{
+	Normal		UMETA(DisplayName = "Normal"),
+	TargetLock	UMETA(DisplayName = "Target Lock"),
+	BossBattle	UMETA(DisplayName = "Boss Battle")
+};
+
+//カメラ設定構造体
+USTRUCT(BlueprintType)
+struct FCameraSetting
+{
+	GENERATED_BODY()
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float ArmLength = 400.0f;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float FOV = 90.0f;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	FVector SocketOffset = FVector::ZeroVector;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float InterpSpeed = 8.0f;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UCameraSystemComponent : public UActorComponent
@@ -14,16 +51,121 @@ class OTOGIACTION_API UCameraSystemComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
+	//コンストラクタ
 	UCameraSystemComponent();
 
 protected:
-	// Called when the game starts
+	//生成されたときに処理される
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+public:
+
+	//==================================================
+	// Camera
+	//==================================================
+
+	//カメラ操作Componentを設定
+	void SetMoveCameraComponent(UMoveCameraComponent* CameraComponent);
+
+	//カメラ設定を適応
+	void ApplyCameraSetting(float DeltaTime);
+
+	//カメラ操作をおこなう関数
+	void CameraMove(const FVector2D& InputValue);
+
+	//ターゲット中のカメラ更新
+	void UpdateTargetLockCamera(float DeltaTime);
+
+	//ターゲット
+	void ToggleTargetLock();
+
+	//現在のカメラモードを変更
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void SetCameraMode(ECameraMode NewMode);
+
+	//現在のカメラモードを取得
+	UFUNCTION(BlueprintPure, Category = "Camera")
+	ECameraMode GetCameraMode() const { return CurrentCameraMode; }
+
+
+	//==================================================
+	// Target
+	//==================================================
+
+	//ターゲットComponentを設定
+	void SetTargetComponent(UPlayerTargetComponent* TargetComponent);
+
+	//現在のターゲットを取得
+	UFUNCTION(BlueprintPure, Category = "Camera|Target")
+	AActor* GetCurrentTarget() const;
+
+	//ターゲット中か
+	UFUNCTION(BlueprintPure, Category = "Camera|Target")
+	bool IsTargeting() const;
+
+
+private:
+
+	//==================================================
+	// Camera
+	//==================================================
+
+	//実際にカメラを操作するComponent
+	UPROPERTY()
+	TObjectPtr<UMoveCameraComponent> MoveCameraComp;
+
+	// 現在のカメラモード
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	ECameraMode CurrentCameraMode;
+
+
+	//==================================================
+	// Target
+	//==================================================
+
+	//ターゲットを管理するComponent
+	UPROPERTY()
+	TObjectPtr<UPlayerTargetComponent> TargetComp;
+
+	UPROPERTY()
+	TObjectPtr<USpringArmComponent> SpringArmComp;
+
+	UPROPERTY()
+	TObjectPtr<UCameraComponent> CameraComp;
+
+
+	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
+	float PlayerTargetPointHeight = 80.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
+	float EnemyTargetPointHeight = 80.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
+	float TargetCameraInterpSpeed = 8.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
+	float MaxTargetCameraPitch = 60.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|TargetLock")
+	float MinTargetCameraPitch = -60.0f;
 		
+
+	//==================================================
+	// Camera Settings
+	//==================================================
+
+	FCameraSetting GetCurrentCameraSetting() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Camera|Settings",meta = (AllowPrivateAccess = "true"))
+	FCameraSetting NormalCameraSetting;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Camera|Settings",meta = (AllowPrivateAccess = "true"))
+	FCameraSetting TargetLockCameraSetting;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Camera|Settings",meta = (AllowPrivateAccess = "true"))
+	FCameraSetting BossBattleCameraSetting;
 };

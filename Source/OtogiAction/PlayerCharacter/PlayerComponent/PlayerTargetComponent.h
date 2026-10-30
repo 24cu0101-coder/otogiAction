@@ -34,6 +34,9 @@ public:
 	FORCEINLINE AActor* GetCurrentTargetActor() const { return CurrentTargetActor; }
 	FORCEINLINE bool IsTargeting()const { return CurrentTargetActor != nullptr; }
 
+
+	bool IsValidTargetActor(AActor* Actor) const;
+
 private:
 	//現在ターゲットしているアクター
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target", meta = (AllowPrivateAccess = true));

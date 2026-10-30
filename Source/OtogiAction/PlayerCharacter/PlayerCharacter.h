@@ -17,6 +17,8 @@ class UAbilitySystemComponent;
 //camera
 class USpringArmComponent;
 class UCameraComponent;
+class UCameraSystemComponent;
+
 //move
 class UMoveComponent;
 class UMoveCameraComponent;
@@ -79,6 +81,7 @@ public:
 	//外部からコンポーネントを触るため野ゲッター
 	FORCEINLINE UMoveComponent* GetCustomMovementComponent() const { return MovementCharaComp; }
 	FORCEINLINE UMoveCameraComponent* GetCustomCameraComponent() const { return MovementCameraComp; }
+	FORCEINLINE UCameraSystemComponent* GetCameraSystemComponent() const { return CameraSystemComp; }
 
 	//AbilitySystemInterfaceのゲッター関数
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -125,6 +128,10 @@ private:
 	//カメラ操作コンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UMoveCameraComponent* MovementCameraComp;
+
+	//カメラシステムコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	UCameraSystemComponent* CameraSystemComp;
 
 	//キャラ回避コンポーネント(髙山)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge", meta = (AllowPrivateAccess = "true"))
