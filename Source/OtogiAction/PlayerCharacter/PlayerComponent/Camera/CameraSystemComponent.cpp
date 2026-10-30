@@ -213,18 +213,13 @@ void UCameraSystemComponent::UpdateTargetLockCamera(float DeltaTime)
 	if (!OwnerCharacter) return;
 
 	// Player位置
-
 	FVector PlayerLocation = OwnerCharacter->GetActorLocation();
 
 	PlayerLocation.Z += PlayerTargetPointHeight;
 
 
 	// Enemy位置
-
-	FVector TargetLocation =TargetActor->GetActorLocation();
-
-	TargetLocation.Z += EnemyTargetPointHeight;
-
+	FVector TargetLocation = GetEnemyTargetPoint();
 
 	// 2人の中心
 	FVector CenterLocation = (PlayerLocation + TargetLocation) * 0.5f;
@@ -322,6 +317,27 @@ AActor* UCameraSystemComponent::GetCurrentTarget() const
 	}
 
 	return TargetComp->GetCurrentTargetActor();
+}
+
+FVector UCameraSystemComponent::GetEnemyTargetPoint() const
+{
+	if (!TargetComp)
+	{
+		return FVector::ZeroVector;
+	}
+
+	AActor* TargetActor = TargetComp->GetCurrentTargetActor();
+
+	if (!TargetActor)
+	{
+		return FVector::ZeroVector;
+	}
+
+	FVector TargetLocation = TargetActor->GetActorLocation();
+
+	TargetLocation.Z += EnemyTargetPointHeight;
+
+	return TargetLocation;
 }
 
 //ターゲットしているか

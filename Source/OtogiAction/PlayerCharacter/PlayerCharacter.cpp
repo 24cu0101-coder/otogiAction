@@ -32,13 +32,16 @@
 #include"PlayerDeathComponent.h"
 #include "../Component/Audio/BGMManager.h"
 #include "Components/SceneComponent.h"
+#include "../UI/TargetLockWidget.h"
 
 //コンストラクタ
 APlayerCharacter::APlayerCharacter()
 {
  	//毎フレーム、このクラスのTick()を呼ぶかどうかを決めるフラグ
 	//オフにする
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+
+	TargetLockWidget = nullptr;
 
 	// デフォルトプレイヤーとして設定
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -257,6 +260,31 @@ void APlayerCharacter::BeginPlay()
 		StatusComp->OnDamaged.AddDynamic(this, &APlayerCharacter::OnPlayerDamaged);
 		PreviousHP = StatusComp->GetMaxHP();
 	}
+
+	//ターゲットウィジェット表示
+	if (TargetLockWidgetClass)
+	{
+		APlayerController* PlayerController =
+			Cast<APlayerController>(GetController());
+
+		if (PlayerController)
+		{
+			TargetLockWidget =
+				CreateWidget<UTargetLockWidget>(
+					PlayerController,
+					TargetLockWidgetClass
+				);
+
+			if (TargetLockWidget)
+			{
+				TargetLockWidget->AddToViewport();
+
+				// 最初はターゲットなし
+				TargetLockWidget->ClearTarget();
+			}
+		}
+	}
+	bWasTargeting = false;
 }
 
 //毎フレーム処理
@@ -264,6 +292,38 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Super::Tick(DeltaTime);
+
+	//========================================
+	// Target Lock UI
+	//========================================
+
+	if (CameraSystemComp && TargetLockWidget)
+	{
+		bool bIsTargeting =
+			CameraSystemComp->IsTargeting();
+
+		// ターゲット開始
+		if (bIsTargeting && !bWasTargeting)
+		{
+			AActor* TargetActor =
+				CameraSystemComp->GetCurrentTarget();
+
+			if (TargetActor)
+			{
+				TargetLockWidget->SetTarget(TargetActor);
+			}
+		}
+
+		// ターゲット解除
+		else if (!bIsTargeting && bWasTargeting)
+		{
+			TargetLockWidget->ClearTarget();
+		}
+
+		// 現在の状態を保存
+		bWasTargeting = bIsTargeting;
+	}
 }
 
 //入力インプット
@@ -525,10 +585,12 @@ void APlayerCharacter::OnAbsorb()
 
 void APlayerCharacter::OnTarget()
 {
-	if (CameraSystemComp)
+	if (!CameraSystemComp)
 	{
-		CameraSystemComp->ToggleTargetLock();
+		return;
 	}
+
+	CameraSystemComp->ToggleTargetLock();
 }
 
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数

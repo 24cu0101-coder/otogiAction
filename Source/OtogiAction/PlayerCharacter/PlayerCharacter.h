@@ -53,6 +53,7 @@ class UPlayerDeathComponent;
 class UPlayerHPWidget;
 class USkillGaugeWidget;
 class USkillCircle;
+class UTargetLockWidget;
 
 //Sound
 class USoundManagerComponent;
@@ -223,6 +224,17 @@ private:
 
 	UPROPERTY()
 	USkillCircle* SkillCircle;
+
+	//ターゲットロックUI
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target|UI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UTargetLockWidget> TargetLockWidgetClass;
+
+	//生成されたターゲットロックUI
+	UPROPERTY()
+	UTargetLockWidget* TargetLockWidget;
+
+	//前フレームのターゲット状態
+	bool bWasTargeting = false;
 
 
 	//-------------------------
