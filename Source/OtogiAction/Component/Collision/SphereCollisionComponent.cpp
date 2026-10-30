@@ -123,7 +123,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 				
 				if (Visualization)
 				{
-					//デバッグ用の表示
+					/*デバッグ用の表示
 					DrawDebugSphere(
 						GetWorld(),
 						Center,
@@ -134,7 +134,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 						1.0f,                       // 2秒間表示
 						0,
 						.5f                        // 線の太さ
-					);
+					);*/
 				}
 				// 二重ヒット防止リストに追加
 				DamagedActors.Add(OverlappedActor);
@@ -147,7 +147,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 	{
 		if (Visualization)
 		{
-			//デバッグ用の表示
+			/*デバッグ用の表示
 			DrawDebugSphere(
 				GetWorld(),
 				Center,
@@ -158,7 +158,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 				1.0f,                       // 2秒間表示
 				0,
 				.5f                        // 線の太さ
-			);
+			);*/
 		}
 	}
 
