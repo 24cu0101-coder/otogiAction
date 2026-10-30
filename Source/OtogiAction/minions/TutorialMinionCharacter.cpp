@@ -13,6 +13,8 @@
 #include "Engine/World.h"
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/DamageType.h"
 
 // Sets default values
@@ -147,4 +149,91 @@ void ATutorialMinionCharacter::ApplyTutorialAttackDamage()
             AttackDamage
         );
     }
+}
+
+
+void ATutorialMinionCharacter::DisappearWithEffect()
+{
+    if (bIsDying)
+    {
+        return;
+    }
+
+    bIsDying = true;
+
+    // 攻撃タイマーを停止
+    GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+
+    // 当たり判定を無効化
+    SetActorEnableCollision(false);
+
+    // HPバーがある場合は非表示
+    TArray<UWidgetComponent*> WidgetComponents;
+    GetComponents<UWidgetComponent>(WidgetComponents);
+
+    for (UWidgetComponent* Widget : WidgetComponents)
+    {
+        if (Widget)
+        {
+            Widget->SetVisibility(false);
+            Widget->SetHiddenInGame(true);
+        }
+    }
+
+    // アニメーションを取得
+    UAnimInstance* AnimInstance =
+        GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+
+    if (!DisappearMontage || !AnimInstance)
+    {
+        // アニメーションが設定されていない場合
+        // エフェクトを再生して削除
+        OnDisappearMontageEnded(nullptr, false);
+        return;
+    }
+
+    // アニメーション終了時の処理を登録
+    FOnMontageEnded EndDelegate;
+    EndDelegate.BindUObject(
+        this,
+        &ATutorialMinionCharacter::OnDisappearMontageEnded
+    );
+
+    AnimInstance->Montage_SetEndDelegate(
+        EndDelegate,
+        DisappearMontage
+    );
+
+    // 消滅アニメーション再生
+    const float Duration =
+        AnimInstance->Montage_Play(DisappearMontage);
+
+    if (Duration <= 0.0f)
+    {
+        OnDisappearMontageEnded(nullptr, false);
+    }
+}
+
+void ATutorialMinionCharacter::OnDisappearMontageEnded(
+    UAnimMontage* Montage,
+    bool bInterrupted)
+{
+    if (!IsValid(this))
+    {
+        return;
+    }
+
+    // Niagaraエフェクトを再生
+    if (DisappearEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(),
+            DisappearEffect,
+            GetActorLocation(),
+            GetActorRotation()
+        );
+    }
+
+    // Actorを削除
+    Destroy();
 }

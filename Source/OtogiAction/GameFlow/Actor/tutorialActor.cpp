@@ -17,6 +17,8 @@
 #include "GameFramework/Pawn.h"
 #include "Blueprint/UserWidget.h"
 #include "Sound/SoundBase.h"
+#include "OtogiAction/minions/TutorialMinionCharacter.h"
+
 
 ATutorialActor::ATutorialActor()
 {
@@ -319,7 +321,6 @@ void ATutorialActor::RemoveAllEnemies()
 {
     TArray<AActor*> AllActors;
 
-    // レベル内のActorをすべて取得
     UGameplayStatics::GetAllActorsWithTag(
         GetWorld(),
         FName("Enemy"),
@@ -328,37 +329,25 @@ void ATutorialActor::RemoveAllEnemies()
 
     for (AActor* Actor : AllActors)
     {
-        if (!Actor)
+        if (!IsValid(Actor))
         {
             continue;
         }
 
-        // 当たり判定を無効化
-        TArray<UPrimitiveComponent*> Components;
-        Actor->GetComponents<UPrimitiveComponent>(Components);
-
-        for (UPrimitiveComponent* Component : Components)
+        // チュートリアルMinionならエフェクトを再生して消す
+        if (ATutorialMinionCharacter* TutorialMinion =
+            Cast<ATutorialMinionCharacter>(Actor))
         {
-            if (Component)
-            {
-                Component->SetCollisionEnabled(
-                    ECollisionEnabled::NoCollision
-                );
-            }
+            TutorialMinion->DisappearWithEffect();
+            continue;
         }
 
-        // 敵を非表示にする
-        Actor->SetActorHiddenInGame(true);
-
-        // 敵の処理を停止
-        Actor->SetActorTickEnabled(false);
-
-        // 敵を削除
+        // それ以外の敵は従来どおり削除
         Actor->Destroy();
     }
 
     UE_LOG(LogTemp, Warning,
-        TEXT("チュートリアル条件達成：敵をすべて削除しました"));
+        TEXT("チュートリアル条件達成：敵の削除処理を実行しました"));
 }
 
 void ATutorialActor::PlayTutorialClearSequence()

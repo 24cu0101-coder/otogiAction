@@ -4,6 +4,7 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "MinionsAttackNotify.generated.h"
 
+class USoundBase;
 
 UCLASS()
 class OTOGIACTION_API UMinionsAttackNotify : public UAnimNotify
@@ -41,6 +42,10 @@ public:
 	//横方向へのずらし
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	float SideOffset = 0.f;
+
+	//ヒットサウンド再生
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack|Sound")
+	USoundBase* HitSound = nullptr;
 
 
 

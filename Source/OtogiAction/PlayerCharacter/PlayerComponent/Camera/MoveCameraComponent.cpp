@@ -54,15 +54,18 @@ void UMoveCameraComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UMoveCameraComponent::CameraMove(FVector2D InputValue)
 {
-	if (!SpringArmComp)
-	{
-		return;
-	}
+	if (!SpringArmComp)return;
 
 	FRotator CurrentRot = SpringArmComp->GetComponentRotation();
 
+	// ‰¡‰ñ“]
 	CurrentRot.Yaw += InputValue.X;
-	CurrentRot.Pitch =FMath::Clamp(CurrentRot.Pitch + InputValue.Y,-60.0f,10.0f);
+
+	// c‰ñ“]
+	CurrentRot.Pitch = FMath::Clamp(CurrentRot.Pitch + InputValue.Y, -60.0f, 10.0f);
+
+	// Roll‚Íâ‘Î‚ÉŽg‚í‚È‚¢
+	CurrentRot.Roll = 0.0f;
 
 	SpringArmComp->SetWorldRotation(CurrentRot);
 }
