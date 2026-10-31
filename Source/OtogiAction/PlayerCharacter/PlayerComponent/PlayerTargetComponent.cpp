@@ -67,6 +67,37 @@ void UPlayerTargetComponent::ToggleTargetLock()
 	}
 }
 
+void UPlayerTargetComponent::ChangeTarget(const FVector2D& InputDirection)
+{
+	if (!IsTargeting())
+	{
+		return;
+	}
+
+	AActor* NewTarget = FindNextTarget(InputDirection);
+
+	if (!IsValid(NewTarget))
+	{
+		return;
+	}
+
+	// ƒ^[ƒQƒbƒg•ÏX
+	CurrentTargetActor = NewTarget;
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("===== TARGET CHANGE =====")
+	);
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("New Target : %s"),
+		*CurrentTargetActor->GetName()
+	);
+}
+
 
 //UŒ‚‚Ì‹z‚¢Šñ‚¹
 AActor* UPlayerTargetComponent::GetSoftLockTarget(float SoftLockRadius)
@@ -230,6 +261,117 @@ AActor* UPlayerTargetComponent::FindBestTargetForward()
 		if (Dot > BestDot)
 		{
 			BestDot = Dot;
+			BestTarget = Enemy;
+		}
+	}
+
+	return BestTarget;
+}
+
+AActor* UPlayerTargetComponent::FindNextTarget(const FVector2D& InputDirection)
+{
+	AActor* Owner = GetOwner();
+
+	if (!Owner)
+	{
+		return nullptr;
+	}
+
+	AActor* CurrentTarget = GetCurrentTargetActor();
+
+	if (!IsValid(CurrentTarget))
+	{
+		return nullptr;
+	}
+
+	APlayerController* PlayerController =Cast<APlayerController>(Owner->GetInstigatorController());
+
+	if (!PlayerController)
+	{
+		return nullptr;
+	}
+
+	FVector2D InputDirection2D =InputDirection.GetSafeNormal();
+
+	// ‰æ–ÊÀ•W‚ÍY‚ª‰º•ûŒü‚È‚Ì‚Å”½“]
+	InputDirection2D.Y *= -1.0f;
+
+	FVector2D CurrentTargetScreenPosition;
+
+	if (!PlayerController->ProjectWorldLocationToScreen(CurrentTarget->GetActorLocation(),CurrentTargetScreenPosition))
+	{
+		return nullptr;
+	}
+
+	TArray<AActor*> EnemyActors;
+
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(),FName("Enemy"),EnemyActors);
+
+	AActor* BestTarget = nullptr;
+
+	float BestScore = -FLT_MAX;
+
+	for (AActor* Enemy : EnemyActors)
+	{
+		if (!IsValid(Enemy))
+		{
+			continue;
+		}
+
+		// Œ»İ‚Ìƒ^[ƒQƒbƒg‚ÍœŠO
+		if (Enemy == CurrentTarget)
+		{
+			continue;
+		}
+
+		if (!IsValidTargetActor(Enemy))
+		{
+			continue;
+		}
+
+		// Player‚©‚ç‰“‚·‚¬‚é“G‚ÍœŠO
+		const float PlayerDistance =FVector::Dist(Owner->GetActorLocation(),Enemy->GetActorLocation());
+
+		if (PlayerDistance > TargetRange)
+		{
+			continue;
+		}
+
+		FVector2D EnemyScreenPosition;
+
+		if (!PlayerController->ProjectWorldLocationToScreen(Enemy->GetActorLocation(),EnemyScreenPosition))
+		{
+			continue;
+		}
+
+		// Œ»İƒ^[ƒQƒbƒg‚©‚çŒ©‚½“G‚Ì‰æ–Êã‚Ì•ûŒü
+		FVector2D ToEnemy =EnemyScreenPosition -CurrentTargetScreenPosition;
+
+		if (ToEnemy.IsNearlyZero())
+		{
+			continue;
+		}
+
+		const float ScreenDistance = ToEnemy.Size();
+
+		ToEnemy.Normalize();
+
+		// “ü—Í•ûŒü‚Æ“G‚Ì•ûŒü
+		const float Dot =FVector2D::DotProduct(InputDirection2D,ToEnemy);
+
+		// “ü—Í•ûŒü‚©‚çŠO‚ê‚Ä‚¢‚é“G‚Í–³‹
+		if (Dot <= 0.2f)
+		{
+			continue;
+		}
+
+		// “ü—Í•ûŒü‚É‹ß‚¢“G‚ğ—Dæ
+		// “¯‚¶‚­‚ç‚¢‚È‚ç‰æ–Êã‚Å‹ß‚¢“G‚ğ—Dæ
+		const float Score =Dot * 1000.0f -ScreenDistance;
+
+		if (Score > BestScore)
+		{
+			BestScore = Score;
 			BestTarget = Enemy;
 		}
 	}

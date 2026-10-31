@@ -281,6 +281,7 @@ void APlayerCharacter::BeginPlay()
 		UE_LOG(	LogTemp,Error,TEXT("TargetLockWidgetClass : NULL"));
 	}
 	bWasTargeting = false;
+	PreviousTargetActor = nullptr;
 }
 
 //毎フレーム処理
@@ -288,34 +289,60 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!CameraSystemComp || !TargetLockWidget)
+	if (CameraSystemComp)
 	{
-		return;
-	}
+		const bool bIsTargeting = CameraSystemComp->IsTargeting();
+		AActor* CurrentTargetActor = CameraSystemComp->GetCurrentTarget();
 
-	const bool bIsTargeting = CameraSystemComp->IsTargeting();
-
-	UE_LOG(LogTemp,Warning,TEXT("TargetState : Current=%s / Previous=%s"),bIsTargeting ? TEXT("TRUE") : TEXT("FALSE"),bWasTargeting ? TEXT("TRUE") : TEXT("FALSE"));
-
-	if (bIsTargeting && !bWasTargeting)
-	{
-		AActor* TargetActor = CameraSystemComp->GetCurrentTarget();
-
-		UE_LOG(LogTemp,Warning,TEXT("TargetState : START / Target=%s"),IsValid(TargetActor)? *TargetActor->GetName(): TEXT("NULL"));
-
-		if (IsValid(TargetActor))
+		// ターゲット中
+		if (bIsTargeting)
 		{
-			TargetLockWidget->SetTarget(TargetActor);
+			// ターゲット開始
+			if (!bWasTargeting)
+			{
+				if (TargetLockWidget && IsValid(CurrentTargetActor))
+				{
+					TargetLockWidget->ClearTarget();
+					TargetLockWidget->SetTarget(CurrentTargetActor);
+				}
+			}
+			// ターゲット変更
+			else if (CurrentTargetActor != PreviousTargetActor)
+			{
+				if (TargetLockWidget)
+				{
+					TargetLockWidget->ClearTarget();
+
+					if (IsValid(CurrentTargetActor))
+					{
+						TargetLockWidget->SetTarget(CurrentTargetActor);
+					}
+				}
+			}
 		}
-	}
-	else if (!bIsTargeting && bWasTargeting)
-	{
-		UE_LOG(LogTemp,Warning,TEXT("TargetState : END"));
+		else
+		{
+			// ターゲット解除
+			if (bWasTargeting)
+			{
+				if (TargetLockWidget)
+				{
+					TargetLockWidget->ClearTarget();
+				}
+			}
 
-		TargetLockWidget->ClearTarget();
-	}
+			//リセット
+			PreviousTargetActor = nullptr;
+		}
 
-	bWasTargeting = bIsTargeting;
+		// 次フレーム用
+		if (bIsTargeting)
+		{
+			PreviousTargetActor = CurrentTargetActor;
+		}
+
+		bWasTargeting = bIsTargeting;
+	}
 }
 
 //入力インプット
@@ -348,6 +375,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//ターゲット
 		EnhancedInputComponent->BindAction(TargetInput, ETriggerEvent::Started, this, &APlayerCharacter::OnTarget);
 
+		//ターゲットチェンジ
+		EnhancedInputComponent->BindAction(TargetChangeAction,ETriggerEvent::Started,this,&APlayerCharacter::TargetChangeInput);
 	}
 
 }
@@ -583,6 +612,18 @@ void APlayerCharacter::OnTarget()
 	}
 
 	CameraSystemComp->ToggleTargetLock();
+}
+
+void APlayerCharacter::TargetChangeInput(const FInputActionValue& Value)
+{
+	FVector2D InputValue = Value.Get<FVector2D>();
+
+	if (InputValue.SizeSquared() < 0.25f)return;
+
+	if (CameraSystemComp)
+	{
+		CameraSystemComp->TargetChange(InputValue);
+	}
 }
 
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数

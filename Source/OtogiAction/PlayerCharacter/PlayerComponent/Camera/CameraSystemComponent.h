@@ -71,6 +71,9 @@ public:
 	//カメラ操作をおこなう関数
 	void CameraMove(const FVector2D& InputValue);
 
+	//ターゲット中にtarget変更する関数
+	void TargetChange(const FVector2D& InputValue);
+
 	//ターゲット中のカメラ更新
 	void UpdateTargetLockCamera(float DeltaTime);
 
@@ -127,7 +130,6 @@ private:
 	// 通常カメラへ戻る速度
 	UPROPERTY(EditAnywhere, Category = "Camera|Transition")
 	float NormalCameraReturnInterpSpeed = 8.0f;
-
 
 	// Target
 	//ターゲットを管理するComponent

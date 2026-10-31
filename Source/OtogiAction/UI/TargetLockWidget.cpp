@@ -178,12 +178,8 @@ void UTargetLockWidget::UpdateTargetPosition()
 
 	if (!bProjected)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : Projection FAILED"));
 		return;
 	}
-
-	UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : Screen = %s"),*ScreenPosition.ToString());
-
 	// Widgetの中心をターゲット位置に合わせる
 	SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
 

@@ -132,12 +132,25 @@ void UCameraSystemComponent::CameraMove(const FVector2D& InputValue)
 {
 	if (!MoveCameraComp) return;
 
-	if (CurrentCameraMode == ECameraMode::TargetLock) return;
-
 	// 通常カメラへ復帰中は操作しない
 	if (bReturningToNormalCamera) return;
 
 	MoveCameraComp->CameraMove(InputValue);
+}
+
+void UCameraSystemComponent::TargetChange(const FVector2D& InputValue)
+{
+	if (!TargetComp)return;
+
+	// ターゲット中でなければ変更しない
+	if (!TargetComp->IsTargeting())return;
+
+	// 入力がなければ返す
+	if (InputValue.IsNearlyZero())return;
+
+	TargetComp->ChangeTarget(InputValue);
+
+	UE_LOG(LogTemp,Warning,TEXT("TargetChangeInput : X=%f Y=%f"),InputValue.X,InputValue.Y);
 }
 
 void UCameraSystemComponent::ToggleTargetLock()
