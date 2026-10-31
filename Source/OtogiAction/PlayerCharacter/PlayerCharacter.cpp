@@ -130,9 +130,6 @@ APlayerCharacter::APlayerCharacter()
 	//ヒットストップコンポーネント
 	HitStopComp = CreateDefaultSubobject<UHitStopComponent>(TEXT("HitStopComp"));
 
-	//ターゲットコンポーネント
-	//TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
-
 	//ヒットリアクションコンポーネント
 	HitReactionComp = CreateDefaultSubobject<UHitReactionComponent>(TEXT("HitReactionComp"));
 	//Audioコンポーネント
@@ -264,25 +261,24 @@ void APlayerCharacter::BeginPlay()
 	//ターゲットウィジェット表示
 	if (TargetLockWidgetClass)
 	{
-		APlayerController* PlayerController =
-			Cast<APlayerController>(GetController());
+		TargetLockWidget = CreateWidget<UTargetLockWidget>(GetWorld(),TargetLockWidgetClass);
 
-		if (PlayerController)
+		if (TargetLockWidget)
 		{
-			TargetLockWidget =
-				CreateWidget<UTargetLockWidget>(
-					PlayerController,
-					TargetLockWidgetClass
-				);
+			TargetLockWidget->AddToViewport();
 
-			if (TargetLockWidget)
-			{
-				TargetLockWidget->AddToViewport();
+			TargetLockWidget->ClearTarget();
 
-				// 最初はターゲットなし
-				TargetLockWidget->ClearTarget();
-			}
+			UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : Create Success"));
 		}
+		else
+		{
+			UE_LOG(LogTemp,Error,TEXT("TargetLockWidget : Create Failed"));
+		}
+	}
+	else
+	{
+		UE_LOG(	LogTemp,Error,TEXT("TargetLockWidgetClass : NULL"));
 	}
 	bWasTargeting = false;
 }
@@ -292,38 +288,34 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Super::Tick(DeltaTime);
-
-	//========================================
-	// Target Lock UI
-	//========================================
-
-	if (CameraSystemComp && TargetLockWidget)
+	if (!CameraSystemComp || !TargetLockWidget)
 	{
-		bool bIsTargeting =
-			CameraSystemComp->IsTargeting();
-
-		// ターゲット開始
-		if (bIsTargeting && !bWasTargeting)
-		{
-			AActor* TargetActor =
-				CameraSystemComp->GetCurrentTarget();
-
-			if (TargetActor)
-			{
-				TargetLockWidget->SetTarget(TargetActor);
-			}
-		}
-
-		// ターゲット解除
-		else if (!bIsTargeting && bWasTargeting)
-		{
-			TargetLockWidget->ClearTarget();
-		}
-
-		// 現在の状態を保存
-		bWasTargeting = bIsTargeting;
+		return;
 	}
+
+	const bool bIsTargeting = CameraSystemComp->IsTargeting();
+
+	UE_LOG(LogTemp,Warning,TEXT("TargetState : Current=%s / Previous=%s"),bIsTargeting ? TEXT("TRUE") : TEXT("FALSE"),bWasTargeting ? TEXT("TRUE") : TEXT("FALSE"));
+
+	if (bIsTargeting && !bWasTargeting)
+	{
+		AActor* TargetActor = CameraSystemComp->GetCurrentTarget();
+
+		UE_LOG(LogTemp,Warning,TEXT("TargetState : START / Target=%s"),IsValid(TargetActor)? *TargetActor->GetName(): TEXT("NULL"));
+
+		if (IsValid(TargetActor))
+		{
+			TargetLockWidget->SetTarget(TargetActor);
+		}
+	}
+	else if (!bIsTargeting && bWasTargeting)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("TargetState : END"));
+
+		TargetLockWidget->ClearTarget();
+	}
+
+	bWasTargeting = bIsTargeting;
 }
 
 //入力インプット
@@ -692,6 +684,12 @@ void APlayerCharacter::OnDeath()
 	{
 		PlayerHPWidget->RemoveFromParent();
 		PlayerHPWidget = nullptr;
+	}
+
+	if (TargetLockWidget)
+	{
+		TargetLockWidget->RemoveFromParent();
+		TargetLockWidget = nullptr;
 	}
 
 	// 入力を止める

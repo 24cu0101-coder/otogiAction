@@ -175,77 +175,58 @@ bool UPlayerTargetComponent::IsValidTargetActor(AActor* Actor) const
 //最もターゲットしやすい敵を探索する
 AActor* UPlayerTargetComponent::FindBestTargetForward()
 {
-	AActor* Owner = GetOwner();
+	APlayerController* PlayerController =Cast<APlayerController>(GetOwner()->GetInstigatorController());
 
-	if (!Owner)
+	if (!PlayerController)
 	{
 		return nullptr;
 	}
 
-	// プレイヤーコントローラー取得
-	APlayerController* PlayerCon =Cast<APlayerController>(Owner->GetNetOwningPlayer()->GetPlayerController(GetWorld()));
+	FVector ViewLocation;
+	FRotator ViewRotation;
 
-	if (!PlayerCon)
-	{
-		return nullptr;
-	}
+	PlayerController->GetPlayerViewPoint(ViewLocation,ViewRotation);
 
-	// カメラの位置と回転を取得
-	FVector CameraLocation;
-	FRotator CameraRotation;
+	const FVector ViewForward =ViewRotation.Vector().GetSafeNormal();
 
-	PlayerCon->GetPlayerViewPoint(CameraLocation,CameraRotation);
-
-	// カメラ正面方向
-	FVector CameraForward = CameraRotation.Vector();
-
-	// Enemyタグを持つActorをすべて取得
 	TArray<AActor*> EnemyActors;
 
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(),TEXT("Enemy"),EnemyActors);
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(),FName("Enemy"),EnemyActors);
 
 	AActor* BestTarget = nullptr;
-
-	// Dot積が大きいほどカメラ正面に近い
-	float BestDot = -1.0f;
+	float BestDot = TargetDotThreshold;
 
 	for (AActor* Enemy : EnemyActors)
 	{
-		if (!Enemy)
+		if (!IsValid(Enemy))
 		{
 			continue;
 		}
 
-		// プレイヤー自身は除外
-		if (Enemy == Owner)
+		if (!IsValidTargetActor(Enemy))
 		{
 			continue;
 		}
 
-		// カメラから敵への方向
-		FVector DirectionToEnemy =Enemy->GetActorLocation() - CameraLocation;
+		FVector Direction =Enemy->GetActorLocation() - ViewLocation;
 
-		float Distance = DirectionToEnemy.Size();
+		float Distance = Direction.Size();
 
-		// ターゲット範囲外なら除外
 		if (Distance > TargetRange)
 		{
 			continue;
 		}
 
-		// 正規化
-		DirectionToEnemy.Normalize();
+		Direction.Normalize();
 
-		// カメラ正面と敵方向のDot積
-		float Dot =FVector::DotProduct(CameraForward,DirectionToEnemy);
+		float Dot =FVector::DotProduct(	ViewForward,Direction);
 
-		// カメラの後ろにいる敵は除外
-		if (Dot <= 0.0f)
+		// 正面方向に十分近い敵だけ
+		if (Dot < TargetDotThreshold)
 		{
 			continue;
 		}
 
-		// よりカメラ正面に近い敵を採用
 		if (Dot > BestDot)
 		{
 			BestDot = Dot;
