@@ -14,12 +14,13 @@ void UTargetLockWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	TargetActor = nullptr;
+	CameraSystemComp = nullptr;
 
 	EffectTime = 0.0f;
 	bPlayingEffect = false;
-	CameraSystemComp = nullptr;
 
-	// 最初は非表示
+	SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
+
 	if (OuterDiamond)
 	{
 		OuterDiamond->SetVisibility(ESlateVisibility::Hidden);
@@ -30,7 +31,10 @@ void UTargetLockWidget::NativeConstruct()
 		CenterPoint->SetVisibility(ESlateVisibility::Hidden);
 	}
 
-	// カメラシステム取得
+	//==================================================
+	// CameraSystemComponent取得
+	//==================================================
+
 	APlayerController* PlayerController = GetOwningPlayer();
 
 	if (PlayerController)
@@ -39,9 +43,11 @@ void UTargetLockWidget::NativeConstruct()
 
 		if (PlayerPawn)
 		{
-			CameraSystemComp = PlayerPawn->FindComponentByClass<UCameraSystemComponent>();
+			CameraSystemComp =PlayerPawn->FindComponentByClass<UCameraSystemComponent>();
 		}
 	}
+
+	UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : NativeConstruct / CameraSystemComp = %s"),CameraSystemComp? TEXT("VALID"): TEXT("NULL"));
 }
 
 //毎フレーム処理
@@ -64,27 +70,13 @@ void UTargetLockWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	{
 		EffectTime += InDeltaTime;
 
-		float Alpha =
-			FMath::Clamp(
-				EffectTime / EffectDuration,
-				0.0f,
-				1.0f
-			);
+		float Alpha =FMath::Clamp(EffectTime / EffectDuration,0.0f,1.0f);
 
-		// 最初は大きく
-		// 徐々に小さくする
-		float Scale =
-			FMath::Lerp(
-				1.8f,
-				0.8f,
-				Alpha
-			);
+		float Scale =FMath::Lerp(1.8f,0.8f,Alpha);
 
 		if (OuterDiamond)
 		{
-			OuterDiamond->SetRenderScale(
-				FVector2D(Scale, Scale)
-			);
+			OuterDiamond->SetRenderScale(FVector2D(Scale, Scale));
 
 			// 徐々に消す
 			float Opacity =
@@ -99,9 +91,12 @@ void UTargetLockWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 			if (OuterDiamond)
 			{
-				OuterDiamond->SetVisibility(
-					ESlateVisibility::Hidden
-				);
+				OuterDiamond->SetVisibility(ESlateVisibility::Hidden);
+			}
+
+			if (CenterPoint)
+			{
+				CenterPoint->SetVisibility(ESlateVisibility::Visible);
 			}
 		}
 	}
@@ -110,31 +105,35 @@ void UTargetLockWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 void UTargetLockWidget::SetTarget(AActor* NewTarget)
 {
-	TargetActor = NewTarget;
-
-	if (!TargetActor)
+	if (!IsValid(NewTarget))
 	{
 		ClearTarget();
 		return;
 	}
 
-	// センターポイントは最初は隠す
-	if (CenterPoint)
-	{
-		CenterPoint->SetVisibility(
-			ESlateVisibility::Hidden
-		);
-	}
+	TargetActor = NewTarget;
 
-	// アウトラインを表示
+	// 毎回、表示状態を完全に初期化
+	bPlayingEffect = false;
+	EffectTime = 0.0f;
+
 	if (OuterDiamond)
 	{
-		OuterDiamond->SetVisibility(
-			ESlateVisibility::Visible
-		);
+		OuterDiamond->SetVisibility(ESlateVisibility::Visible);
+		OuterDiamond->SetRenderScale(FVector2D(1.8f, 1.8f));
+		OuterDiamond->SetRenderOpacity(1.0f);
 	}
 
+	if (CenterPoint)
+	{
+		CenterPoint->SetVisibility(ESlateVisibility::Hidden);
+		CenterPoint->SetRenderOpacity(1.0f);
+	}
+
+	// ロックオン演出開始
 	PlayLockOnEffect();
+
+	UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : SetTarget / Target=%s"),*TargetActor->GetName());
 }
 
 void UTargetLockWidget::ClearTarget()
@@ -142,41 +141,53 @@ void UTargetLockWidget::ClearTarget()
 	TargetActor = nullptr;
 
 	bPlayingEffect = false;
+	EffectTime = 0.0f;
 
 	if (OuterDiamond)
 	{
-		OuterDiamond->SetVisibility(
-			ESlateVisibility::Hidden
-		);
+		OuterDiamond->SetVisibility(ESlateVisibility::Hidden);
+		OuterDiamond->SetRenderScale(FVector2D(1.0f, 1.0f));
+		OuterDiamond->SetRenderOpacity(1.0f);
 	}
 
 	if (CenterPoint)
 	{
-		CenterPoint->SetVisibility(
-			ESlateVisibility::Hidden
-		);
+		CenterPoint->SetVisibility(ESlateVisibility::Hidden);
+		CenterPoint->SetRenderOpacity(1.0f);
 	}
+
+	UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : ClearTarget"));
 }
 
 void UTargetLockWidget::UpdateTargetPosition()
 {
-	if (!TargetActor)return;
+	if (!IsValid(TargetActor))return;
+
+	if (!IsValid(CameraSystemComp))return;
 
 	APlayerController* PlayerController = GetOwningPlayer();
 
-	if(!PlayerController)return;
+	if (!PlayerController)return;
 
-	// 敵の頭あたりを狙う
-	FVector WorldLocation = CameraSystemComp->GetEnemyTargetPoint();
+	// 敵の注視点を取得
+	FVector WorldLocation =CameraSystemComp->GetEnemyTargetPoint();
 
 	FVector2D ScreenPosition;
 
-	bool bProjected = PlayerController->ProjectWorldLocationToScreen(WorldLocation, ScreenPosition, true);
+	bool bProjected =PlayerController->ProjectWorldLocationToScreen(WorldLocation,ScreenPosition,true);
 
-	if (!bProjected)return;
+	if (!bProjected)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : Projection FAILED"));
+		return;
+	}
 
-	// Widget自身をターゲット位置へ移動
-	SetPositionInViewport(ScreenPosition, false);
+	UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : Screen = %s"),*ScreenPosition.ToString());
+
+	// Widgetの中心をターゲット位置に合わせる
+	SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
+
+	SetPositionInViewport(ScreenPosition,true);
 }
 
 void UTargetLockWidget::PlayLockOnEffect()

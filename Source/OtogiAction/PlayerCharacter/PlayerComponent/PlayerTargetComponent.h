@@ -50,6 +50,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target Setting", meta = (AllowPrivateAccess = true));
 	float TargetRadius = 500.f;
 
+	//ターゲット検索の角度調整
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target Setting", meta = (AllowPrivateAccess = "true"))
+	float TargetDotThreshold = 0.5f;
+
 	//前方の敵を探す
 	AActor* FindBestTargetForward();
 

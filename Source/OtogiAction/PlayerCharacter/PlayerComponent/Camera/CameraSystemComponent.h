@@ -92,6 +92,9 @@ public:
 	//ターゲットComponentを設定
 	void SetTargetComponent(UPlayerTargetComponent* TargetComponent);
 
+	// 通常カメラへ戻す処理
+	void UpdateReturnToNormalCamera(float DeltaTime);
+
 	//現在のターゲットを取得
 	UFUNCTION(BlueprintPure, Category = "Camera|Target")
 	AActor* GetCurrentTarget() const;
@@ -114,6 +117,16 @@ private:
 	// 現在のカメラモード
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	ECameraMode CurrentCameraMode;
+
+	// 通常カメラへ戻っている途中か
+	bool bReturningToNormalCamera = false;
+
+	// 復帰先のSpringArm回転
+	FRotator NormalCameraReturnTargetRotation;
+
+	// 通常カメラへ戻る速度
+	UPROPERTY(EditAnywhere, Category = "Camera|Transition")
+	float NormalCameraReturnInterpSpeed = 8.0f;
 
 
 	// Target
