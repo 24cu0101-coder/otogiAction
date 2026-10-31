@@ -39,6 +39,13 @@ void UMinionsHitReactionComponent::AddStance(float Value)
 		return;
 	}
 
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
+
+	if (Minion && Minion->IsDead())
+	{
+		return;
+	}
+
 
 	CurrentStance -= Value;
 
@@ -99,6 +106,12 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 		UE_LOG(LogTemp, Warning,
 			TEXT("[HIT REACTION] Attack中のためLightHitを無効化"));
 
+		return;
+	}
+
+
+	if (Minion && Minion->IsDead())
+	{
 		return;
 	}
 
@@ -192,6 +205,13 @@ void UMinionsHitReactionComponent::OnFearMax()
 
 void UMinionsHitReactionComponent::OnStunMax()
 {
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
+
+	if (Minion && Minion->IsDead())
+	{
+		return;
+	}
+
 
 	Super::OnStunMax();
 
@@ -232,6 +252,13 @@ void UMinionsHitReactionComponent::RecoverFromStun()
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 
 	if (!Character)
+	{
+		return;
+	}
+
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
+
+	if (Minion && Minion->IsDead())
 	{
 		return;
 	}
@@ -325,6 +352,13 @@ void UMinionsHitReactionComponent::RestartAI()
 		return;
 	}
 
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
+
+	if (Minion && Minion->IsDead())
+	{
+		return;
+	}
+
 	if (UCharacterMovementComponent* Move =
 		Character->GetCharacterMovement())
 	{
@@ -390,6 +424,12 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 	}
 
 	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
+
+	if (Minion && Minion->IsDead())
+	{
+		return;
+	}
+
 
 	// 攻撃中は軽い怯みを発生させない
 	if (Minion && Minion->bIsAttackInProgress)

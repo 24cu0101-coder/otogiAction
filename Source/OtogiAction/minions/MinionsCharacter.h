@@ -198,7 +198,11 @@ public:
 	bool GetIsHitFlg() const { return bIsHit; }
 	void SetIsHitFlg(bool bHit) { bIsHit = bHit; }
 
-	bool IsDead() const { return bIsDead; }
+	bool IsDead() const
+	{
+		return bIsDead;
+	}
+
 	
 
 private:
