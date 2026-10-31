@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/Texture2D.h"
 #include "LevelSequence.h"
+#include "Sound/SoundBase.h"
 #include "tutorialActor.generated.h"
 
 class UTutorialGuideWidget;
@@ -100,6 +101,10 @@ public:
     // チュートリアルクリア時の効果音
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Sound")
     TObjectPtr<USoundBase> TutorialClearSound;
+
+    // チュートリアルBGM
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Sound")
+    TObjectPtr<USoundBase> TutorialBGM;
 
 private:
     UPROPERTY()
