@@ -130,9 +130,6 @@ APlayerCharacter::APlayerCharacter()
 	//ヒットストップコンポーネント
 	HitStopComp = CreateDefaultSubobject<UHitStopComponent>(TEXT("HitStopComp"));
 
-	//ターゲットコンポーネント
-	//TargetComp = CreateDefaultSubobject<UPlayerTargetComponent>(TEXT("TargetComp"));
-
 	//ヒットリアクションコンポーネント
 	HitReactionComp = CreateDefaultSubobject<UHitReactionComponent>(TEXT("HitReactionComp"));
 	//Audioコンポーネント
@@ -264,27 +261,27 @@ void APlayerCharacter::BeginPlay()
 	//ターゲットウィジェット表示
 	if (TargetLockWidgetClass)
 	{
-		APlayerController* PlayerController =
-			Cast<APlayerController>(GetController());
+		TargetLockWidget = CreateWidget<UTargetLockWidget>(GetWorld(),TargetLockWidgetClass);
 
-		if (PlayerController)
+		if (TargetLockWidget)
 		{
-			TargetLockWidget =
-				CreateWidget<UTargetLockWidget>(
-					PlayerController,
-					TargetLockWidgetClass
-				);
+			TargetLockWidget->AddToViewport();
 
-			if (TargetLockWidget)
-			{
-				TargetLockWidget->AddToViewport();
+			TargetLockWidget->ClearTarget();
 
-				// 最初はターゲットなし
-				TargetLockWidget->ClearTarget();
-			}
+			UE_LOG(LogTemp,Warning,TEXT("TargetLockWidget : Create Success"));
+		}
+		else
+		{
+			UE_LOG(LogTemp,Error,TEXT("TargetLockWidget : Create Failed"));
 		}
 	}
+	else
+	{
+		UE_LOG(	LogTemp,Error,TEXT("TargetLockWidgetClass : NULL"));
+	}
 	bWasTargeting = false;
+	PreviousTargetActor = nullptr;
 }
 
 //毎フレーム処理
@@ -292,36 +289,58 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Super::Tick(DeltaTime);
-
-	//========================================
-	// Target Lock UI
-	//========================================
-
-	if (CameraSystemComp && TargetLockWidget)
+	if (CameraSystemComp)
 	{
-		bool bIsTargeting =
-			CameraSystemComp->IsTargeting();
+		const bool bIsTargeting = CameraSystemComp->IsTargeting();
+		AActor* CurrentTargetActor = CameraSystemComp->GetCurrentTarget();
 
-		// ターゲット開始
-		if (bIsTargeting && !bWasTargeting)
+		// ターゲット中
+		if (bIsTargeting)
 		{
-			AActor* TargetActor =
-				CameraSystemComp->GetCurrentTarget();
-
-			if (TargetActor)
+			// ターゲット開始
+			if (!bWasTargeting)
 			{
-				TargetLockWidget->SetTarget(TargetActor);
+				if (TargetLockWidget && IsValid(CurrentTargetActor))
+				{
+					TargetLockWidget->ClearTarget();
+					TargetLockWidget->SetTarget(CurrentTargetActor);
+				}
+			}
+			// ターゲット変更
+			else if (CurrentTargetActor != PreviousTargetActor)
+			{
+				if (TargetLockWidget)
+				{
+					TargetLockWidget->ClearTarget();
+
+					if (IsValid(CurrentTargetActor))
+					{
+						TargetLockWidget->SetTarget(CurrentTargetActor);
+					}
+				}
 			}
 		}
-
-		// ターゲット解除
-		else if (!bIsTargeting && bWasTargeting)
+		else
 		{
-			TargetLockWidget->ClearTarget();
+			// ターゲット解除
+			if (bWasTargeting)
+			{
+				if (TargetLockWidget)
+				{
+					TargetLockWidget->ClearTarget();
+				}
+			}
+
+			//リセット
+			PreviousTargetActor = nullptr;
 		}
 
-		// 現在の状態を保存
+		// 次フレーム用
+		if (bIsTargeting)
+		{
+			PreviousTargetActor = CurrentTargetActor;
+		}
+
 		bWasTargeting = bIsTargeting;
 	}
 }
@@ -356,6 +375,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//ターゲット
 		EnhancedInputComponent->BindAction(TargetInput, ETriggerEvent::Started, this, &APlayerCharacter::OnTarget);
 
+		//ターゲットチェンジ
+		EnhancedInputComponent->BindAction(TargetChangeAction,ETriggerEvent::Started,this,&APlayerCharacter::TargetChangeInput);
 	}
 
 }
@@ -593,6 +614,18 @@ void APlayerCharacter::OnTarget()
 	CameraSystemComp->ToggleTargetLock();
 }
 
+void APlayerCharacter::TargetChangeInput(const FInputActionValue& Value)
+{
+	FVector2D InputValue = Value.Get<FVector2D>();
+
+	if (InputValue.SizeSquared() < 0.25f)return;
+
+	if (CameraSystemComp)
+	{
+		CameraSystemComp->TargetChange(InputValue);
+	}
+}
+
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
 void APlayerCharacter::HandleDamaged(float NewHP)
 {
@@ -692,6 +725,12 @@ void APlayerCharacter::OnDeath()
 	{
 		PlayerHPWidget->RemoveFromParent();
 		PlayerHPWidget = nullptr;
+	}
+
+	if (TargetLockWidget)
+	{
+		TargetLockWidget->RemoveFromParent();
+		TargetLockWidget = nullptr;
 	}
 
 	// 入力を止める

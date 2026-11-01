@@ -19,8 +19,6 @@
 #include "Animation/AnimMontage.h"
 #include "TimerManager.h"
 
-
-
 AMinionsCharacter::AMinionsCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -137,6 +135,7 @@ void AMinionsCharacter::GiveDefaultAbilities()
 		}
 	}
 }
+
 void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	UE_LOG(LogTemp, Warning,
@@ -273,6 +272,25 @@ void AMinionsCharacter::Dead()
 	if (bIsDead) return;
 
 	bIsDead = true;
+
+	// 死亡中は回転しない
+	bUseControllerRotationYaw = false;
+
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+
+	if (AAIController* AI = Cast<AAIController>(GetController()))
+	{
+		if (AI->BrainComponent)
+		{
+			AI->BrainComponent->StopLogic(TEXT("Dead"));
+		}
+	}
 
 	if (HitReactionComponent)
 	{

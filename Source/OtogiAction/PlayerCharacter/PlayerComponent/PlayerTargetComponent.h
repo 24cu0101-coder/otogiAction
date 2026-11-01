@@ -24,6 +24,9 @@ public:
 	//ターゲットの切り替え
 	void ToggleTargetLock();
 
+	//ターゲットのチェンジ
+	void ChangeTarget(const FVector2D& InputDirection);
+
 	//攻撃時にワープ対象がいるか否か返す関数
 	AActor* GetSoftLockTarget(float SoftLockRadius);
 
@@ -50,7 +53,14 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target Setting", meta = (AllowPrivateAccess = true));
 	float TargetRadius = 500.f;
 
+	//ターゲット検索の角度調整
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target Setting", meta = (AllowPrivateAccess = "true"))
+	float TargetDotThreshold = 0.5f;
+
 	//前方の敵を探す
 	AActor* FindBestTargetForward();
+
+	// 入力方向から次のターゲットを検索
+	AActor* FindNextTarget(const FVector2D& InputDirection);
 
 };

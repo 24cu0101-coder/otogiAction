@@ -81,6 +81,11 @@ void UCameraSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	{
 	case ECameraMode::Normal:
 
+		if (bReturningToNormalCamera)
+		{
+			UpdateReturnToNormalCamera(DeltaTime);
+		}
+		
 		break;
 
 
@@ -127,9 +132,25 @@ void UCameraSystemComponent::CameraMove(const FVector2D& InputValue)
 {
 	if (!MoveCameraComp) return;
 
-	if (CurrentCameraMode == ECameraMode::TargetLock) return;
+	// 通常カメラへ復帰中は操作しない
+	if (bReturningToNormalCamera) return;
 
 	MoveCameraComp->CameraMove(InputValue);
+}
+
+void UCameraSystemComponent::TargetChange(const FVector2D& InputValue)
+{
+	if (!TargetComp)return;
+
+	// ターゲット中でなければ変更しない
+	if (!TargetComp->IsTargeting())return;
+
+	// 入力がなければ返す
+	if (InputValue.IsNearlyZero())return;
+
+	TargetComp->ChangeTarget(InputValue);
+
+	UE_LOG(LogTemp,Warning,TEXT("TargetChangeInput : X=%f Y=%f"),InputValue.X,InputValue.Y);
 }
 
 void UCameraSystemComponent::ToggleTargetLock()
@@ -147,14 +168,26 @@ void UCameraSystemComponent::ToggleTargetLock()
 		}
 
 		SetCameraMode(ECameraMode::TargetLock);
+
+		UE_LOG(LogTemp, Warning, TEXT("Camera Target Start"));
 	}
 	else
 	{
 		// TargetLock終了
 		SetCameraMode(ECameraMode::Normal);
 
-		// 通常カメラを完全に再構築
-		ResetNormalCamera();
+		//通常カメラの復帰先を取得
+		if (CameraComp)
+		{
+			const FRotator CurrentCameraRotation =CameraComp->GetComponentRotation();
+
+			NormalCameraReturnTargetRotation =FRotator(-20.0f,CurrentCameraRotation.Yaw,0.0f);
+		}
+		
+		// カメラを通常位置まで戻す
+		bReturningToNormalCamera = true;
+
+		UE_LOG(LogTemp,Warning,TEXT("Camera Return Start"));
 	}
 }
 
@@ -206,7 +239,23 @@ void UCameraSystemComponent::UpdateTargetLockCamera(float DeltaTime)
 
 	AActor* TargetActor = TargetComp->GetCurrentTargetActor();
 
-	if (!TargetActor) return;
+	if (!IsValid(TargetActor))
+	{
+		// ターゲットが死亡・破棄された
+		TargetComp->ToggleTargetLock();
+
+		SetCameraMode(ECameraMode::Normal);
+
+		const FRotator CurrentCameraRotation =CameraComp->GetComponentRotation();
+
+		NormalCameraReturnTargetRotation =FRotator(-20.0f,CurrentCameraRotation.Yaw,0.0f);
+
+		bReturningToNormalCamera = true;
+
+		UE_LOG(LogTemp,Warning,TEXT("===== TARGET INVALID : TARGET LOCK END ====="));
+
+		return;
+	}
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 
@@ -236,7 +285,15 @@ void UCameraSystemComponent::UpdateTargetLockCamera(float DeltaTime)
 
 		SetCameraMode(ECameraMode::Normal);
 
-		ResetNormalCamera();
+		//復帰後の
+		if (CameraComp)
+		{
+			const FRotator CurrentCameraRotation =CameraComp->GetComponentRotation();
+
+			NormalCameraReturnTargetRotation =FRotator(-20.0f,CurrentCameraRotation.Yaw,0.0f);
+		}
+
+		bReturningToNormalCamera = true;
 
 		UE_LOG(LogTemp,Warning,TEXT("Target Lock End : Distance = %f / MaxDistance = %f"),Distance,MaxTargetCameraDistance);
 
@@ -268,10 +325,7 @@ void UCameraSystemComponent::UpdateTargetLockCamera(float DeltaTime)
 	DesiredCameraLocation.Z += 100.0f;
 
 
-	//==================================================
 	// 中心を見る
-	//==================================================
-
 	FVector LookDirection = CenterLocation - DesiredCameraLocation;
 
 	FRotator DesiredRotation = LookDirection.Rotation();
@@ -306,6 +360,61 @@ void UCameraSystemComponent::SetCameraMode(ECameraMode NewMode)
 void UCameraSystemComponent::SetTargetComponent(UPlayerTargetComponent* TargetComponent)
 {
 	TargetComp = TargetComponent;
+}
+
+//カメラを通常状態に戻す処理
+void UCameraSystemComponent::UpdateReturnToNormalCamera(float DeltaTime)
+{
+	if (!SpringArmComp || !CameraComp)return;
+
+	// SpringArm回転
+	const FRotator CurrentSpringRotation =SpringArmComp->GetComponentRotation();
+
+	const FRotator DesiredSpringRotation =NormalCameraReturnTargetRotation;
+
+	const FRotator NewSpringRotation =FMath::RInterpTo(CurrentSpringRotation,DesiredSpringRotation,DeltaTime,NormalCameraReturnInterpSpeed);
+
+	SpringArmComp->SetWorldRotation(NewSpringRotation);
+
+	// SpringArm設定
+	SpringArmComp->TargetArmLength =FMath::FInterpTo(SpringArmComp->TargetArmLength,NormalCameraSetting.ArmLength,DeltaTime,NormalCameraReturnInterpSpeed);
+
+	SpringArmComp->SocketOffset =FMath::VInterpTo(SpringArmComp->SocketOffset,NormalCameraSetting.SocketOffset,DeltaTime,NormalCameraReturnInterpSpeed);
+
+	// CameraをSpringArmへ追従
+	const FVector DesiredCameraLocation =SpringArmComp->GetSocketLocation(TEXT("SpringEndpoint"));
+
+	const FRotator DesiredCameraRotation =SpringArmComp->GetSocketRotation(TEXT("SpringEndpoint"));
+
+	const FVector NewCameraLocation =FMath::VInterpTo(CameraComp->GetComponentLocation(),DesiredCameraLocation,DeltaTime,NormalCameraReturnInterpSpeed);
+
+	const FRotator NewCameraRotation =FMath::RInterpTo(CameraComp->GetComponentRotation(),DesiredCameraRotation,DeltaTime,NormalCameraReturnInterpSpeed);
+
+	CameraComp->SetWorldLocation(NewCameraLocation);
+	CameraComp->SetWorldRotation(NewCameraRotation);
+
+	// 復帰完了判定
+	const float RotationDistance =FMath::Abs(FMath::FindDeltaAngleDegrees(SpringArmComp->GetComponentRotation().Yaw,NormalCameraReturnTargetRotation.Yaw));
+
+	const float PitchDistance =FMath::Abs(SpringArmComp->GetComponentRotation().Pitch -NormalCameraReturnTargetRotation.Pitch);
+
+	const float ArmLengthDistance =FMath::Abs(SpringArmComp->TargetArmLength -NormalCameraSetting.ArmLength);
+
+	if (RotationDistance < 1.0f &&PitchDistance < 1.0f &&ArmLengthDistance < 1.0f)
+	{
+		// 復帰修了
+		CameraComp->AttachToComponent(SpringArmComp,FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+		CameraComp->SetRelativeLocation(FVector::ZeroVector);
+
+		CameraComp->SetRelativeRotation(FRotator::ZeroRotator);
+
+		CameraComp->FieldOfView =NormalCameraSetting.FOV;
+
+		bReturningToNormalCamera = false;
+
+		UE_LOG(LogTemp,Warning,TEXT("===== CAMERA RETURN COMPLETE ====="));
+	}
 }
 
 //ターゲットを取得

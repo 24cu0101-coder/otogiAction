@@ -36,6 +36,14 @@ void ATutorialActor::BeginPlay()
     UE_LOG(LogTemp, Warning,
         TEXT("TutorialActor BeginPlay OK"));
 
+    // チュートリアルBGMを再生
+    if (TutorialBGM)
+    {
+        UGameplayStatics::PlaySound2D(this, TutorialBGM);
+
+        UE_LOG(LogTemp, Warning, TEXT("Tutorial BGMを再生しました"));
+    }
+
     APlayerController* PC =
         UGameplayStatics::GetPlayerController(this, 0);
 

@@ -236,6 +236,10 @@ private:
 	//前フレームのターゲット状態
 	bool bWasTargeting = false;
 
+	//ターゲットしている敵を取得
+	UPROPERTY()
+	AActor* PreviousTargetActor = nullptr;
+
 
 	//-------------------------
 	//Enhanced Input 設定
@@ -283,6 +287,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* TargetInput;
 
+	//ターゲット変更
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* TargetChangeAction;
+
+
 	//げんざいのHP 
 	float PreviousHP;
 
@@ -309,6 +318,9 @@ protected:
 
 	//ターゲット
 	void OnTarget();
+
+	//ターゲット中の変更
+	void TargetChangeInput(const FInputActionValue& Value);
 
 	//ハンドル関数
 	UFUNCTION()

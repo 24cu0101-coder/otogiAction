@@ -71,6 +71,9 @@ public:
 	//カメラ操作をおこなう関数
 	void CameraMove(const FVector2D& InputValue);
 
+	//ターゲット中にtarget変更する関数
+	void TargetChange(const FVector2D& InputValue);
+
 	//ターゲット中のカメラ更新
 	void UpdateTargetLockCamera(float DeltaTime);
 
@@ -91,6 +94,9 @@ public:
 	// Target
 	//ターゲットComponentを設定
 	void SetTargetComponent(UPlayerTargetComponent* TargetComponent);
+
+	// 通常カメラへ戻す処理
+	void UpdateReturnToNormalCamera(float DeltaTime);
 
 	//現在のターゲットを取得
 	UFUNCTION(BlueprintPure, Category = "Camera|Target")
@@ -115,6 +121,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	ECameraMode CurrentCameraMode;
 
+	// 通常カメラへ戻っている途中か
+	bool bReturningToNormalCamera = false;
+
+	// 復帰先のSpringArm回転
+	FRotator NormalCameraReturnTargetRotation;
+
+	// 通常カメラへ戻る速度
+	UPROPERTY(EditAnywhere, Category = "Camera|Transition")
+	float NormalCameraReturnInterpSpeed = 8.0f;
 
 	// Target
 	//ターゲットを管理するComponent

@@ -67,6 +67,37 @@ void UPlayerTargetComponent::ToggleTargetLock()
 	}
 }
 
+void UPlayerTargetComponent::ChangeTarget(const FVector2D& InputDirection)
+{
+	if (!IsTargeting())
+	{
+		return;
+	}
+
+	AActor* NewTarget = FindNextTarget(InputDirection);
+
+	if (!IsValid(NewTarget))
+	{
+		return;
+	}
+
+	// ターゲット変更
+	CurrentTargetActor = NewTarget;
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("===== TARGET CHANGE =====")
+	);
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("New Target : %s"),
+		*CurrentTargetActor->GetName()
+	);
+}
+
 
 //攻撃時の吸い寄せ
 AActor* UPlayerTargetComponent::GetSoftLockTarget(float SoftLockRadius)
@@ -175,6 +206,70 @@ bool UPlayerTargetComponent::IsValidTargetActor(AActor* Actor) const
 //最もターゲットしやすい敵を探索する
 AActor* UPlayerTargetComponent::FindBestTargetForward()
 {
+	APlayerController* PlayerController =Cast<APlayerController>(GetOwner()->GetInstigatorController());
+
+	if (!PlayerController)
+	{
+		return nullptr;
+	}
+
+	FVector ViewLocation;
+	FRotator ViewRotation;
+
+	PlayerController->GetPlayerViewPoint(ViewLocation,ViewRotation);
+
+	const FVector ViewForward =ViewRotation.Vector().GetSafeNormal();
+
+	TArray<AActor*> EnemyActors;
+
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(),FName("Enemy"),EnemyActors);
+
+	AActor* BestTarget = nullptr;
+	float BestDot = TargetDotThreshold;
+
+	for (AActor* Enemy : EnemyActors)
+	{
+		if (!IsValid(Enemy))
+		{
+			continue;
+		}
+
+		if (!IsValidTargetActor(Enemy))
+		{
+			continue;
+		}
+
+		FVector Direction =Enemy->GetActorLocation() - ViewLocation;
+
+		float Distance = Direction.Size();
+
+		if (Distance > TargetRange)
+		{
+			continue;
+		}
+
+		Direction.Normalize();
+
+		float Dot =FVector::DotProduct(	ViewForward,Direction);
+
+		// 正面方向に十分近い敵だけ
+		if (Dot < TargetDotThreshold)
+		{
+			continue;
+		}
+
+		if (Dot > BestDot)
+		{
+			BestDot = Dot;
+			BestTarget = Enemy;
+		}
+	}
+
+	return BestTarget;
+}
+
+AActor* UPlayerTargetComponent::FindNextTarget(const FVector2D& InputDirection)
+{
 	AActor* Owner = GetOwner();
 
 	if (!Owner)
@@ -182,73 +277,101 @@ AActor* UPlayerTargetComponent::FindBestTargetForward()
 		return nullptr;
 	}
 
-	// プレイヤーコントローラー取得
-	APlayerController* PlayerCon =Cast<APlayerController>(Owner->GetNetOwningPlayer()->GetPlayerController(GetWorld()));
+	AActor* CurrentTarget = GetCurrentTargetActor();
 
-	if (!PlayerCon)
+	if (!IsValid(CurrentTarget))
 	{
 		return nullptr;
 	}
 
-	// カメラの位置と回転を取得
-	FVector CameraLocation;
-	FRotator CameraRotation;
+	APlayerController* PlayerController =Cast<APlayerController>(Owner->GetInstigatorController());
 
-	PlayerCon->GetPlayerViewPoint(CameraLocation,CameraRotation);
+	if (!PlayerController)
+	{
+		return nullptr;
+	}
 
-	// カメラ正面方向
-	FVector CameraForward = CameraRotation.Vector();
+	FVector2D InputDirection2D =InputDirection.GetSafeNormal();
 
-	// Enemyタグを持つActorをすべて取得
+	// 画面座標はYが下方向なので反転
+	InputDirection2D.Y *= -1.0f;
+
+	FVector2D CurrentTargetScreenPosition;
+
+	if (!PlayerController->ProjectWorldLocationToScreen(CurrentTarget->GetActorLocation(),CurrentTargetScreenPosition))
+	{
+		return nullptr;
+	}
+
 	TArray<AActor*> EnemyActors;
 
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(),TEXT("Enemy"),EnemyActors);
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(),FName("Enemy"),EnemyActors);
 
 	AActor* BestTarget = nullptr;
 
-	// Dot積が大きいほどカメラ正面に近い
-	float BestDot = -1.0f;
+	float BestScore = -FLT_MAX;
 
 	for (AActor* Enemy : EnemyActors)
 	{
-		if (!Enemy)
+		if (!IsValid(Enemy))
 		{
 			continue;
 		}
 
-		// プレイヤー自身は除外
-		if (Enemy == Owner)
+		// 現在のターゲットは除外
+		if (Enemy == CurrentTarget)
 		{
 			continue;
 		}
 
-		// カメラから敵への方向
-		FVector DirectionToEnemy =Enemy->GetActorLocation() - CameraLocation;
-
-		float Distance = DirectionToEnemy.Size();
-
-		// ターゲット範囲外なら除外
-		if (Distance > TargetRange)
+		if (!IsValidTargetActor(Enemy))
 		{
 			continue;
 		}
 
-		// 正規化
-		DirectionToEnemy.Normalize();
+		// Playerから遠すぎる敵は除外
+		const float PlayerDistance =FVector::Dist(Owner->GetActorLocation(),Enemy->GetActorLocation());
 
-		// カメラ正面と敵方向のDot積
-		float Dot =FVector::DotProduct(CameraForward,DirectionToEnemy);
-
-		// カメラの後ろにいる敵は除外
-		if (Dot <= 0.0f)
+		if (PlayerDistance > TargetRange)
 		{
 			continue;
 		}
 
-		// よりカメラ正面に近い敵を採用
-		if (Dot > BestDot)
+		FVector2D EnemyScreenPosition;
+
+		if (!PlayerController->ProjectWorldLocationToScreen(Enemy->GetActorLocation(),EnemyScreenPosition))
 		{
-			BestDot = Dot;
+			continue;
+		}
+
+		// 現在ターゲットから見た敵の画面上の方向
+		FVector2D ToEnemy =EnemyScreenPosition -CurrentTargetScreenPosition;
+
+		if (ToEnemy.IsNearlyZero())
+		{
+			continue;
+		}
+
+		const float ScreenDistance = ToEnemy.Size();
+
+		ToEnemy.Normalize();
+
+		// 入力方向と敵の方向
+		const float Dot =FVector2D::DotProduct(InputDirection2D,ToEnemy);
+
+		// 入力方向から外れている敵は無視
+		if (Dot <= 0.2f)
+		{
+			continue;
+		}
+
+		// 入力方向に近い敵を優先
+		// 同じくらいなら画面上で近い敵を優先
+		const float Score =Dot * 1000.0f -ScreenDistance;
+
+		if (Score > BestScore)
+		{
+			BestScore = Score;
 			BestTarget = Enemy;
 		}
 	}
