@@ -5,6 +5,7 @@
 #include "PlayerDodgeComponent.h"
 #include "GameplayTagContainer.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+#include "OtogiAction/GameFlow/Actor/TutorialActor.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
 
 
@@ -15,10 +16,10 @@ UPlayerDodgeComponent::UPlayerDodgeComponent()
 
 	DodgeInputBufferComp = CreateDefaultSubobject<UInputBufferComponent>(TEXT("DodgeInputBufferComp"));
 
+
 }
 
 
-// Called when the game starts
 void UPlayerDodgeComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,31 +27,46 @@ void UPlayerDodgeComponent::BeginPlay()
 	//
 	AActor* OwnerActor = GetOwner();
 	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
-	AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
 
-
-	//AbilitySystemComponent->InitAbilityActorInfo(GetOwner(), GetOwner());
+	if (PlayerActor)
 	{
-		if (GetOwner()->HasAuthority() && DodgeAbility)
-		{
-			//プレイヤーにDodgeAbilityを付与する
-			DodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
-		}
+
+		AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
+		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:PlayerActor"));
+
 	}
-	
+
+	// ジャスト回避タグを判別
+	m_justDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.JustDodge"));
+
+	// プレイヤーがいれば
+	if (GetOwner()->HasAuthority() && DodgeAbility)
+	{
+		//プレイヤーにDodgeAbilityを付与する
+		DodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
+
+		JustDodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(JustDodgeAbility, 1));
+
+	}
+
+
+	if (AbilitySystemComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:AbilitySystemComponent"));
+
+		AbilitySystemComponent->RegisterGameplayTagEvent(m_justDodgeTag, EGameplayTagEventType::NewOrRemoved)
+			.AddUObject(this, &UPlayerDodgeComponent::JustDodgeWindow);
+	}
 	
 }
 
 
-// Called every frame
 void UPlayerDodgeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
-//
 void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
 {
 	////ヌルチェック
@@ -67,17 +83,18 @@ void UPlayerDodgeComponent::DodgeAbilitySet(UAbilitySystemComponent* DodgeASC)
 
 void UPlayerDodgeComponent::ExecuteAbility()
 {
+
 	if (DodgeInputBufferComp)
 	{
 		DodgeInputBufferComp->KeepOrExeFunction([this]()
 			{
-				ExecuteAbility2();
+				ExecuteDodgeAbility();
 			});
 	}
 
 }
 
-void UPlayerDodgeComponent::ExecuteAbility2()
+void UPlayerDodgeComponent::ExecuteDodgeAbility()
 {
 	//FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
 
@@ -92,6 +109,11 @@ void UPlayerDodgeComponent::ExecuteAbility2()
 	//	return;
 	//}
 
+	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:ExecuteDodgeAbility"));
+
+
+	if (!AbilitySystemComponent) return;
+
 	if (AbilitySystemComponent->HasMatchingGameplayTag(DontDogeTag))
 	{
 		return;
@@ -99,6 +121,8 @@ void UPlayerDodgeComponent::ExecuteAbility2()
 
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:ExecuteDodgeAbility2"));
+
 		//回避アビリティがあるなら
 		if (DodgeAbility)
 		{
@@ -110,37 +134,115 @@ void UPlayerDodgeComponent::ExecuteAbility2()
 	}
 }
 
-void UPlayerDodgeComponent::JustExecuteAbility2()
+void UPlayerDodgeComponent::JustDodgeWindow(const FGameplayTag Tag, int32 NewCount)
 {
-	//FGameplayTag DodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
 
-	//FGameplayTag NAttackTag = FGameplayTag::RequestGameplayTag(FName("PlayerNotify.CantAttack"));
+	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:JustDodgeWindow"));
 
+
+	if (!PlayerActor)return;
+
+	if (NewCount > 0)
+	{
+		PlayerActor->OnTakeAnyDamage.RemoveDynamic(this, &UPlayerDodgeComponent::OnPlayerTakeDamage); 
+		PlayerActor->OnTakeAnyDamage.AddDynamic(this, &UPlayerDodgeComponent::OnPlayerTakeDamage);
+	}
+	else
+	{
+		PlayerActor->OnTakeAnyDamage.RemoveDynamic(this, &UPlayerDodgeComponent::OnPlayerTakeDamage);
+	}
+}
+
+
+
+// 被ダメージ処理の変更
+void UPlayerDodgeComponent::OnPlayerTakeDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:OnPlayerTakeDamage"));
+
+
+	if (!AbilitySystemComponent) return;
+
+
+	if (PlayerActor)
+	{
+		PlayerActor->OnTakeAnyDamage.RemoveDynamic(this, &UPlayerDodgeComponent::OnPlayerTakeDamage);
+	}
+
+	// ジャスト回避abilityがあるなら
+	if (JustDodgeAbility)
+	{
+		EnemyRote = GetEnemyAngleVector(DamageCauser);
+		ExecuteJustDodgeAbility();
+	}
+
+}
+
+FVector UPlayerDodgeComponent::GetEnemyAngleVector(const AActor* EnemyActor)
+{
+
+	FVector AngleInDegrees = FVector::ZeroVector;
+
+	// プレイヤーかエネミーがないなら0を返す
+	if (!PlayerActor || !EnemyActor) return AngleInDegrees;
+
+	// プレイヤーから敵への方向ベクトル
+	FVector DirToEnemy = (EnemyActor->GetActorLocation() - PlayerActor->GetActorLocation());
+	DirToEnemy.Z = 0.0f;
+	DirToEnemy.Normalize();
+
+	AngleInDegrees = DirToEnemy;
+
+	return AngleInDegrees;
+}
+
+
+void UPlayerDodgeComponent::ExecuteJustDodgeAbility()
+{
+
+	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:ExecuteJustDodgeAbility"));
+
+
+	// 回避不可能時のタグ
 	FGameplayTag DontDogeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DontDodge"));
 
 
-	////アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
-	//if (AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) || AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
-	//{
-	//	return;
-	//}
-
-	if (AbilitySystemComponent->HasMatchingGameplayTag(DontDogeTag))
+	//回避アビリティがあるなら
+	if (JustDodgeAbility)
 	{
-		return;
-	}
 
-	else
-	{
-		//回避アビリティがあるなら
-		if (JustDodgeAbility)
+		if (AbilitySystemComponent && DodgeHandle.IsValid())
 		{
-			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
+			AbilitySystemComponent->CancelAbilityHandle(DodgeHandle);
+		}
 
-			//アビリティ実行
-			AbilitySystemComponent->TryActivateAbilityByClass(JustDodgeAbility);
+		//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
+
+		//アビリティ実行
+		AbilitySystemComponent->TryActivateAbilityByClass(JustDodgeAbility);
+
+		// チュートリアルを取得
+		ATutorialActor* TutorialManager =
+			Cast<ATutorialActor>(
+				UGameplayStatics::GetActorOfClass(
+					GetWorld(),
+					ATutorialActor::StaticClass()
+				)
+			);
+
+		// ジャスト回避のチュートリアルをクリア
+		if (TutorialManager)
+		{
+			TutorialManager->CompleteStep(7);
 		}
 	}
+	
+}
+
+// ジャスト回避GAが参照するエネミーがいる向き
+FVector UPlayerDodgeComponent::GetEnemyRote()
+{
+	return EnemyRote;
 }
 
 

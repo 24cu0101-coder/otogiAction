@@ -45,10 +45,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "JustDodge.Gas")
 	TSubclassOf<UGameplayAbility> JustDodgeAbility;
 
-
-
 	//アビリティのハンドル
 	FGameplayAbilitySpecHandle DodgeHandle;
+
+	//アビリティのハンドル
+	FGameplayAbilitySpecHandle JustDodgeHandle;
+
+
+
+	UFUNCTION()
+	void OnPlayerTakeDamage(
+		AActor* DamagedActor,
+		float Damage,
+		const UDamageType* DamageType,
+		AController* InstigatedBy,
+		AActor* DamageCauser);
+
+
+	UFUNCTION()
+	FVector GetEnemyAngleVector(const AActor* EnemyActor);
+
 
 public:	
 	// Called every frame
@@ -61,12 +77,14 @@ public:
 	//アビリティを呼び出す関数
 	void ExecuteAbility();
 
-	void ExecuteAbility2();
+	void ExecuteDodgeAbility();
 
+	// ジャスト回避を呼び出す
+	void ExecuteJustDodgeAbility();
 
+	void JustDodgeWindow(const FGameplayTag Tag, int32 NewCount);
 
-	void JustExecuteAbility2();
-
+	FVector GetEnemyRote();
 
 
 	//AbilitySystemInterfaceのゲッター関数
@@ -78,6 +96,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge.InputBufferComp", meta = (AllowPrivateAccess = "true"))
 	UInputBufferComponent* DodgeInputBufferComp;
 
+	FGameplayTag m_justDodgeTag;
+
+	FVector EnemyRote;
 		
 };
 
