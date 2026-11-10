@@ -679,9 +679,6 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		//return 0.f;
 	}
 
-
-
-
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (ActualDamage <= 0.f || !StatusComp) return 0.f;

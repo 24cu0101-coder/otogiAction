@@ -32,7 +32,7 @@ void UGANewPlayerDodge::ActivateAbility(
 	if (!PlayerActor || !DodgeMontage) return;
 
 	//タグ登録
-	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.NormalDodge"));
+	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DodgeAttack"));
 
 	// プレイヤーの向きを即座に変更
 	StickRotate();
@@ -61,6 +61,7 @@ void UGANewPlayerDodge::DodgeStart()
 	//タスクがあれば終了時に呼ぶ
 	DodgeMontageTask->OnCancelled.AddDynamic(this, &UGANewPlayerDodge::DodgeEnd);
 	DodgeMontageTask->OnCompleted.AddDynamic(this, &UGANewPlayerDodge::DodgeEnd);
+	//DodgeMontageTask->OnInterrupted.AddDynamic(this, &UGANewPlayerDodge::DodgeEnd);
 
 
 	//アニメーション再生

@@ -73,7 +73,11 @@ private:
 	// ジャスト回避のタグ
 	FGameplayTag m_justDodge;
 
+	// ジャスト攻撃可能のタグ
 	FGameplayTag m_justDogeAttack;
+
+	// 無敵のタグ
+	FGameplayTag m_invincible;
 
 	void PlayJustDodge();
 
