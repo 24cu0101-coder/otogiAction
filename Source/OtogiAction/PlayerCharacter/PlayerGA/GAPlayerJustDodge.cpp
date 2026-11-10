@@ -34,8 +34,13 @@ void UGAPlayerJustDodge::ActivateAbility(
 
 	//プレイヤーの情報を取得
 	m_playerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
-
 	m_playerDogeComp = m_playerActor->FindComponentByClass<UPlayerDodgeComponent>();
+
+
+	m_justDogeAttack = FGameplayTag::RequestGameplayTag("IsDodge.DodgeAttack");
+	
+	m_invincible = FGameplayTag::RequestGameplayTag(FName("Invincible"));
+
 
 	//回避開始
 	PlayJustDodge();
@@ -48,8 +53,6 @@ void UGAPlayerJustDodge::PlayJustDodge()
 
 	JustDodgeRotate(m_playerDogeComp->GetEnemyRote());
 
-	//カウンター攻撃受付のタグを飛ばす
-	m_justDogeAttack = FGameplayTag::RequestGameplayTag(FName("CounterAttack"));
 	if (m_asc)
 	{
 		//タグを付与する
@@ -58,7 +61,7 @@ void UGAPlayerJustDodge::PlayJustDodge()
 
 	//再生のタスク
 	UAbilityTask_PlayMontageAndWait* JustDodgeMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-	(this, NAME_None, JustDodgeMontage);
+	(this, NAME_None, JustDodgeMontage,1.0f,FName("e"));
 
 	//タスクなければリターン
 	if (!JustDodgeMontageTask) return;
@@ -72,8 +75,8 @@ void UGAPlayerJustDodge::PlayJustDodge()
 		//終了時に自動で呼ぶ
 		JustDodgeMontageTask->OnCancelled.AddDynamic(this, &UGAPlayerJustDodge::EndJustDodge);
 		JustDodgeMontageTask->OnCompleted.AddDynamic(this, &UGAPlayerJustDodge::EndJustDodge);
+		JustDodgeMontageTask->OnInterrupted.AddDynamic(this, &UGAPlayerJustDodge::EndJustDodge);
 	}
-
 
 	//ワールドの情報の取得
 	UWorld* World = GetWorld();
@@ -126,6 +129,9 @@ void UGAPlayerJustDodge::JustDodgeRotate(FVector Angle)
 
 void UGAPlayerJustDodge::EndJustDodge()
 {
+	UE_LOG(LogTemp, Warning, TEXT("【GAPlayerJustDodge.cpp】:EndJustDodge"));
+
+
 	//ワールドの情報の取得
 	UWorld* World = GetWorld();
 	//ワールドが無ければ
@@ -139,15 +145,10 @@ void UGAPlayerJustDodge::EndJustDodge()
 
 	//m_justDodgeWind = true;
 
-	//EndJustDodgeWindow();
-
-	
+	//EndJustDodgeWindow();	
 
 	//世界をあるべき姿に
 	UGameplayStatics::SetGlobalTimeDilation(World, 1);
-
-	
-
 
 	//モンタージュ終了させる
 	JustDodgeMontageEnd();
@@ -157,6 +158,9 @@ void UGAPlayerJustDodge::EndJustDodge()
 //モンタージュ終了
 void UGAPlayerJustDodge::JustDodgeMontageEnd()
 {
+	m_asc->RemoveLooseGameplayTag(m_invincible);
+
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
