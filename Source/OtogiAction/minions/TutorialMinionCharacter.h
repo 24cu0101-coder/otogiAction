@@ -7,7 +7,6 @@
 #include "TimerManager.h"
 #include "Animation/AnimMontage.h"
 #include "NiagaraSystem.h"
-#include "TimerManager.h"
 #include "TutorialMinionCharacter.generated.h"
 
 
