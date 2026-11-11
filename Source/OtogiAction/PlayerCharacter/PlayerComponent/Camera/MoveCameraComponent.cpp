@@ -42,6 +42,20 @@ void UMoveCameraComponent::BeginPlay()
 	//カメラのポインター取得
 	CameraComp = OwnerCharacter->FindComponentByClass<UCameraComponent>();
 
+	if (SpringArmComp)
+	{
+		// 位置のラグ
+		SpringArmComp->bEnableCameraLag = bEnableCameraLag;
+		SpringArmComp->CameraLagSpeed = CameraLagSpeed;
+
+		// 回転のラグ
+		SpringArmComp->bEnableCameraRotationLag = bEnableCameraRotationLag;
+		SpringArmComp->CameraRotationLagSpeed = CameraRotationLagSpeed;
+
+		// フレームレートによる挙動の差を抑える
+		SpringArmComp->bUseCameraLagSubstepping = true;
+	}
+
 }
 
 
