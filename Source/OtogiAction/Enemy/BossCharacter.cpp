@@ -2,6 +2,8 @@
 
 
 #include "BossCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/Actor.h"
 
 // Sets default values
 ABossCharacter::ABossCharacter()
