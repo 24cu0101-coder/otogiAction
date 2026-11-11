@@ -219,7 +219,7 @@ void UGA_minionsAttack_Middle::OnPreAttackInterrupted()
 			GetAvatarActorFromActorInfo());
 
 
-	if (Minion)
+	if (Minion && !Minion->IsDead())
 	{
 		Minion->SetIsAttacking(false);
 		Minion->SetAttackRotationLock(false);
@@ -251,7 +251,7 @@ void UGA_minionsAttack_Middle::OnMontageCompleted()
 		Cast<AMinionsCharacter>(
 			GetAvatarActorFromActorInfo());
 
-	if (Minion)
+	if (Minion && !Minion->IsDead())
 	{
 		Minion->SetIsAttacking(false);
 		Minion->SetAttackRotationLock(false);
@@ -283,7 +283,7 @@ void UGA_minionsAttack_Middle::OnMontageInterrupted()
 			GetAvatarActorFromActorInfo());
 
 
-	if (Minion)
+	if (Minion && !Minion->IsDead())
 	{
 		Minion->SetIsAttacking(false);
 		Minion->SetAttackRotationLock(false);

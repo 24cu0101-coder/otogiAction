@@ -273,6 +273,8 @@ void AMinionsCharacter::Dead()
 
 	bIsDead = true;
 
+	Tags.Remove(FName("Enemy"));
+
 	// 死亡中は回転しない
 	bUseControllerRotationYaw = false;
 
@@ -457,6 +459,11 @@ void AMinionsCharacter::FinishDeath()
 
 void AMinionsCharacter::SetAttackRotationLock(bool bLock)
 {
+	if (bIsDead)
+	{
+		return;
+	}
+
 	if (!GetCharacterMovement())
 	{
 		return;

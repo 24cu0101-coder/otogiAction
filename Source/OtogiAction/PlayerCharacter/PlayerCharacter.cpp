@@ -379,6 +379,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//ターゲットチェンジ
 		EnhancedInputComponent->BindAction(TargetChangeAction,ETriggerEvent::Started,this,&APlayerCharacter::TargetChangeInput);
+		
+		//デバッグ用ターゲットコンプリート関数
+		EnhancedInputComponent->BindAction(
+			TargetChangeAction,
+			ETriggerEvent::Completed,
+			this,
+			&APlayerCharacter::TargetChangeCompleted
+		);
 	}
 
 }
@@ -625,6 +633,19 @@ void APlayerCharacter::TargetChangeInput(const FInputActionValue& Value)
 	{
 		CameraSystemComp->TargetChange(InputValue);
 	}
+}
+
+void APlayerCharacter::TargetChangeCompleted(const FInputActionValue& Value)
+{
+	const FVector2D InputValue = Value.Get<FVector2D>();
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("TargetChange Completed : X=%f Y=%f"),
+		InputValue.X,
+		InputValue.Y
+	);
 }
 
 //ステータスコンポーネントからのヒット通知で呼ばれるリアクション関数
