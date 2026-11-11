@@ -364,6 +364,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//居合攻撃	
 		EnhancedInputComponent->BindAction(IaiAttackAction, ETriggerEvent::Started, this, &APlayerCharacter::OnIaiAttack);
 
+		EnhancedInputComponent->BindAction(IaiAttackAction, ETriggerEvent::Completed, this, &APlayerCharacter::OnIaiAttack);
+
 		//スキルの切り替え
 		EnhancedInputComponent->BindAction(SwitchSkillGroup, ETriggerEvent::Started, this, &APlayerCharacter::OnSwitchSkillGroup);
 		//スキルの発動四つ
@@ -490,9 +492,6 @@ void APlayerCharacter::OnIaiAttack()
 	//居合攻撃コンポーネントがあったら
 	if (IaiAttackComp)
 	{
-
-		UE_LOG(LogTemp, Warning, TEXT("yfdsday"));
-
 		IaiAttackComp->ExecuteIaiAttackAbility();
 	}
 }
@@ -618,7 +617,9 @@ void APlayerCharacter::TargetChangeInput(const FInputActionValue& Value)
 {
 	FVector2D InputValue = Value.Get<FVector2D>();
 
-	if (InputValue.SizeSquared() < 0.25f)return;
+	UE_LOG(LogTemp, Warning, TEXT("Change : x=%f / Y=%f"),InputValue.X, InputValue.Y);
+
+	if (InputValue.SizeSquared() < 0.01f)return;
 
 	if (CameraSystemComp)
 	{

@@ -139,6 +139,9 @@ void UGANewPlayerDodge::DodgeLocationStart()
 	// ルートモーションタスクがあるなら
 	if (m_moveTask)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("【GANewPlayerDodge.cpp】:DodgeLocationStart"));
+
+
 		m_moveTask->ReadyForActivation();
 	}
 
