@@ -71,6 +71,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera|Target Lock")
 	float MinTargetCameraPitch = -60.0f;
 
+	//カメララグ
+	UPROPERTY(EditAnywhere, Category = "Camera|Lag")
+	bool bEnableCameraLag = true;
+
+	// 位置の追従速度
+	UPROPERTY(EditAnywhere, Category = "Camera|Lag")
+	float CameraLagSpeed = 10.0f;
+
+	// 回転ラグの有効化
+	UPROPERTY(EditAnywhere, Category = "Camera|Lag")
+	bool bEnableCameraRotationLag = true;
+
+	// 回転の追従速度
+	UPROPERTY(EditAnywhere, Category = "Camera|Lag")
+	float CameraRotationLagSpeed = 10.0f;
+
 private:
 	//プレイヤーポインター
 	UPROPERTY()

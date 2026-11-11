@@ -322,6 +322,9 @@ protected:
 	//ターゲット中の変更
 	void TargetChangeInput(const FInputActionValue& Value);
 
+	//デバッグ用関数
+	void TargetChangeCompleted(const FInputActionValue& Value);
+
 	//ハンドル関数
 	UFUNCTION()
 	void HandleDamaged(float NewHP);

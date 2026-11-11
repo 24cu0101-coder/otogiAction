@@ -99,7 +99,7 @@ void UGANewPlayerDodge::PlayDodge()
 	else
 	{
 		//回避開始
-		DodgeLocationStart();
+		//DodgeLocationStart();
 	}
 
 
@@ -122,9 +122,9 @@ void UGANewPlayerDodge::DodgeLocationStart()
 	DodgeForward.Z = 0.0f;
 	DodgeForward.Normalize();
 
-	float w = (3 / 4);
+	//float w = (3 / 4);
 
-	float DodgeTime2 = DodgeTime * w;
+	//float DodgeTime2 = DodgeTime * w;
 
 	// 移動速度
 	float Speed = DodgeDistance / DodgeTime;
@@ -132,13 +132,16 @@ void UGANewPlayerDodge::DodgeLocationStart()
 	// ルートモーションタスク生成
 	m_moveTask =
 		UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
-			this, NAME_None, DodgeForward, Speed, DodgeTime, false, nullptr,
+			this, NAME_None, DodgeForward, Speed, DodgeTime, false, DedgeSpeedCurve,
 			ERootMotionFinishVelocityMode::SetVelocity, FVector::ZeroVector, 0.0f, false);
 
 
 	// ルートモーションタスクがあるなら
 	if (m_moveTask)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("【GANewPlayerDodge.cpp】:DodgeLocationStart"));
+
+
 		m_moveTask->ReadyForActivation();
 	}
 

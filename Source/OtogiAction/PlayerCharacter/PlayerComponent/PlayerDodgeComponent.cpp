@@ -109,7 +109,6 @@ void UPlayerDodgeComponent::ExecuteDodgeAbility()
 	//	return;
 	//}
 
-	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:ExecuteDodgeAbility"));
 
 
 	if (!AbilitySystemComponent) return;
@@ -121,7 +120,6 @@ void UPlayerDodgeComponent::ExecuteDodgeAbility()
 
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:ExecuteDodgeAbility2"));
 
 		//回避アビリティがあるなら
 		if (DodgeAbility)
@@ -137,7 +135,6 @@ void UPlayerDodgeComponent::ExecuteDodgeAbility()
 void UPlayerDodgeComponent::JustDodgeWindow(const FGameplayTag Tag, int32 NewCount)
 {
 
-	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:JustDodgeWindow"));
 
 
 	if (!PlayerActor)return;
@@ -158,7 +155,6 @@ void UPlayerDodgeComponent::JustDodgeWindow(const FGameplayTag Tag, int32 NewCou
 // 被ダメージ処理の変更
 void UPlayerDodgeComponent::OnPlayerTakeDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:OnPlayerTakeDamage"));
 
 
 	if (!AbilitySystemComponent) return;
@@ -200,7 +196,6 @@ FVector UPlayerDodgeComponent::GetEnemyAngleVector(const AActor* EnemyActor)
 void UPlayerDodgeComponent::ExecuteJustDodgeAbility()
 {
 
-	UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:ExecuteJustDodgeAbility"));
 
 
 	// 回避不可能時のタグ
