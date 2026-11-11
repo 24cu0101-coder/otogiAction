@@ -99,7 +99,7 @@ void UGANewPlayerDodge::PlayDodge()
 	else
 	{
 		//回避開始
-		//DodgeLocationStart();
+		DodgeLocationStart();
 	}
 
 
@@ -133,7 +133,7 @@ void UGANewPlayerDodge::DodgeLocationStart()
 	m_moveTask =
 		UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
 			this, NAME_None, DodgeForward, Speed, DodgeTime, false, DedgeSpeedCurve,
-			ERootMotionFinishVelocityMode::SetVelocity, FVector::ZeroVector, 0.0f, false);
+			ERootMotionFinishVelocityMode::ClampVelocity, FVector::ZeroVector, 0.0f, false);
 
 
 	// ルートモーションタスクがあるなら

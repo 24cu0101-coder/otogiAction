@@ -15,10 +15,9 @@ class APlayerCharacter;
 class UMoveComponent;
 class UAttackCollisionComponent;
 class UInputBufferComponent;
+class UAbilityTask_ApplyRootMotionConstantForce;
 
-/**
- * 
- */
+
 UCLASS()
 class OTOGIACTION_API UNormalComboAttackComponent : public UBaseAttackComponent
 {
@@ -72,6 +71,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "KintaroAttack.Gas")
 	TSubclassOf<UGameplayAbility> KintaroAttack3;
 
+	// 跳躍時の加速を滑らかにするためのカーブ
+	UPROPERTY(EditDefaultsOnly, Category = "Parameter.AttackJumpCurve")
+	UCurveFloat* AttackJumpCurve;
+
+	// 攻撃時の踏み込みを滑らかにするためのカーブ
+	UPROPERTY(EditDefaultsOnly, Category = "Parameter.AttackStepJumpCurve")
+	UCurveFloat* AttackStepSpeedCurve;
+
+
 	//アビリティのハンドル
 	FGameplayAbilitySpecHandle NAttackHandle;
 
@@ -118,6 +126,9 @@ private:
 	//先行入力のコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NAttack.InputBufferComp", meta = (AllowPrivateAccess = "true"))
 	UInputBufferComponent* NAInputBufferComp;
+
+	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> m_moveTask;
+
 
 	// 攻撃ability中のみcancelが効くようにするためのフラグ
 	bool AttackCancel;
