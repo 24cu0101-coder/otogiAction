@@ -106,7 +106,7 @@ public:
 	void AttackJump(float upPower);
 
 	// 攻撃時移動する関数()
-	void AttackMove(float upPower,float forward);
+	void AttackMove(UCurveFloat* upPower,float forward);
 
 
 
