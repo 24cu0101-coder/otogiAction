@@ -31,10 +31,6 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 	CurrentActivationInfo = ActivationInfo;
 
 
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("GA NORMAL START"));
 
 
 	AMinionsCharacter* Minion =
@@ -67,10 +63,6 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 
 	if (PreAttackMontage)
 	{
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("NORMAL PRE ATTACK START"));
 
 
 		UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -108,10 +100,6 @@ void UGA_minionsAttack_Normal::ActivateAbility(
 
 void UGA_minionsAttack_Normal::OnPreAttackCompleted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("NORMAL PRE ATTACK END"));
 
 
 	AMinionsCharacter* Minion =
@@ -150,10 +138,6 @@ void UGA_minionsAttack_Normal::OnPreAttackCompleted()
 
 	if (AttackMontage)
 	{
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("NORMAL ATTACK START"));
 
 
 		UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -178,10 +162,6 @@ void UGA_minionsAttack_Normal::OnPreAttackCompleted()
 	}
 	else
 	{
-		UE_LOG(
-			LogTemp,
-			Error,
-			TEXT("AttackMontage NULL"));
 
 
 		if (Minion && !Minion->IsDead())
@@ -207,11 +187,6 @@ void UGA_minionsAttack_Normal::OnPreAttackCompleted()
 
 void UGA_minionsAttack_Normal::OnPreAttackInterrupted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("NORMAL PRE ATTACK INTERRUPTED"));
-
 
 	AMinionsCharacter* Minion =
 		Cast<AMinionsCharacter>(
@@ -240,10 +215,6 @@ void UGA_minionsAttack_Normal::OnPreAttackInterrupted()
 
 void UGA_minionsAttack_Normal::OnMontageCompleted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("Minion Attack End"));
 
 
 	AMinionsCharacter* Minion =
@@ -274,10 +245,6 @@ void UGA_minionsAttack_Normal::OnMontageCompleted()
 
 void UGA_minionsAttack_Normal::OnMontageInterrupted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("Minion Attack Interrupted"));
 
 
 	AMinionsCharacter* Minion =

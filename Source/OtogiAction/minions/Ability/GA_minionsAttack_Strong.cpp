@@ -31,10 +31,6 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 	CurrentActivationInfo = ActivationInfo;
 
 
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("GA STRONG START"));
 
 
 	AMinionsCharacter* Minion =
@@ -67,10 +63,6 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 
 	if (PreAttackMontage)
 	{
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("STRONG PRE ATTACK START"));
 
 
 		UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -108,10 +100,6 @@ void UGA_minionsAttack_Strong::ActivateAbility(
 
 void UGA_minionsAttack_Strong::OnPreAttackCompleted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("STRONG PRE ATTACK END"));
 
 
 	AMinionsCharacter* Minion =
@@ -146,10 +134,6 @@ void UGA_minionsAttack_Strong::OnPreAttackCompleted()
 
 	if (AttackMontage)
 	{
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("STRONG ATTACK START"));
 
 
 		UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -174,10 +158,6 @@ void UGA_minionsAttack_Strong::OnPreAttackCompleted()
 	}
 	else
 	{
-		UE_LOG(
-			LogTemp,
-			Error,
-			TEXT("AttackMontage NULL"));
 
 
 		if (Minion && !Minion->IsDead())
@@ -201,11 +181,6 @@ void UGA_minionsAttack_Strong::OnPreAttackCompleted()
 
 void UGA_minionsAttack_Strong::OnPreAttackInterrupted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("STRONG PRE ATTACK INTERRUPTED"));
-
 
 	AMinionsCharacter* Minion =
 		Cast<AMinionsCharacter>(
@@ -232,10 +207,6 @@ void UGA_minionsAttack_Strong::OnPreAttackInterrupted()
 
 void UGA_minionsAttack_Strong::OnMontageCompleted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("STRONG ATTACK END"));
 
 
 	AMinionsCharacter* Minion =
@@ -263,10 +234,6 @@ void UGA_minionsAttack_Strong::OnMontageCompleted()
 
 void UGA_minionsAttack_Strong::OnMontageInterrupted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("STRONG ATTACK INTERRUPTED"));
 
 
 	AMinionsCharacter* Minion =

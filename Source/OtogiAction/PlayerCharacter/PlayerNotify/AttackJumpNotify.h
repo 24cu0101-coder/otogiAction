@@ -19,10 +19,12 @@ class OTOGIACTION_API UAttackJumpNotify : public UAnimNotify
 		const FAnimNotifyEventReference& EventReference)
 		override;
 
-	// ジャンプ時の跳躍のたかさうおおおお
-	UPROPERTY(EditAnywhere, Category = "Attack MoveParameter")
-	float UpPower;
+protected:
 
+	// ジャンプ時の跳躍のたかさうおおおお
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack JumpCurve")
+	UCurveFloat* LeapTimeCurve;
+	
 	// 攻撃時の移動量ずああああ
 	UPROPERTY(EditAnywhere, Category = "Attack MoveParameter")
 	float forwardPower;

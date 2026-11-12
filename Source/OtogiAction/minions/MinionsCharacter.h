@@ -116,6 +116,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
 	bool bTutorialNoDamage = false;
+
+
+	//盾のメッシュ
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,category="Shield")
+	TObjectPtr<UStaticMeshComponent>ShieldMesh;
+
+	//盾を持っているか
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
+	bool bHasShield = false;
+
+
+	void CheckShieldGuardInput();
+
 public:
 
 	void CancelAttack();
@@ -193,6 +206,15 @@ private:
 
 	bool bOriginalUseControllerDesiredRotation = true;
 
+
+	//盾の入力
+	FTimerHandle ShieldInputTimerHandle;
+
+	UPROPERTY(EditAnywhere, Category = "Shield")
+	float ShieldGuardRange = 300.0f;
+
+	// 前回の入力状態
+	bool bWasShieldInputPressed = false;
 
 public:
 	bool GetIsHitFlg() const { return bIsHit; }

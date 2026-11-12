@@ -30,12 +30,14 @@ void UUHitReactionBaseComponent::AddStunPoint(float StunAmount)
 	AMinionsCharacter* Minion =
 		Cast<AMinionsCharacter>(GetOwner());
 
+	// ‚‚ðŽ‚Á‚Ä‚¢‚é“G‚ÍƒXƒ^ƒ“’l‚ð‰ÁŽZ‚µ‚È‚¢
+	if (Minion && Minion->bHasShield)
+	{
+		return;
+	}
+
 	if (Minion && Minion->bIsAttackInProgress)
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[%s] Attack’†‚Ì‚½‚ßStunPoint‰ÁŽZ‚ð–³Œø‰»"),
-			*Minion->GetName());
-
 		return;
 	}
 
