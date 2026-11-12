@@ -36,7 +36,6 @@ void UMinionsIsHitService::TickNode(UBehaviorTreeComponent& OwnerComp,uint8* Nod
 
 	if (!Minions)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Minions == nullptr"));
 		return;
 	}
 

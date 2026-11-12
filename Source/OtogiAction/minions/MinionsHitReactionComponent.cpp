@@ -27,8 +27,6 @@ void UMinionsHitReactionComponent::AddStance(float Value)
 	// 大スタン中はStanceを減らさない
 	if (bIsStunned)
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[STANCE] 大スタン中のため加算処理を無効化"));
 
 		return;
 	}
@@ -54,9 +52,6 @@ void UMinionsHitReactionComponent::AddStance(float Value)
 
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Current Stance : %f"),
-		CurrentStance);
 
 
 
@@ -86,8 +81,6 @@ void UMinionsHitReactionComponent::ResetStance()
 
 	bStanceBroken = false;
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Stance Reset"));
 }
 
 
@@ -103,8 +96,6 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 	// 攻撃中は軽い怯みを発生させない
 	if (Minion && Minion->bIsAttackInProgress)
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[HIT REACTION] Attack中のためLightHitを無効化"));
 
 		return;
 	}
@@ -129,8 +120,6 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 			Minion->StopAnimMontage();
 
 
-			UE_LOG(LogTemp, Warning,
-				TEXT("MINION ATTACK CANCEL"));
 
 		}
 
@@ -150,17 +139,12 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Hit Dot : %f"),
-		Dot);
 
 
 
 	if (Dot > 0)
 	{
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("FRONT HIT"));
 
 
 		if (FrontHitMontage)
@@ -172,8 +156,6 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 	else
 	{
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("BACK HIT"));
 
 
 		if (BackHitMontage)
@@ -194,8 +176,6 @@ void UMinionsHitReactionComponent::OnFearMax()
 	Super::OnFearMax();
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Minion Fear Max"));
 
 }
 
@@ -216,8 +196,6 @@ void UMinionsHitReactionComponent::OnStunMax()
 	Super::OnStunMax();
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("MINION STUN"));
 
 
 
@@ -328,7 +306,6 @@ void UMinionsHitReactionComponent::StopAI()
 
 			if (AI->BrainComponent)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("StopLogic"));
 				AI->BrainComponent->StopLogic(
 					TEXT("Stun"));
 			}
@@ -376,12 +353,10 @@ void UMinionsHitReactionComponent::RestartAI()
 
 	if (AI->BrainComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RestartLogic"));
 
 		AI->BrainComponent->RestartLogic();
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("RestartAI End"));
 }
 
 
@@ -409,9 +384,6 @@ void UMinionsHitReactionComponent::SetHitDirection(AActor* Attacker)
 
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("HitDirection : %s"),
-		*HitDirection.ToString());
 
 }
 
@@ -434,8 +406,6 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 	// 攻撃中は軽い怯みを発生させない
 	if (Minion && Minion->bIsAttackInProgress)
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[HIT REACTION] Attack中のためLightHitを無効化"));
 
 		return;
 	}
@@ -452,8 +422,6 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 			Minion->StopAnimMontage();
 
 
-			UE_LOG(LogTemp, Warning,
-				TEXT("MINION LIGHT ATTACK CANCEL"));
 
 		}
 
@@ -484,9 +452,6 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("LIGHT HIT DOT : %f"),
-		Dot);
 
 
 
@@ -532,8 +497,6 @@ void UMinionsHitReactionComponent::FinishRecover()
 
 	RestartAI();
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("STUN RECOVER"));
 }
 
 void UMinionsHitReactionComponent::CancelStunRecovery()
