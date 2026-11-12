@@ -38,7 +38,9 @@ void UNormalComboAttackComponent::BeginPlay()
 
 		MoveComp->GravityScale = 100.0f;
 
-		MoveComp->AirControl = 0.3f;
+		MoveComp->BrakingDecelerationFalling = 1500.0f; // 空中での水平減速力（デフォルトは 0.0）
+		MoveComp->FallingLateralFriction = 2.0f;
+		MoveComp->AirControl = 100;
 	}
 
 
@@ -319,21 +321,41 @@ void UNormalComboAttackComponent::AttackJump(float upPower)
 	//PlayerActor->LaunchCharacter(FVector(0.0f, 0.0f, upPower), false, true);
 }
 
-void UNormalComboAttackComponent::AttackMove(float forward, float upPower)
+void UNormalComboAttackComponent::AttackMove(UCurveFloat* upPower, float forward)
 {
 	if (!PlayerActor || AttackWarp) return;
+
+	UCharacterMovementComponent* MoveComp = PlayerActor->GetCharacterMovement();
+	if (!MoveComp) return;
 
 	//正面を取得
 	FVector AttackForward = PlayerActor->GetActorForwardVector();
 	AttackForward.Z = 0.0f;
 	AttackForward.Normalize();
+	
 
 	// プレイヤー正面のVector
 	FVector ForwardVector = PlayerActor->GetActorForwardVector() * forward;
 	
-	if (upPower > 0)
+	if (upPower)
 	{
-		ForwardVector.Z = upPower;
+
+		//MoveComp->GravityScale = 1.0f;
+
+		TSharedPtr<FRootMotionSource_JumpForce> JumpForce = MakeShared<FRootMotionSource_JumpForce>();
+		JumpForce->AccumulateMode = ERootMotionAccumulateMode::Override;
+		JumpForce->Priority = 2;
+		JumpForce->Duration = 0.3;
+		JumpForce->Rotation = AttackForward.Rotation();
+		JumpForce->Distance = forward;
+		JumpForce->Height = 100;
+		JumpForce->bDisableTimeout = false;
+		JumpForce->TimeMappingCurve = upPower;	
+
+		JumpForce->FinishVelocityParams.Mode = ERootMotionFinishVelocityMode::SetVelocity;
+		JumpForce->FinishVelocityParams.SetVelocity = FVector::ZeroVector;
+
+		MoveComp->ApplyRootMotionSource(JumpForce);
 	}
 	
 

@@ -18,10 +18,9 @@ void UAttackJumpNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 		if (AttackComp)
 		{
 			//AttackComp->AttackJump(UpPower);
+			
 
-			AttackComp->AttackMove(forwardPower,UpPower);
+			AttackComp->AttackMove(LeapTimeCurve, forwardPower);
 		}
-
-
 	}
 }
