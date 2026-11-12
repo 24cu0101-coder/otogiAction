@@ -116,6 +116,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
 	bool bTutorialNoDamage = false;
+
+
+	//盾のメッシュ
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,category="Shield")
+	TObjectPtr<UStaticMeshComponent>ShieldMesh;
+
+	//盾を持っているか
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
+	bool bHasShield = false;
+
+
 public:
 
 	void CancelAttack();

@@ -53,6 +53,13 @@ AMinionsCharacter::AMinionsCharacter()
 
 	HPWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
+	//盾
+	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
+
+	ShieldMesh->SetupAttachment(GetMesh(), TEXT("ShieldSocket"));
+
+	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	bUseControllerRotationYaw = false;
 
 	GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -143,7 +150,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		bIsAttackInProgress,
 		IsAttacking());
 
-	// Kintaro専用敵のダメージ受付判定
+	/* Kintaro専用敵のダメージ受付判定
 	if (bKintaroOnlyEnemy && !bCanTakeDamage)
 	{
 		UE_LOG(LogTemp, Warning,
@@ -151,6 +158,17 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 			*GetName(),
 			bKintaroOnlyEnemy,
 			bCanTakeDamage);
+
+		return;
+	}*/
+
+	// 盾を持っている場合
+	if (bHasShield)
+	{
+		if (HitReactionComponent)
+		{
+			HitReactionComponent->PlayShieldGuard();
+		}
 
 		return;
 	}

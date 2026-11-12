@@ -559,3 +559,18 @@ void UMinionsHitReactionComponent::CancelStunRecovery()
 		}
 	}
 }
+
+void UMinionsHitReactionComponent::PlayShieldGuard()
+{
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+
+	if (!Character || Character->IsPendingKillPending())
+	{
+		return;
+	}
+
+	if (ShieldGuardMontage)
+	{
+		Character->PlayAnimMontage(ShieldGuardMontage);
+	}
+}
