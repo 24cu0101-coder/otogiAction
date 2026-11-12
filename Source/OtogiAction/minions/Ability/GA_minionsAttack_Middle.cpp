@@ -31,10 +31,6 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 	CurrentActivationInfo = ActivationInfo;
 
 
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("GA MIDDLE START"));
 
 
 	AMinionsCharacter* Minion =
@@ -68,10 +64,6 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 
 	if (PreAttackMontage)
 	{
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("MIDDLE PRE ATTACK START"));
 
 
 		UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -109,10 +101,6 @@ void UGA_minionsAttack_Middle::ActivateAbility(
 
 void UGA_minionsAttack_Middle::OnPreAttackCompleted()
 {
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("MIDDLE PRE ATTACK END"));
 
 
 	AMinionsCharacter* Minion =
@@ -151,10 +139,6 @@ void UGA_minionsAttack_Middle::OnPreAttackCompleted()
 
 	if (AttackMontage)
 	{
-		UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("MIDDLE ATTACK START"));
 
 
 		UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -179,10 +163,6 @@ void UGA_minionsAttack_Middle::OnPreAttackCompleted()
 	}
 	else
 	{
-		UE_LOG(
-			LogTemp,
-			Error,
-			TEXT("AttackMontage is NULL"));
 
 
 		if (Minion)

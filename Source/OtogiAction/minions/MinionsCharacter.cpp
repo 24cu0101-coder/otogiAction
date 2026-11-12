@@ -53,6 +53,13 @@ AMinionsCharacter::AMinionsCharacter()
 
 	HPWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
+	//盾
+	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
+
+	ShieldMesh->SetupAttachment(GetMesh(), TEXT("ShieldSocket"));
+
+	ShieldMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	bUseControllerRotationYaw = false;
 
 	GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -80,9 +87,6 @@ void AMinionsCharacter::BeginPlay()
 	{
 		bCanTakeDamage = false;
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("[KINTARO DAMAGE] %s INITIALIZED -> CanTakeDamage = false"),
-			*GetName());
 	}
 
 	//ダメージを受けたらOnDamageを呼ぶ
@@ -129,7 +133,6 @@ void AMinionsCharacter::GiveDefaultAbilities()
 			{
 				AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, InputID));
 
-				UE_LOG(LogTemp, Warning, TEXT("Ability Granted: %s"), *AbilityClass->GetName());
 				InputID++;
 			}
 		}
@@ -138,12 +141,8 @@ void AMinionsCharacter::GiveDefaultAbilities()
 
 void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning,
-		TEXT("[HIT CHECK] AttackInProgress=%d IsAttacking=%d"),
-		bIsAttackInProgress,
-		IsAttacking());
 
-	// Kintaro専用敵のダメージ受付判定
+	/* Kintaro専用敵のダメージ受付判定
 	if (bKintaroOnlyEnemy && !bCanTakeDamage)
 	{
 		UE_LOG(LogTemp, Warning,
@@ -151,6 +150,17 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 			*GetName(),
 			bKintaroOnlyEnemy,
 			bCanTakeDamage);
+
+		return;
+	}*/
+
+	// 盾を持っている場合
+	if (bHasShield)
+	{
+		if (HitReactionComponent)
+		{
+			HitReactionComponent->PlayShieldGuard();
+		}
 
 		return;
 	}
@@ -190,11 +200,6 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("%s DAMAGE ALLOWED | KintaroOnly=%d CanTakeDamage=%d"),
-		*GetName(),
-		bKintaroOnlyEnemy,
-		bCanTakeDamage);
 
 
 	// Tutorial中はHPを減らさない
@@ -203,7 +208,7 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		StatusComponent->TakeDamage(Damage);
 	}
 	// ヒットリアクション
-	if (!bIgnoreHitReaction && HitReactionComponent && DamageCauser)
+	if (!bIgnoreHitReaction && HitReactionComponent && !bHasShield)
 	{
 		HitReactionComponent->SetHitDirection(DamageCauser);
 
@@ -214,8 +219,6 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 
 		if (HitReactionComponent->IsStanceBreak())
 		{
-			UE_LOG(LogTemp, Warning,
-				TEXT("MINION STANCE BREAK"));
 
 			HitReactionComponent->PlayHitReaction(Damage);
 
@@ -232,11 +235,6 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 			OrbSpawnComponent->SpawnOrbs(this, Damage);
 		}
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("%s KintaroOnly:%d CanSpawn:%d"),
-			*GetName(),
-			bKintaroOnlyEnemy,
-			bCanSpawnOrb);
 	}
 
 	// チュートリアル：敵に攻撃を当てた
@@ -383,8 +381,6 @@ void AMinionsCharacter::CancelAttack()
 	}
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("MINION ATTACK CANCEL"));
 
 }
 
@@ -392,11 +388,6 @@ void AMinionsCharacter::SetCanSpawnOrb(bool bEnable)
 {
 	bCanSpawnOrb = bEnable;
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("SetCanSpawnOrb called : %s -> %d"),
-		*GetName(),
-		bCanSpawnOrb
-	);
 }
 
 void AMinionsCharacter::UpdateHPWidgetVisibility()

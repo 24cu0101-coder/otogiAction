@@ -15,7 +15,6 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(
 	UBehaviorTreeComponent& OwnerComp,
 	uint8* NodeMemory)
 {
-	UE_LOG(LogTemp, Warning, TEXT("===== BT HIT REACTION TASK ====="));
 
 	AAIController* AIController = OwnerComp.GetAIOwner();
 

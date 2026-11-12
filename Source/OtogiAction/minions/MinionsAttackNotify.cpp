@@ -28,8 +28,6 @@ void UMinionsAttackNotify::Notify(USkeletalMeshComponent* MeshComp,UAnimSequence
 
 	if (!Minion->IsAttacking())
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("Attack Notify Cancelled"));
 
 		return;
 	}
@@ -41,15 +39,12 @@ void UMinionsAttackNotify::Notify(USkeletalMeshComponent* MeshComp,UAnimSequence
 
 	if (!SphereCollision)
 	{
-		UE_LOG(LogTemp, Error,
-			TEXT("SphereCollisionComponent Not Found"));
 
 		return;
 	}
 
 
 
-	UE_LOG(LogTemp, Warning, TEXT("Minion Attack Notify Called"));
 
 	// 攻撃判定
 	SphereCollision->ExcuteAreaAttack(
@@ -66,7 +61,5 @@ void UMinionsAttackNotify::Notify(USkeletalMeshComponent* MeshComp,UAnimSequence
 
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Minions Attack Hit"));
 
 }

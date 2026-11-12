@@ -62,6 +62,14 @@ public:
 	void CancelStunRecovery();
 
 
+	// 盾ガードMontage
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
+	TObjectPtr<UAnimMontage> ShieldGuardMontage;
+
+	// 盾ガード再生
+	void PlayShieldGuard();
+
+
 
 private:
 

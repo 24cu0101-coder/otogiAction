@@ -15,7 +15,6 @@ UMinionsHitReactionTask::UMinionsHitReactionTask()
 
 EBTNodeResult::Type UMinionsHitReactionTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp,uint8* NodeMemory)
 {
-	UE_LOG(LogTemp, Warning, TEXT("===== BT HIT REACTION TASK ====="));
 
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	if (!AIController)
@@ -34,6 +33,18 @@ EBTNodeResult::Type UMinionsHitReactionTask::ExecuteTask(UBehaviorTreeComponent&
 	if (!BBComp)
 	{
 		return EBTNodeResult::Failed;
+	}
+
+	// 盾を持っている敵はスタン処理をしない
+	if (Minions->bHasShield)
+	{
+
+		// 被弾フラグ解除
+		Minions->SetIsHitFlg(false);
+
+		BBComp->SetValueAsBool(IsHitKey.SelectedKeyName,false);
+
+		return EBTNodeResult::Succeeded;
 	}
 
 	UMinionsHitReactionComponent* HitComponent =Minions->FindComponentByClass<UMinionsHitReactionComponent>();

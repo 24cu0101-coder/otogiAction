@@ -130,15 +130,10 @@ void UminionsAttackComponent::Attack()
 	}
 
 
-	UE_LOG(LogTemp, Warning,
-		TEXT("Attack() Called"));
-
 
 	// 攻撃距離チェック
 	if (!CanAttack())
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("CanAttack = FALSE"));
 
 		if (Minion)
 		{
@@ -153,8 +148,6 @@ void UminionsAttackComponent::Attack()
 
 	if (!ASC)
 	{
-		UE_LOG(LogTemp, Error,
-			TEXT("ASC is NULL"));
 
 		if (Minion)
 		{
@@ -174,24 +167,18 @@ void UminionsAttackComponent::Attack()
 		AttackType =
 			EMinionsAttackType::Normal;
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("Normal Attack"));
 	}
 	else if (RandomAttack < 90)
 	{
 		AttackType =
 			EMinionsAttackType::middle;
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("Middle Attack"));
 	}
 	else
 	{
 		AttackType =
 			EMinionsAttackType::Strong;
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("Strong Attack"));
 	}
 
 
@@ -245,15 +232,11 @@ void UminionsAttackComponent::Attack()
 		{
 			Minion->SetIsAttacking(true);
 
-			UE_LOG(LogTemp, Warning,
-				TEXT("Minion Attack Activated"));
 		}
 		else
 		{
 			Minion->SetIsAttacking(false);
 
-			UE_LOG(LogTemp, Warning,
-				TEXT("Minion Attack Failed"));
 		}
 
 	}
@@ -299,9 +282,6 @@ void UminionsAttackComponent::ExecuteAttackHit()
 
 	for (AActor* Actor : OutActors)
 	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("Hit Actor = %s"),
-			*Actor->GetName());
 
 		APlayerCharacter* Player =
 			Cast<APlayerCharacter>(Actor);
@@ -315,9 +295,6 @@ void UminionsAttackComponent::ExecuteAttackHit()
 				OwnerActor,
 				UDamageType::StaticClass());
 
-			UE_LOG(LogTemp, Warning,
-				TEXT("Notify Damage: %f"),
-				Minion->AttackPower);
 		}
 	}
 }
