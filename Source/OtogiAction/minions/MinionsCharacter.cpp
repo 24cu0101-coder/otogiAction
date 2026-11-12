@@ -2,11 +2,13 @@
 #include "minionsAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "OtogiAction/Component/Status/StatusComponent.h"
 #include "Ability/GA_minionsAttack_Normal.h"
 #include "Ability/GA_minionsAttack_Middle.h"
 #include "Ability/GA_minionsAttack_Strong.h"
 #include "AIController.h"
+#include "InputCoreTypes.h"
 #include "BrainComponent.h"
 #include "../Orb/OrbActor.h"
 #include "Components/WidgetComponent.h"
@@ -81,6 +83,8 @@ void AMinionsCharacter::Tick(float DeltaTime)
 void AMinionsCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetWorld()->GetTimerManager().SetTimer(ShieldInputTimerHandle,this,&AMinionsCharacter::CheckShieldGuardInput,0.02f,true);
 
 	// Kintaro専用敵はゲーム開始時はダメージ無効
 	if (bKintaroOnlyEnemy)
@@ -157,11 +161,6 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 	// 盾を持っている場合
 	if (bHasShield)
 	{
-		if (HitReactionComponent)
-		{
-			HitReactionComponent->PlayShieldGuard();
-		}
-
 		return;
 	}
 
@@ -475,4 +474,58 @@ void AMinionsCharacter::SetAttackRotationLock(bool bLock)
 		GetCharacterMovement()->bUseControllerDesiredRotation =
 			bOriginalUseControllerDesiredRotation;
 	}
+}
+
+//Playerの攻撃が押されたら盾を構える
+void AMinionsCharacter::CheckShieldGuardInput()
+{
+	if (!bHasShield)
+	{
+		return;
+	}
+
+	APlayerController* PC =
+		UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	if (!PC)
+	{
+		return;
+	}
+
+	APawn* PlayerPawn = PC->GetPawn();
+
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	// プレイヤーとの距離を確認
+	float DistanceSquared = FVector::DistSquared(
+		GetActorLocation(),
+		PlayerPawn->GetActorLocation()
+	);
+
+	if (DistanceSquared > ShieldGuardRange * ShieldGuardRange)
+	{
+		bWasShieldInputPressed = false;
+		return;
+	}
+
+	// いずれかのキーが押されているか
+	bool bIsInputPressed =
+		PC->IsInputKeyDown(EKeys::LeftMouseButton) ||
+		PC->IsInputKeyDown(EKeys::RightMouseButton) ||
+		PC->IsInputKeyDown(EKeys::E);
+
+	// 押した瞬間だけ実行
+	if (bIsInputPressed && !bWasShieldInputPressed)
+	{
+		if (HitReactionComponent)
+		{
+			HitReactionComponent->PlayShieldGuard();
+		}
+	}
+
+	// 現在の入力状態を保存
+	bWasShieldInputPressed = bIsInputPressed;
 }

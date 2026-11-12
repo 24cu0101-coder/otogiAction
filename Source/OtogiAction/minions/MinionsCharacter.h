@@ -127,6 +127,8 @@ public:
 	bool bHasShield = false;
 
 
+	void CheckShieldGuardInput();
+
 public:
 
 	void CancelAttack();
@@ -204,6 +206,15 @@ private:
 
 	bool bOriginalUseControllerDesiredRotation = true;
 
+
+	//盾の入力
+	FTimerHandle ShieldInputTimerHandle;
+
+	UPROPERTY(EditAnywhere, Category = "Shield")
+	float ShieldGuardRange = 300.0f;
+
+	// 前回の入力状態
+	bool bWasShieldInputPressed = false;
 
 public:
 	bool GetIsHitFlg() const { return bIsHit; }
