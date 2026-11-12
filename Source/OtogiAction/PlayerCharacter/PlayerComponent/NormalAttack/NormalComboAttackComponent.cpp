@@ -5,6 +5,7 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/Move/MoveComponent.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
@@ -321,6 +322,11 @@ void UNormalComboAttackComponent::AttackJump(float upPower)
 void UNormalComboAttackComponent::AttackMove(float forward, float upPower)
 {
 	if (!PlayerActor || AttackWarp) return;
+
+	//³–Ê‚ðŽæ“¾
+	FVector AttackForward = PlayerActor->GetActorForwardVector();
+	AttackForward.Z = 0.0f;
+	AttackForward.Normalize();
 
 	// ƒvƒŒƒCƒ„[³–Ê‚ÌVector
 	FVector ForwardVector = PlayerActor->GetActorForwardVector() * forward;

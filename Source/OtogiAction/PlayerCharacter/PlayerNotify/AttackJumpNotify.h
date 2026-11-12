@@ -26,4 +26,6 @@ class OTOGIACTION_API UAttackJumpNotify : public UAnimNotify
 	// UŒ‚‚ÌˆÚ“®—Ê‚¸‚ ‚ ‚ ‚ 
 	UPROPERTY(EditAnywhere, Category = "Attack MoveParameter")
 	float forwardPower;
+
+
 };

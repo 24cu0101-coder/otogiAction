@@ -152,7 +152,7 @@ void UGANormalAttack::LoopCount(FGameplayEventData Payload)
 				//現在のアニメーションを取得
 				UAnimInstance* AnimInstance = Mesh->GetAnimInstance();
 
-				//原罪再生しているアニメーションがあれば
+				//現在再生しているアニメーションがあれば
 				if (AnimInstance)
 				{
 					//loopのシーケンスを抜ける

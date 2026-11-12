@@ -123,6 +123,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Parameter.JustDodge", meta = (AllowPrivateAccess = "true"))
 	float InvincibleTime;
 
+	// ‰ñ”ğ‚Ì‰Á‘¬‚ğŠŠ‚ç‚©‚É‚·‚é‚½‚ß‚ÌƒJ[ƒu
 	UPROPERTY(EditDefaultsOnly,Category = "Parameter.DodgeSpeedCurve")
 	UCurveFloat* DedgeSpeedCurve;
 
