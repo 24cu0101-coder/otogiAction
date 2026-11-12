@@ -6,6 +6,7 @@
 #include "BossCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
+
 // Sets default values for this component's properties
 UBossChaseComponent::UBossChaseComponent()
 {
@@ -43,9 +44,19 @@ void UBossChaseComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (!bIsTrackingEnable || !CachedAIController || !TargetActor)
+    //AIControllerが未取得なら再取得を試みる
+    if (!CachedAIController)
     {
-        return;
+        if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+        {
+            CachedAIController = Cast<ABossAIController>(OwnerPawn->GetController());
+        }
+    }
+
+    //プレイヤーが未取得なら再検索する
+    if (!TargetActor)
+    {
+        SetTargetPlayer();
     }
 
     // Tickごとの実行を避け、一定間隔で移動命令を更新する
@@ -76,7 +87,7 @@ void UBossChaseComponent::SetTargetPlayer()
     APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
     if (PlayerPawn)
     {
-        TargetActor = Cast<ABossCharacter>(PlayerPawn);
+        TargetActor = Cast<APlayerCharacter>(PlayerPawn);
     }
 }
 
