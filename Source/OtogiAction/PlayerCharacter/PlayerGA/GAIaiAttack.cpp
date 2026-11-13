@@ -109,6 +109,9 @@ void UGAIaiAttack::SheathingSword()
 			this, m_secondInputTag,nullptr ,false,false);
 		if (WiatEvetnTask)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("【UGAIaiAttack】::fhshfgwsjykdet"));
+
+
 			WiatEvetnTask->EventReceived.AddDynamic(this, &UGAIaiAttack::IaiSlash);
 			WiatEvetnTask->ReadyForActivation();
 		}
@@ -118,7 +121,7 @@ void UGAIaiAttack::SheathingSword()
 // 抜刀の処理
 void UGAIaiAttack::IaiSlash(FGameplayEventData Payload)
 {
-	UE_LOG(LogTemp, Warning, TEXT("IaiSlash"));
+	UE_LOG(LogTemp, Warning, TEXT("【UGAIaiAttack】::zyazyu"));
 
 
 	StartMontage();
@@ -145,7 +148,7 @@ void UGAIaiAttack::IaiSlash(FGameplayEventData Payload)
 
 
 
-// 回避開始の処理
+// 居合開始の処理
 void UGAIaiAttack::Iaistep()
 {
 	//世界からtimerをもらう
@@ -193,6 +196,8 @@ void UGAIaiAttack::RestartIaiAttackMontage()
 
 void UGAIaiAttack::Rotate(FVector TargetLocation)
 {
+	UE_LOG(LogTemp, Warning, TEXT("【UGAIaiAttack】::rrrrrrrrrrrrrrrr"));
+
 	//タイマー停止
 	GetWorld()->GetTimerManager().ClearTimer(m_iaiTimer);
 	//アニメーション再生タスク
@@ -304,6 +309,9 @@ void UGAIaiAttack::IaiWarping()
 			}
 			else
 			{
+				UE_LOG(LogTemp, Warning, TEXT("【UGAIaiAttack】::hanage"));
+
+
 				IaiAttackMontageEnd();
 			}
 		}

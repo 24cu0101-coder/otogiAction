@@ -45,9 +45,18 @@ public:
 	//アビリティのハンドル
 	FGameplayAbilitySpecHandle IaiHandle;
 
+	//強攻撃アビリティを実行するs
 	UFUNCTION()
-	//強攻撃アビリティを実行する
 	void ExecuteIaiAttackAbility();
+
+	// chargedamageを渡す関数
+	UFUNCTION()
+	float GetChargeDamage() const { return m_chargeDamage; };
+
+	UFUNCTION()
+	// 
+	void ChargeDamageReset();
+
 
 private:
 	
@@ -68,5 +77,16 @@ private:
 	bool SecondInputExecuted = false;
 
 	void Iaidebug();
+
+	// チャージ攻撃damageを決めます
+	void ChargeDamage(float chargeduration);
+
+
+	// チャージダメージ
+	float m_chargeDamage;
+
+	// チャージ開始時間
+	float m_chargeStartTime;
+
 
 };

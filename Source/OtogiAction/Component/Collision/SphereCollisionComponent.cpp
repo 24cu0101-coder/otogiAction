@@ -12,6 +12,7 @@
 #include "../UHitReactionBaseComponent.h"
 #include "../../Component/Audio/BGMManager.h"
 #include "Sound/SoundBase.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/StrongAttack/IaiAttackComponent.h"
 
 // Sets default values for this component's properties
 USphereCollisionComponent::USphereCollisionComponent()
@@ -26,9 +27,11 @@ USphereCollisionComponent::USphereCollisionComponent()
 
 
 // Called when the game starts
-void USphereCollisionComponent::BeginPlay()
+void USphereCollisionComponent::BeginPlay()	
 {
 	Super::BeginPlay();
+	m_iaiAttackFlag = false;
+	
 
 	// ...
 	
@@ -50,6 +53,13 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();
 	if (!Owner) return;
+
+	m_iaiAttack = Owner->FindComponentByClass<UIaiAttackComponent>();
+
+	if (m_iaiAttack)
+	{		
+		Damage*= m_iaiAttack->GetChargeDamage();
+	}
 
 	// 自身の現在位置
 	FVector Center = Owner->GetActorLocation();
@@ -172,5 +182,4 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 			);
 		}
 	}
-
 }

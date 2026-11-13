@@ -360,6 +360,11 @@ void UNormalComboAttackComponent::AttackMove(UCurveFloat* upPower, float forward
 	
 
 	PlayerActor->LaunchCharacter(ForwardVector, false, true);
-
-
 }
+
+
+
+
+
+
+

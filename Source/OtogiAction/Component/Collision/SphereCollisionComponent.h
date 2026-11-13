@@ -8,6 +8,7 @@
 
 class USphereComponent;
 class USoundBase;
+class UIaiAttackComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API USphereCollisionComponent : public UActorComponent
@@ -43,8 +44,15 @@ protected:
 	//コリジョンの当たり判定の計算
 	FCollisionShape HitCollisionShape;
 
+	// 居合攻撃
+	UIaiAttackComponent* m_iaiAttack;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+private:
+
+	bool m_iaiAttackFlag;
 
 };

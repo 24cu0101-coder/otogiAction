@@ -10,7 +10,9 @@
 #include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
 
 
-UIaiAttackComponent::UIaiAttackComponent()
+UIaiAttackComponent::UIaiAttackComponent() :
+m_chargeDamage(1)
+
 {
 	SecondInputExecuted = false;
 
@@ -19,7 +21,6 @@ UIaiAttackComponent::UIaiAttackComponent()
 	MCC = CreateDefaultSubobject<UMoveComponent>(TEXT("SAMC"));
 
 	IaiAttackInputBufferComp = CreateDefaultSubobject<UInputBufferComponent>(TEXT("IaiAttacksInputBufferComp"));
-
 }
 
 
@@ -72,7 +73,6 @@ void UIaiAttackComponent::ExecuteIaiAttackAbility2()
 
 	if (!IaiAttackASC || !IaiAttackAbility)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("【IaiAttackComponent】eeeee"));
 
 
 		return;
@@ -94,7 +94,22 @@ void UIaiAttackComponent::ExecuteIaiAttackAbility2()
 		if (!SecondInputExecuted)
 		{
 			SecondInputExecuted = true;
-			UE_LOG(LogTemp, Warning, TEXT("【IaiAttackComponent】;;;;;"));
+
+			// 記録した世界の時間からどれだけチャージしたのか数える
+			if (GetWorld())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("【IaiAttackComponent】dfasfsafsfds"));
+
+
+				float ChargeDuration = GetWorld()->GetTimeSeconds() - m_chargeStartTime;
+
+				if (ChargeDuration >= 2.5f)
+				{
+					ChargeDuration = 2.5f;
+				}
+
+				ChargeDamage(ChargeDuration);
+			}
 
 			FGameplayTag SecontInputTag = FGameplayTag::RequestGameplayTag(FName("Iai.SecondInput"));
 			FGameplayEventData EventData;
@@ -125,14 +140,20 @@ void UIaiAttackComponent::ExecuteIaiAttackAbility2()
 		UE_LOG(LogTemp, Warning, TEXT("[IaiComp] 発動失敗: PlayerNotify.CantAttack タグが付与されています"));
 		return;
 	}
-	////アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
-	//if (IaiAttackASC->HasMatchingGameplayTag(DodgeTag) || IaiAttackASC->HasMatchingGameplayTag(SAttackTag))
-	//{
-	//	return;
-	//}
-	//
+
 	SecondInputExecuted = false;
+	// damage倍率初期化 
+	m_chargeDamage = 1.0f;
 	bool bActivated = IaiAttackASC->TryActivateAbilityByClass(IaiAttackAbility);
+
+	// 一度目の入力時に世界の時間を記録
+	if (bActivated && GetWorld())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("【IaiAttackComponent】m_chargeStartTime"));
+
+		m_chargeStartTime = GetWorld()->GetTimeSeconds();
+	}
+
 
 	UE_LOG(LogTemp, Warning, TEXT("[IaiComp] 1回目の発動試行結果: %s"), bActivated ? TEXT("SUCCESS") : TEXT("FAILED"));
 	
@@ -146,6 +167,40 @@ void UIaiAttackComponent::AbilityEnd(const FAbilityEndedData& AbilityEndedData)
 	{
 		SecondInputExecuted = false;
 	}
+}
+
+// damageの計算
+void UIaiAttackComponent::ChargeDamage(float chargeduration)
+{
+	if (chargeduration >= 2.4)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("【IaiAttackComponent】3"));
+
+		m_chargeDamage = 10;
+	}
+
+	else if (chargeduration >= 1.5)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("【IaiAttackComponent】2"));
+
+		m_chargeDamage = 5;
+	}
+
+	else 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("【IaiAttackComponent】1"));
+
+		m_chargeDamage = 1;
+	}
+
+
+
+}
+
+// damagereset関数
+void UIaiAttackComponent::ChargeDamageReset()
+{
+	m_chargeDamage = 1;
 }
 
 void UIaiAttackComponent::Iaidebug()
