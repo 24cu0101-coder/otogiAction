@@ -480,7 +480,9 @@ void UMinionsHitReactionComponent::TryPlayLightHit()
 
 	}
 
-}void UMinionsHitReactionComponent::SetStanceBroken(bool Value)
+}
+
+void UMinionsHitReactionComponent::SetStanceBroken(bool Value)
 {
 	bStanceBroken = Value;
 }
@@ -581,7 +583,7 @@ void UMinionsHitReactionComponent::StartShieldGuard()
 	}
 
 
-	// ★追加：盾を構える瞬間に敵が攻撃中ならキャンセルする
+	// 盾を構える瞬間に敵が攻撃中ならキャンセルする
 	if (Minion->IsAttacking())
 	{
 		Minion->CancelAttack();
@@ -603,8 +605,7 @@ void UMinionsHitReactionComponent::StartShieldGuard()
 		ShieldGuardHoldTimerHandle,
 		[this]()
 		{
-			ACharacter* OwnerCharacter =
-				Cast<ACharacter>(GetOwner());
+			ACharacter* OwnerCharacter =Cast<ACharacter>(GetOwner());
 
 			if (!OwnerCharacter ||
 				!bIsShieldGuarding ||
@@ -613,8 +614,7 @@ void UMinionsHitReactionComponent::StartShieldGuard()
 				return;
 			}
 
-			UAnimInstance* AnimInstance =
-				OwnerCharacter->GetMesh()->GetAnimInstance();
+			UAnimInstance* AnimInstance =OwnerCharacter->GetMesh()->GetAnimInstance();
 
 			if (AnimInstance && ShieldGuardMontage)
 			{
@@ -642,15 +642,11 @@ void UMinionsHitReactionComponent::EndShieldGuard()
 
 	if (Character->GetMesh())
 	{
-		UAnimInstance* AnimInstance =
-			Character->GetMesh()->GetAnimInstance();
+		UAnimInstance* AnimInstance =Character->GetMesh()->GetAnimInstance();
 
 		if (AnimInstance && ShieldGuardMontage)
 		{
-			AnimInstance->Montage_Stop(
-				0.2f,
-				ShieldGuardMontage
-			);
+			AnimInstance->Montage_Stop(0.2f,ShieldGuardMontage);
 		}
 	}
 }
