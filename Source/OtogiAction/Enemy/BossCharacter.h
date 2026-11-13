@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "BossChaseComponent.h"
+
 #include "BossCharacter.generated.h"
 
 UCLASS()
@@ -18,6 +20,21 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	//追跡処理のコンポーネント
+	UPROPERTY(VisibleAnywhere) 
+	TObjectPtr<UBossChaseComponent> ChaseComponent;
+
+	// TakeDamage をオーバーライド
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
+
+	//死亡時の処理
+	void Die();
 
 public:	
 	// Called every frame

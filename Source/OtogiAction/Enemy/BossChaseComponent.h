@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../PlayerCharacter/PlayerCharacter.h"
+
 #include "BossChaseComponent.generated.h"
 
 class ABossCharacter;
@@ -33,7 +35,7 @@ public:
 private:
 	//追跡対象
 	UPROPERTY(VisibleAnywhere, Category = "AI|Tracking")
-	TObjectPtr<ABossCharacter> TargetActor;
+	TObjectPtr<APlayerCharacter> TargetActor;
 
 	//所有しているボスのAIControllerキャッシュ
 	UPROPERTY()
