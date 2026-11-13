@@ -17,7 +17,6 @@ UBossChaseComponent::UBossChaseComponent()
 	// ...
 }
 
-
 // Called when the game starts
 void UBossChaseComponent::BeginPlay()
 {
@@ -59,6 +58,12 @@ void UBossChaseComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
         SetTargetPlayer();
     }
 
+    // 追跡が無効になっている間は何もしない（追加）
+    if (!bIsTrackingEnable)
+    {
+        return;
+    }
+
     // Tickごとの実行を避け、一定間隔で移動命令を更新する
     TimerAccumulator += DeltaTime;
     if (TimerAccumulator >= UpdateInterval)
@@ -78,6 +83,12 @@ void UBossChaseComponent::SetTrackingEnabled(bool bEnable)
     {
         CachedAIController->StopMovement();
     }
+}
+
+//追跡しているかのフラグを返す関数
+bool UBossChaseComponent::GetChaseFlg()
+{
+    return bIsTrackingEnable;
 }
 
 //発見したプレイヤーをセットする

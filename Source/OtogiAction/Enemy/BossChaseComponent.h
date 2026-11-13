@@ -32,6 +32,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AI|Tracking")
 	void SetTrackingEnabled(bool bEnable);
 
+	//追跡しているかのフラグを返す関数
+	bool GetChaseFlg();
+
+	//実際の移動命令を実行する関数
+	void TrackingPlayer();
+
 private:
 	//追跡対象
 	UPROPERTY(VisibleAnywhere, Category = "AI|Tracking")
@@ -55,6 +61,4 @@ private:
 	//プレイヤーを検索してセットする処理
 	void SetTargetPlayer();
 
-	//実際の移動命令を実行する関数
-	void TrackingPlayer();
 };
