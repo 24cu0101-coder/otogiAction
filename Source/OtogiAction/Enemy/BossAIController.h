@@ -20,4 +20,8 @@ protected:
 
     // ControllerがPawnから離脱（Unpossess）した時に呼ばれるイベント
     virtual void OnUnPossess() override;
+
+    // エディタ上からBehaviorTreeアセットを指定するための変数
+    UPROPERTY(EditDefaultsOnly, Category = "AI")
+    TObjectPtr<UBehaviorTree> BehaviorTreeAsset;
 };

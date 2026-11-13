@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "BossChaseComponent.h"
+#include "BossStrafeComponent.h"
 
 #include "BossCharacter.generated.h"
 
@@ -24,6 +25,10 @@ protected:
 	//追跡処理のコンポーネント
 	UPROPERTY(VisibleAnywhere) 
 	TObjectPtr<UBossChaseComponent> ChaseComponent;
+
+	//見合う処理のコンポーネント
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	TObjectPtr<UBossStrafeComponent> StrafeComponent;
 
 	// TakeDamage をオーバーライド
 	virtual float TakeDamage(
