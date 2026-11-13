@@ -36,6 +36,8 @@ void UGASkillKintaro::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 			continue;
 		}
 
+		Minion->SetKintaroSkillActive(true);
+
 		//kintoroê—p“G‚¾‚¯‘ÎÛ
 		if (Minion->bKintaroOnlyEnemy)
 		{
@@ -150,6 +152,7 @@ void UGASkillKintaro::DisableKintaroEnemyOrb()
 			continue;
 		}
 
+		Minion->SetKintaroSkillActive (false);
 
 		if (Minion && Minion->bKintaroOnlyEnemy)
 		{

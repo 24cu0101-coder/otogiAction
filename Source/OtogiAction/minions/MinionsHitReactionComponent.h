@@ -16,106 +16,97 @@ public:
 
 	UMinionsHitReactionComponent();
 
-
 	// 姿勢崩壊時の大きい怯み
 	virtual void PlayHitReaction(float DamageAmount) override;
-
 
 protected:
 
 	// BaseComponent用
 	virtual void OnFearMax() override;
 
-
 	// スタン時
 	virtual void OnStunMax() override;
-
-
 
 public:
 
 	// Stance
-
 	void AddStance(float Value);
-
 
 	bool IsStanceBreak() const;
 
-
 	void ResetStance();
-
-
 
 	// Hit方向
 	void SetHitDirection(AActor* Attacker);
 
-
-
 	// Stance状態
-
 	void SetStanceBroken(bool Value);
-
 
 	bool IsStanceBroken() const;
 
 	// 死亡時に大ダウンの復帰処理をキャンセル
 	void CancelStunRecovery();
 
-
-	// 盾ガードMontage
+	// 盾を構えるMontage
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
 	TObjectPtr<UAnimMontage> ShieldGuardMontage;
 
+	// 盾ガード状態
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Shield")
+	bool bIsShieldGuarding = false;
+
+	// ガード継続時間
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
+	float ShieldGuardDuration = 1.0f;
+
+	// 最後のフレームを保持する位置（秒）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
+	float ShieldGuardHoldPosition = 0.4f;
+
+	UFUNCTION(BlueprintCallable, Category = "Shield")
+	bool IsShieldGuarding() const { return bIsShieldGuarding; }
+
+	// ガード解除タイマー
+	FTimerHandle ShieldGuardEndTimerHandle;
+
+	// 盾を前に出すタイマー
+	FTimerHandle ShieldGuardHoldTimerHandle;
+
+	// ガード開始
+	void StartShieldGuard();
+
+	// ガード解除
+	void EndShieldGuard();
+
 	// 盾ガード再生
 	void PlayShieldGuard();
-
-
-
 private:
 
 	// Stance
 
 	float CurrentStance = 100.f;
 
-
 	UPROPERTY(EditAnywhere, Category = "Stance")
 	float MaxStance = 100.f;
 
-
-
 	bool bStanceBroken = false;
-
-
 
 	// Hit Direction
 
 	FVector HitDirection;
 
-
-
 	// Stun
 
 	void StopMovement();
-
-
 	void StopAI();
-
-
 	void RestartAI();
-
-
 	void RecoverFromStun();
-
-
 
 	FTimerHandle StunRecoverTimerHandle;
 
 
-
 	UPROPERTY(EditAnywhere, Category = "Stun")
 	float StunDownDuration = 3.f;
-
-
 
 	// Montage
 
@@ -129,8 +120,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* BackHitMontage;
 
-
-
 	// 軽い正面Hit
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* LightFrontHitMontage;
@@ -139,8 +128,6 @@ private:
 	// 軽い背面Hit
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* LightBackHitMontage;
-
-
 
 	// スタン倒れ
 	UPROPERTY(EditAnywhere, Category = "Animation")
@@ -157,17 +144,10 @@ private:
 	// 軽いHit再生
 	void TryPlayLightHit();
 
-
-
 	// 攻撃キャンセル用
 	void CancelAttack();
 
-
-
 	private:
-
 		void FinishRecover();
-
 		FTimerHandle GetUpTimerHandle;
-
 };

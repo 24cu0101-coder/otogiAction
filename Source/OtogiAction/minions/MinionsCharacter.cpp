@@ -84,6 +84,9 @@ void AMinionsCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//盾の耐久値を初期化
+	CurrentShieldDurability = MaxShieldDurability;
+
 	GetWorld()->GetTimerManager().SetTimer(ShieldInputTimerHandle,this,&AMinionsCharacter::CheckShieldGuardInput,0.02f,true);
 
 	// Kintaro専用敵はゲーム開始時はダメージ無効
@@ -158,10 +161,38 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		return;
 	}*/
 
-	// 盾を持っている場合
+	// 盾を持っている場合の処理
 	if (bHasShield)
 	{
-		return;
+		const bool bIsGuarding = (HitReactionComponent && HitReactionComponent->IsShieldGuarding());
+
+		if (bIsGuarding)
+		{
+			//金太郎スキル中なら大きく減らし、通常時なら 1 だけ減らす
+			const float ShieldDamage = bIsKintaroSkillActive ? KintaroSkillShieldDamage : NormalAttackShieldDamage;
+
+			CurrentShieldDurability -= ShieldDamage;
+
+			if (CurrentShieldDurability <= 0.f)
+			{
+				CurrentShieldDurability = 0.f;
+				BreakShield();
+			}
+
+			else
+			{
+				// 盾で防いだときだけエフェクトを出す
+				if (ShieldGuardEffect)
+				{
+					const FVector EffectLocation = ShieldMesh? ShieldMesh->GetComponentLocation(): GetActorLocation() + GetActorForwardVector() * 50.f + FVector(0.f, 0.f, 40.f);
+
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ShieldGuardEffect,EffectLocation,GetActorRotation());
+				}
+			}
+
+			// ガード成功時は本体ダメージなし
+			return;
+		}
 	}
 
 	//NotifyStateで攻撃中か判断
@@ -476,16 +507,15 @@ void AMinionsCharacter::SetAttackRotationLock(bool bLock)
 	}
 }
 
-//Playerの攻撃が押されたら盾を構える
+// Playerの攻撃入力を監視して盾を構える
 void AMinionsCharacter::CheckShieldGuardInput()
 {
-	if (!bHasShield)
+	if (!bHasShield || bIsDead)
 	{
 		return;
 	}
 
-	APlayerController* PC =
-		UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	APlayerController* PC =UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	if (!PC)
 	{
@@ -499,11 +529,8 @@ void AMinionsCharacter::CheckShieldGuardInput()
 		return;
 	}
 
-	// プレイヤーとの距離を確認
-	float DistanceSquared = FVector::DistSquared(
-		GetActorLocation(),
-		PlayerPawn->GetActorLocation()
-	);
+	// プレイヤーとの距離
+	float DistanceSquared = FVector::DistSquared(GetActorLocation(),PlayerPawn->GetActorLocation());
 
 	if (DistanceSquared > ShieldGuardRange * ShieldGuardRange)
 	{
@@ -511,21 +538,61 @@ void AMinionsCharacter::CheckShieldGuardInput()
 		return;
 	}
 
-	// いずれかのキーが押されているか
+	// 入力確認
 	bool bIsInputPressed =
+		//キーボード・マウス
 		PC->IsInputKeyDown(EKeys::LeftMouseButton) ||
 		PC->IsInputKeyDown(EKeys::RightMouseButton) ||
-		PC->IsInputKeyDown(EKeys::E);
+		PC->IsInputKeyDown(EKeys::E)||
 
-	// 押した瞬間だけ実行
-	if (bIsInputPressed && !bWasShieldInputPressed)
+		// コントローラー
+		PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Right) || 
+		PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Left) || 
+		PC->IsInputKeyDown(EKeys::Gamepad_RightShoulder);      
+
+	// 押した瞬間だけ反応
+	if (bIsInputPressed)
 	{
 		if (HitReactionComponent)
 		{
+			// 攻撃中ならキャンセルして盾ガードを優先する
+			if (IsAttacking())
+			{
+				CancelAttack();
+			}
 			HitReactionComponent->PlayShieldGuard();
 		}
 	}
+}
+void AMinionsCharacter::BreakShield()
+{
+	//盾が壊れた時のエフェクト
+	if (ShieldBreakEffect)
+	{
+		const FVector BreakLocation = ShieldMesh? ShieldMesh->GetComponentLocation(): GetActorLocation() + FVector(0.f, 0.f, 40.f);
 
-	// 現在の入力状態を保存
-	bWasShieldInputPressed = bIsInputPressed;
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ShieldBreakEffect,BreakLocation,GetActorRotation());
+	}
+
+	// 盾所持フラグをオフにする
+	bHasShield = false;
+
+	// ガード状態とアニメーションを即座に解除
+	if (HitReactionComponent)
+	{
+		HitReactionComponent->EndShieldGuard();
+	}
+
+	// 盾の見た目を消す
+	if (ShieldMesh)
+	{
+		ShieldMesh->SetVisibility(false);
+		ShieldMesh->SetHiddenInGame(true);
+	}
+
+	// （任意）盾が壊れたときの大きな怯み（スタン）を発生させる場合
+	if (HitReactionComponent)
+	{
+		HitReactionComponent->PlayHitReaction(0.f);
+	}
 }
