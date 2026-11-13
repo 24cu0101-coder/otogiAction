@@ -33,7 +33,7 @@ protected:
 
 	FTimerHandle DeathTimerHandle;
 
-
+	void CheckShieldGuardInput();
 public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -89,17 +89,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	bool bCanTakeDamage = false;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,category="HP Widget",meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "HP Widget", meta = (AllowPrivateAccess = "true"))
 	float HPWidgetVisibleDistance = 1500.0f;
 
 	void SetCanTakeDamage(bool bEnable)
 	{
 		bCanTakeDamage = bEnable;
 
-		UE_LOG(LogTemp, Warning,
-			TEXT("%s SetCanTakeDamage : %d"),
-			*GetName(),
-			bCanTakeDamage);
+
 	}
 
 	// Orb状態
@@ -119,16 +116,18 @@ public:
 
 
 	//盾のメッシュ
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,category="Shield")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "Shield")
 	TObjectPtr<UStaticMeshComponent>ShieldMesh;
 
 	//盾を持っているか
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
 	bool bHasShield = false;
 
+	// 入力監視タイマー
+	FTimerHandle ShieldInputTimerHandle;
 
-	void CheckShieldGuardInput();
-
+	// 前回の入力状態
+	bool bWasShieldInputPressed = false;
 public:
 
 	void CancelAttack();
@@ -145,7 +144,7 @@ public:
 
 	// Event
 	UFUNCTION()
-	void OnDamage(AActor* DamagedActor,float Damage,const UDamageType* DamageType,AController* InstigatedBy,AActor* DamageCauser);
+	void OnDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 
 	UFUNCTION()
 	void Dead();
@@ -192,6 +191,11 @@ public:
 	float DeathEffectDestroyDelay = 2.0f;
 
 
+	
+	//盾ガードすr範囲
+	UPROPERTY(EditAnywhere, Category = "Shield")
+	float ShieldGuardRange = 300.0f;
+
 
 	// 死亡演出用の関数
 	void PlayDeathEffect();
@@ -204,17 +208,7 @@ public:
 private:
 	bool bIsHit = false;
 
-	bool bOriginalUseControllerDesiredRotation = true;
-
-
-	//盾の入力
-	FTimerHandle ShieldInputTimerHandle;
-
-	UPROPERTY(EditAnywhere, Category = "Shield")
-	float ShieldGuardRange = 300.0f;
-
-	// 前回の入力状態
-	bool bWasShieldInputPressed = false;
+	bool bOriginalUseControllerDesiredRotation = true;	
 
 public:
 	bool GetIsHitFlg() const { return bIsHit; }
@@ -225,7 +219,7 @@ public:
 		return bIsDead;
 	}
 
-	
+
 
 private:
 

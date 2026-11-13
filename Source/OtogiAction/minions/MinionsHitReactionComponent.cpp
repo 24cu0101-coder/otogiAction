@@ -523,6 +523,7 @@ void UMinionsHitReactionComponent::CancelStunRecovery()
 	}
 }
 
+// 盾ガード入力
 void UMinionsHitReactionComponent::PlayShieldGuard()
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
@@ -532,8 +533,124 @@ void UMinionsHitReactionComponent::PlayShieldGuard()
 		return;
 	}
 
-	if (ShieldGuardMontage)
+	bool bIsMontagePlaying = false;
+	if (Character->GetMesh() && ShieldGuardMontage)
 	{
-		Character->PlayAnimMontage(ShieldGuardMontage);
+		if (UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance())
+		{
+			bIsMontagePlaying = AnimInstance->Montage_IsPlaying(ShieldGuardMontage);
+		}
+	}
+
+	// 最初の入力時、またはモンタージュが中断されていた場合は盾を構える
+	if (!bIsShieldGuarding || !bIsMontagePlaying)
+	{
+		StartShieldGuard();
+	}
+
+	if (!bIsShieldGuarding)
+	{
+		return;
+	}
+
+	// ガード解除タイマーをリセット（最後の入力から ShieldGuardDuration 秒後に解除）
+	GetWorld()->GetTimerManager().ClearTimer(ShieldGuardEndTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(
+		ShieldGuardEndTimerHandle,
+		this,
+		&UMinionsHitReactionComponent::EndShieldGuard,
+		ShieldGuardDuration,
+		false
+	);
+}
+
+// ガード開始
+void UMinionsHitReactionComponent::StartShieldGuard()
+{
+	//ACharacter* Character = Cast<ACharacter>(GetOwner());
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
+
+	//if (!Character || !ShieldGuardMontage)
+	//{
+	//	return;
+	//}
+
+	if (!Minion|| !ShieldGuardMontage)
+	{
+		return;
+	}
+
+
+	// ★追加：盾を構える瞬間に敵が攻撃中ならキャンセルする
+	if (Minion->IsAttacking())
+	{
+		Minion->CancelAttack();
+	}
+
+	// ガード開始
+	bIsShieldGuarding = true;
+
+	// 盾を構える
+	Minion->PlayAnimMontage(ShieldGuardMontage);
+
+	// 前のタイマーを解除
+	GetWorld()->GetTimerManager().ClearTimer(
+		ShieldGuardHoldTimerHandle
+	);
+
+	// 0.55秒後に一時停止
+	GetWorld()->GetTimerManager().SetTimer(
+		ShieldGuardHoldTimerHandle,
+		[this]()
+		{
+			ACharacter* OwnerCharacter =
+				Cast<ACharacter>(GetOwner());
+
+			if (!OwnerCharacter ||
+				!bIsShieldGuarding ||
+				!OwnerCharacter->GetMesh())
+			{
+				return;
+			}
+
+			UAnimInstance* AnimInstance =
+				OwnerCharacter->GetMesh()->GetAnimInstance();
+
+			if (AnimInstance && ShieldGuardMontage)
+			{
+				AnimInstance->Montage_Pause(ShieldGuardMontage);
+			}
+		},
+		0.55f,
+		false
+	);
+}
+// ガード解除
+void UMinionsHitReactionComponent::EndShieldGuard()
+{
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+
+	if (!Character)
+	{
+		return;
+	}
+
+	bIsShieldGuarding = false;
+
+	// 盾を構えるタイマーを停止
+	GetWorld()->GetTimerManager().ClearTimer(ShieldGuardHoldTimerHandle);
+
+	if (Character->GetMesh())
+	{
+		UAnimInstance* AnimInstance =
+			Character->GetMesh()->GetAnimInstance();
+
+		if (AnimInstance && ShieldGuardMontage)
+		{
+			AnimInstance->Montage_Stop(
+				0.2f,
+				ShieldGuardMontage
+			);
+		}
 	}
 }

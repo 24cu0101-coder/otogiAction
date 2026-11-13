@@ -476,16 +476,15 @@ void AMinionsCharacter::SetAttackRotationLock(bool bLock)
 	}
 }
 
-//Playerの攻撃が押されたら盾を構える
+// Playerの攻撃入力を監視して盾を構える
 void AMinionsCharacter::CheckShieldGuardInput()
 {
-	if (!bHasShield)
+	if (!bHasShield || bIsDead)
 	{
 		return;
 	}
 
-	APlayerController* PC =
-		UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	APlayerController* PC =UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	if (!PC)
 	{
@@ -499,11 +498,8 @@ void AMinionsCharacter::CheckShieldGuardInput()
 		return;
 	}
 
-	// プレイヤーとの距離を確認
-	float DistanceSquared = FVector::DistSquared(
-		GetActorLocation(),
-		PlayerPawn->GetActorLocation()
-	);
+	// プレイヤーとの距離
+	float DistanceSquared = FVector::DistSquared(GetActorLocation(),PlayerPawn->GetActorLocation());
 
 	if (DistanceSquared > ShieldGuardRange * ShieldGuardRange)
 	{
@@ -511,21 +507,29 @@ void AMinionsCharacter::CheckShieldGuardInput()
 		return;
 	}
 
-	// いずれかのキーが押されているか
+	// 入力確認
 	bool bIsInputPressed =
+		//キーボード・マウス
 		PC->IsInputKeyDown(EKeys::LeftMouseButton) ||
 		PC->IsInputKeyDown(EKeys::RightMouseButton) ||
-		PC->IsInputKeyDown(EKeys::E);
+		PC->IsInputKeyDown(EKeys::E)||
 
-	// 押した瞬間だけ実行
-	if (bIsInputPressed && !bWasShieldInputPressed)
+		// コントローラー
+		PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Right) || 
+		PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Left) || 
+		PC->IsInputKeyDown(EKeys::Gamepad_RightShoulder);      
+
+	// 押した瞬間だけ反応
+	if (bIsInputPressed)
 	{
 		if (HitReactionComponent)
 		{
+			// 攻撃中ならキャンセルして盾ガードを優先する
+			if (IsAttacking())
+			{
+				CancelAttack();
+			}
 			HitReactionComponent->PlayShieldGuard();
 		}
 	}
-
-	// 現在の入力状態を保存
-	bWasShieldInputPressed = bIsInputPressed;
 }
