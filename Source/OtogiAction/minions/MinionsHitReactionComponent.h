@@ -63,6 +63,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
 	float ShieldGuardHoldPosition = 0.4f;
 
+	UFUNCTION(BlueprintCallable, Category = "Shield")
+	bool IsShieldGuarding() const { return bIsShieldGuarding; }
+
 	// ガード解除タイマー
 	FTimerHandle ShieldGuardEndTimerHandle;
 

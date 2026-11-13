@@ -21,6 +21,7 @@ ABossCharacter::ABossCharacter()
 
 	//コンポーネントのアタッチ
 	ChaseComponent = CreateDefaultSubobject<UBossChaseComponent>(TEXT("ChaseComponent"));
+	StrafeComponent = CreateDefaultSubobject<UBossStrafeComponent>(TEXT("StrafeComponent"));
 
 }
 

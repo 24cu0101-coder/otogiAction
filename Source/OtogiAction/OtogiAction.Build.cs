@@ -28,7 +28,8 @@ public class OtogiAction : ModuleRules
             "LevelSequence",
             "MovieScene",
             "ChaosSolverEngine", 
-            "GeometryCollectionEngine"
+            "GeometryCollectionEngine",
+            "AnimGraphRuntime"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

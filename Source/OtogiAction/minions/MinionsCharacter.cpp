@@ -84,6 +84,9 @@ void AMinionsCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//盾の耐久値を初期化
+	CurrentShieldDurability = MaxShieldDurability;
+
 	GetWorld()->GetTimerManager().SetTimer(ShieldInputTimerHandle,this,&AMinionsCharacter::CheckShieldGuardInput,0.02f,true);
 
 	// Kintaro専用敵はゲーム開始時はダメージ無効
@@ -158,10 +161,38 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 		return;
 	}*/
 
-	// 盾を持っている場合
+	// 盾を持っている場合の処理
 	if (bHasShield)
 	{
-		return;
+		const bool bIsGuarding = (HitReactionComponent && HitReactionComponent->IsShieldGuarding());
+
+		if (bIsGuarding)
+		{
+			//金太郎スキル中なら大きく減らし、通常時なら 1 だけ減らす
+			const float ShieldDamage = bIsKintaroSkillActive ? KintaroSkillShieldDamage : NormalAttackShieldDamage;
+
+			CurrentShieldDurability -= ShieldDamage;
+
+			if (CurrentShieldDurability <= 0.f)
+			{
+				CurrentShieldDurability = 0.f;
+				BreakShield();
+			}
+
+			else
+			{
+				// 盾で防いだときだけエフェクトを出す
+				if (ShieldGuardEffect)
+				{
+					const FVector EffectLocation = ShieldMesh? ShieldMesh->GetComponentLocation(): GetActorLocation() + GetActorForwardVector() * 50.f + FVector(0.f, 0.f, 40.f);
+
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ShieldGuardEffect,EffectLocation,GetActorRotation());
+				}
+			}
+
+			// ガード成功時は本体ダメージなし
+			return;
+		}
 	}
 
 	//NotifyStateで攻撃中か判断
@@ -531,5 +562,37 @@ void AMinionsCharacter::CheckShieldGuardInput()
 			}
 			HitReactionComponent->PlayShieldGuard();
 		}
+	}
+}
+void AMinionsCharacter::BreakShield()
+{
+	//盾が壊れた時のエフェクト
+	if (ShieldBreakEffect)
+	{
+		const FVector BreakLocation = ShieldMesh? ShieldMesh->GetComponentLocation(): GetActorLocation() + FVector(0.f, 0.f, 40.f);
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),ShieldBreakEffect,BreakLocation,GetActorRotation());
+	}
+
+	// 盾所持フラグをオフにする
+	bHasShield = false;
+
+	// ガード状態とアニメーションを即座に解除
+	if (HitReactionComponent)
+	{
+		HitReactionComponent->EndShieldGuard();
+	}
+
+	// 盾の見た目を消す
+	if (ShieldMesh)
+	{
+		ShieldMesh->SetVisibility(false);
+		ShieldMesh->SetHiddenInGame(true);
+	}
+
+	// （任意）盾が壊れたときの大きな怯み（スタン）を発生させる場合
+	if (HitReactionComponent)
+	{
+		HitReactionComponent->PlayHitReaction(0.f);
 	}
 }
