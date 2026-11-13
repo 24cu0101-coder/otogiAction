@@ -7,6 +7,7 @@
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
 #include "OtogiAction/GameFlow/Actor/TutorialActor.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/InputBuffer/InputBufferComponent.h"
+#include "PlayerTargetComponent.h"
 
 
 
@@ -26,11 +27,15 @@ void UPlayerDodgeComponent::BeginPlay()
 
 	//
 	AActor* OwnerActor = GetOwner();
-	PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+	if (OwnerActor) {
+
+		PlayerActor = Cast<APlayerCharacter>(OwnerActor);
+		m_playerTargetComponent = OwnerActor->FindComponentByClass<UPlayerTargetComponent>();
+	}
+
 
 	if (PlayerActor)
 	{
-
 		AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
 		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:PlayerActor"));
 
@@ -102,14 +107,11 @@ void UPlayerDodgeComponent::ExecuteDodgeAbility()
 
 	FGameplayTag DontDogeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DontDodge"));
 
+	if (m_playerTargetComponent->IsTargeting())
+	{
 
-	////アビリティシステムコンポーネントがあり、回避と攻撃が実装中じゃなければ
-	//if (AbilitySystemComponent->HasMatchingGameplayTag(DodgeTag) || AbilitySystemComponent->HasMatchingGameplayTag(NAttackTag))
-	//{
-	//	return;
-	//}
-
-
+	}
+		
 
 	if (!AbilitySystemComponent) return;
 
