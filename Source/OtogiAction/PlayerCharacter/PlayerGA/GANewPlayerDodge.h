@@ -35,11 +35,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
 	UAnimMontage* DodgeMontage;
 
-	//ジャスト回避のアニメーションモンタージュ
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Montage")
-	UAnimMontage* JustDodgeMontage;
-
-
 	//プレイヤーの情報
 	UPROPERTY(Transient)
 	APlayerCharacter* PlayerActor;

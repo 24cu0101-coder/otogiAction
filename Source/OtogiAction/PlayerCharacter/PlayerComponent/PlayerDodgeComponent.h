@@ -11,7 +11,7 @@
 #include "PlayerDodgeComponent.generated.h"
 
 class UInputBufferComponent;
-;
+class UPlayerTargetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OTOGIACTION_API UPlayerDodgeComponent : public UActorComponent
@@ -95,6 +95,8 @@ private:
 	//先行入力のコンポーネント
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dodge.InputBufferComp", meta = (AllowPrivateAccess = "true"))
 	UInputBufferComponent* DodgeInputBufferComp;
+
+	UPlayerTargetComponent* m_playerTargetComponent;
 
 	FGameplayTag m_justDodgeTag;
 
