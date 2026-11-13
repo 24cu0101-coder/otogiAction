@@ -57,7 +57,7 @@ public:
 
 	// ガード継続時間
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
-	float ShieldGuardDuration = 1.0f;
+	float ShieldGuardDuration = 2.0f;
 
 	// 最後のフレームを保持する位置（秒）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield")
