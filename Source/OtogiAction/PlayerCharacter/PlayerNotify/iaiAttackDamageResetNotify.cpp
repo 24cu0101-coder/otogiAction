@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "atodenaosukarayurusiteNotify.h"
+#include "iaiAttackDamageResetNotify.h"
 #include "OtogiAction/PlayerCharacter/PlayerComponent/StrongAttack/IaiAttackComponent.h"
 
-void UatodenaosukarayurusiteNotify::Notify(USkeletalMeshComponent* MeshComp,
+void UiaiAttackDamageResetNotify::Notify(USkeletalMeshComponent* MeshComp,
 	UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {

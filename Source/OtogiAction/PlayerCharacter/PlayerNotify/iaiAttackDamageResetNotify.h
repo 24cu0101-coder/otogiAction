@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "atodenaosukarayurusiteNotify.generated.h"
+#include "iaiAttackDamageResetNotify.generated.h"
 
 
 class UIaiAttackComponent;
 
 UCLASS()
-class OTOGIACTION_API UatodenaosukarayurusiteNotify : public UAnimNotify
+class OTOGIACTION_API UiaiAttackDamageResetNotify : public UAnimNotify
 {
 	GENERATED_BODY()
 
