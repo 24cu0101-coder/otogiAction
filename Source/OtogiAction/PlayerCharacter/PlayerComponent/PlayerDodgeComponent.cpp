@@ -47,17 +47,19 @@ void UPlayerDodgeComponent::BeginPlay()
 	// プレイヤーがいれば
 	if (GetOwner()->HasAuthority() && DodgeAbility)
 	{
-		//プレイヤーにDodgeAbilityを付与する
+		// プレイヤーにAbilityを付与する
+		// 通常回避
 		DodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbility, 1));
-
+		// ロック中の回避
+		TargetDodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(TargetDodgeAbility, 1));
+		// ジャスト回避
 		JustDodgeHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(JustDodgeAbility, 1));
-
 	}
 
 
-	if (AbilitySystemComponent)
+	if (AbilitySystemComponent&& JustDodgeAbility)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:AbilitySystemComponent"));
+		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:AbilitySystemComponent"));		
 
 		AbilitySystemComponent->RegisterGameplayTagEvent(m_justDodgeTag, EGameplayTagEventType::NewOrRemoved)
 			.AddUObject(this, &UPlayerDodgeComponent::JustDodgeWindow);
@@ -96,7 +98,6 @@ void UPlayerDodgeComponent::ExecuteAbility()
 				ExecuteDodgeAbility();
 			});
 	}
-
 }
 
 void UPlayerDodgeComponent::ExecuteDodgeAbility()
@@ -107,31 +108,27 @@ void UPlayerDodgeComponent::ExecuteDodgeAbility()
 
 	FGameplayTag DontDogeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DontDodge"));
 
-	if (m_playerTargetComponent->IsTargeting())
-	{
-
-	}
-		
-
 	if (!AbilitySystemComponent) return;
-
+	
 	if (AbilitySystemComponent->HasMatchingGameplayTag(DontDogeTag))
 	{
 		return;
 	}
 
-	else
+	//// プレイヤーがロックオン中なら	
+	//if (m_playerTargetComponent->IsTargeting())
+	//{
+	//	//ロック時の回避を実行
+	//	AbilitySystemComponent->TryActivateAbilityByClass(TargetDodgeAbility);
+	//}
+
+	//回避アビリティがあるなら
+	if (DodgeAbility)
 	{
-
-		//回避アビリティがあるなら
-		if (DodgeAbility)
-		{
-			//AbilitySystemComponent->RemoveLooseGameplayTag(NAttackTag);
-
-			//アビリティ実行
-			AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
-		}
+		//アビリティ実行
+		AbilitySystemComponent->TryActivateAbilityByClass(DodgeAbility);
 	}
+	
 }
 
 void UPlayerDodgeComponent::JustDodgeWindow(const FGameplayTag Tag, int32 NewCount)
@@ -197,9 +194,6 @@ FVector UPlayerDodgeComponent::GetEnemyAngleVector(const AActor* EnemyActor)
 
 void UPlayerDodgeComponent::ExecuteJustDodgeAbility()
 {
-
-
-
 	// 回避不可能時のタグ
 	FGameplayTag DontDogeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DontDodge"));
 
