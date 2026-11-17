@@ -10,6 +10,7 @@
  //クラス前方宣言
 class APlayerCharacter;		//プレイヤークラス
 class UDamageType;
+class UPlayerTargetComponent;
 class UAbilityTask_WaitGameplayTagRemoved;
 class UAbilityTask_ApplyRootMotionConstantForce;
 
@@ -39,6 +40,9 @@ protected:
 	UPROPERTY(Transient)
 	APlayerCharacter* PlayerActor;
 
+
+
+
 	//-------------------
 	//関数
 	//-------------------
@@ -58,17 +62,16 @@ protected:
 	UFUNCTION()
 	void DodgeLocationStart();
 
+	UFUNCTION()
+	float TargetDodgeLocation();
+
 	//回避終了時の関数
 	UFUNCTION()
-
 	void DodgeEnd();
 
 	//モンタージュ終了
 	UFUNCTION()
-
-	void DodgeMontageEnd();
-
-	
+	void DodgeMontageEnd();	
 
 	//回避開始の関数
 	UFUNCTION()
@@ -142,6 +145,9 @@ private:
 	FVector m_justDodgeRelativeAngle;
 
 	FGameplayTag m_justDodgeAttack;
+
+	UPlayerTargetComponent* m_playerTargetComponent;
+
 
 	// 攻撃された敵のアクター
 	AActor* m_enemyActor;

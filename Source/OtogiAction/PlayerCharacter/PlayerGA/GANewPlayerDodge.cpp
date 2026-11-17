@@ -13,6 +13,8 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "OtogiAction/GameFlow/Actor/TutorialActor.h"
 #include "OtogiAction/PlayerCharacter/PlayerCharacter.h"
+#include "OtogiAction/PlayerCharacter/PlayerComponent/PlayerTargetComponent.h"
+
 
 void UGANewPlayerDodge::ActivateAbility(
 	const FGameplayAbilitySpecHandle Dodging,
@@ -27,9 +29,14 @@ void UGANewPlayerDodge::ActivateAbility(
 	ASC = GetAbilitySystemComponentFromActorInfo();
 
 	//プレイヤーの情報を取得
-	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());
+	PlayerActor = Cast<APlayerCharacter>(GetAvatarActorFromActorInfo());	
 
 	if (!PlayerActor || !DodgeMontage) return;
+
+	if (ASC)
+	{
+		m_playerTargetComponent = PlayerActor->FindComponentByClass<UPlayerTargetComponent>();
+	}
 
 	//タグ登録
 	IsDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.DodgeAttack"));
@@ -88,18 +95,40 @@ void UGANewPlayerDodge::PlayDodge()
 		ASC->AddLooseGameplayTag(IsInvincibleTag);
 	}
 
-	// ディレイタイムが設定されているなら
-	if (DelayTiem > 0)
+	//if (m_playerTargetComponent->GetCurrentTargetActor())
+	//{
+
+	//	// ディレイタイムが設定されているなら
+	//	if (DelayTiem > 0)
+	//	{
+	//		// 回避にディレイをかけてstart
+	//		FTimerHandle DodgeDelayTimer;
+	//		GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGANewPlayerDodge::TargetDodgeLocation, DelayTiem, false);
+	//	}
+	//	// いないなら即座に開始
+	//	else
+	//	{
+	//		//回避開始
+	//		TargetDodgeLocation();
+	//	}
+	//}
+	//else
 	{
-		// 回避にディレイをかけてstart
-		FTimerHandle DodgeDelayTimer;
-		GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGANewPlayerDodge::DodgeLocationStart, DelayTiem, false);
-	}
-	// いないなら即座に開始
-	else
-	{
-		//回避開始
-		DodgeLocationStart();
+		TargetDodgeLocation();
+		// ディレイタイムが設定されているなら
+		if (DelayTiem > 0)
+		{
+			// 回避にディレイをかけてstart
+			FTimerHandle DodgeDelayTimer;
+			GetWorld()->GetTimerManager().SetTimer(DodgeDelayTimer, this, &UGANewPlayerDodge::DodgeLocationStart, DelayTiem, false);
+		}
+		// いないなら即座に開始
+		else
+		{
+			//回避開始
+			DodgeLocationStart();
+		}
+
 	}
 
 
@@ -110,6 +139,40 @@ void UGANewPlayerDodge::PlayDodge()
 	GetWorld()->GetTimerManager().SetTimer(EndDodgeTimer, this, &UGANewPlayerDodge::DodgeEnd, DodgeTime, false);
 }
 
+float UGANewPlayerDodge::TargetDodgeLocation()
+{
+	if (!PlayerActor || !m_playerTargetComponent->GetCurrentTargetActor())
+	{
+		return 0;
+	}
+
+
+
+	//正面を取得
+	FVector Target = m_playerTargetComponent->GetCurrentTargetActor()->GetActorLocation() - PlayerActor->GetActorLocation();
+	Target.Z = 0.0f;
+	Target.Normalize();
+
+	// target基準の右方向ベクトル
+	FVector TargetRight = FVector::CrossProduct(FVector::UpVector, Target);
+
+	FVector InputDir = PlayerActor->GetLastMovementInputVector();
+	InputDir.Z = 0.0f;
+
+	InputDir.Normalize();
+
+	float RightDot = FVector::DotProduct(InputDir, TargetRight);
+
+	if (FMath::Abs(RightDot) < 0.25f)
+	{
+		DodgeLocationStart();
+		return 0;
+	}
+
+	float OrbitDirection = (RightDot >= 0.0f) ? -1.0f : 1.0;
+
+	return OrbitDirection;
+}
 
 
 
@@ -129,7 +192,8 @@ void UGANewPlayerDodge::DodgeLocationStart()
 	// 移動速度
 	float Speed = DodgeDistance / DodgeTime;
 
-	// ルートモーションタスク生成
+	// ルートモーションタスク生成	
+
 	m_moveTask =
 		UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
 			this, NAME_None, DodgeForward, Speed, DodgeTime, false, DedgeSpeedCurve,
@@ -152,6 +216,7 @@ void UGANewPlayerDodge::DodgeLocationStart()
 	////回避処理開始(ほぼ毎フレーム繰り返す)
 	//GetWorld()->GetTimerManager().SetTimer(DodgeTimer, LocationDelegate, 0.001, true);
 }
+
 
 //回避時の移動
 void UGANewPlayerDodge::DodgeLocation(float Distance)
@@ -205,6 +270,8 @@ void UGANewPlayerDodge::DodgeMontageEnd()
 //即座に回転させる
 void UGANewPlayerDodge::StickRotate()
 {
+	m_playerTargetComponent->GetCurrentTargetActor();
+
 	APlayerController* PC = Cast<APlayerController>(PlayerActor->GetController());
 	if (!PC) return;
 
@@ -227,9 +294,11 @@ void UGANewPlayerDodge::StickRotate()
 	{
 		FVector CameraLocation;
 		FRotator CameraRotation;
-		PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
 
+		// カメラの水平を抽出
+		PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
 		FRotator CameraYawRotation(0.f, CameraRotation.Yaw, 0.f);
+
 
 		FVector CameraForward = CameraYawRotation.Vector(); // カメラの正面方向
 		FVector CameraRight = FRotationMatrix(CameraYawRotation).GetScaledAxis(EAxis::Y); // カメラの右方向
@@ -238,6 +307,20 @@ void UGANewPlayerDodge::StickRotate()
 		WorldDirection.Z = 0.f;
 
 		FRotator TargetRotation = WorldDirection.Rotation();
+
+		float AddAngle = 0.0f;
+
+		if (TargetDodgeLocation() >= 0.9f)
+		{
+			AddAngle = 45.0f;
+		}
+
+		else if(TargetDodgeLocation() <= -0.9f)
+		{
+			AddAngle = -45.0f;
+		}
+
+		TargetRotation.Yaw += AddAngle;
 
 		PlayerActor->SetActorRotation(TargetRotation, ETeleportType::TeleportPhysics);
 

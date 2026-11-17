@@ -41,14 +41,17 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "Dodge.Gas")
 	TSubclassOf<UGameplayAbility> DodgeAbility;
 
+	//ロックオン時の回避のアビリティ
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dodge.Gas")
+	TSubclassOf<UGameplayAbility> TargetDodgeAbility;
+
 	//ジャスト回避のアビリティ
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "JustDodge.Gas")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dodge.Gas")
 	TSubclassOf<UGameplayAbility> JustDodgeAbility;
 
 	//アビリティのハンドル
-	FGameplayAbilitySpecHandle DodgeHandle;
-
-	//アビリティのハンドル
+	FGameplayAbilitySpecHandle DodgeHandle;	
+	FGameplayAbilitySpecHandle TargetDodgeHandle;
 	FGameplayAbilitySpecHandle JustDodgeHandle;
 
 
@@ -77,7 +80,9 @@ public:
 	//アビリティを呼び出す関数
 	void ExecuteAbility();
 
+	//通常回避を呼び出す
 	void ExecuteDodgeAbility();
+
 
 	// ジャスト回避を呼び出す
 	void ExecuteJustDodgeAbility();
