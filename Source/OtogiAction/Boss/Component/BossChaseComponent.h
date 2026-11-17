@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../PlayerCharacter/PlayerCharacter.h"
+#include "../../PlayerCharacter/PlayerCharacter.h"
 
 #include "BossChaseComponent.generated.h"
 

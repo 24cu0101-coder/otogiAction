@@ -3,8 +3,8 @@
 
 #include "ChaseTask.h"
 #include "AIController.h"
-#include "BossCharacter.h"
-#include "BossChaseComponent.h"
+#include "../../Main/BossCharacter.h"
+#include "../../Component/BossChaseComponent.h"
 
 UChaseTask::UChaseTask() 
 {

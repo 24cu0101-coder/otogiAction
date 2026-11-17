@@ -2,8 +2,8 @@
 
 
 #include "BossChaseComponent.h"
-#include "BossAIController.h"
-#include "BossCharacter.h"
+#include "../Main/BossAIController.h"
+#include "../Main/BossCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 

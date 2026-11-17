@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "BossChaseComponent.h"
-#include "BossStrafeComponent.h"
+#include "../Component/BossChaseComponent.h"
+#include "../Component/BossStrafeComponent.h"
 
 #include "BossCharacter.generated.h"
 

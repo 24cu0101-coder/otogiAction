@@ -3,8 +3,8 @@
 
 #include "BossStrafeTask.h"
 #include "AIController.h"
-#include "BossCharacter.h"
-#include "BossStrafeComponent.h"
+#include "../../Main/BossCharacter.h"
+#include "../../Component/BossStrafeComponent.h"
 
 UBossStrafeTask::UBossStrafeTask()
 {
