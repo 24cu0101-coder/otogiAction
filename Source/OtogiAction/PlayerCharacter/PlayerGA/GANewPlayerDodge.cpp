@@ -171,6 +171,8 @@ float UGANewPlayerDodge::TargetDodgeLocation()
 
 	float OrbitDirection = (RightDot >= 0.0f) ? -1.0f : 1.0;
 
+	
+
 	return OrbitDirection;
 }
 

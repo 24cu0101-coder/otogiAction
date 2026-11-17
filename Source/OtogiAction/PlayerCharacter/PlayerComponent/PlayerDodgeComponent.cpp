@@ -27,25 +27,24 @@ void UPlayerDodgeComponent::BeginPlay()
 
 	//
 	AActor* OwnerActor = GetOwner();
-	if (OwnerActor) {
-
+	if (OwnerActor)
+	{
 		PlayerActor = Cast<APlayerCharacter>(OwnerActor);
 		m_playerTargetComponent = OwnerActor->FindComponentByClass<UPlayerTargetComponent>();
 	}
 
 
-	if (PlayerActor)
+	if(PlayerActor)
 	{
 		AbilitySystemComponent = PlayerActor->GetAbilitySystemComponent();
 		UE_LOG(LogTemp, Warning, TEXT("【PlayerDodgeComponent.cpp】:PlayerActor"));
-
 	}
 
 	// ジャスト回避タグを判別
 	m_justDodgeTag = FGameplayTag::RequestGameplayTag(FName("IsDodge.JustDodge"));
 
 	// プレイヤーがいれば
-	if (GetOwner()->HasAuthority() && DodgeAbility)
+	if(GetOwner()->HasAuthority() && DodgeAbility)
 	{
 		// プレイヤーにAbilityを付与する
 		// 通常回避
