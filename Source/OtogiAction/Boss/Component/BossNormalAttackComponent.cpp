@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BossNomalAttackComponent.h"
+#include "BossNormalAttackComponent.h"
 
-void UBossNomalAttackComponent::StartAttack_Implementation()
+void UBossNormalAttackComponent::StartAttack_Implementation()
 {
 	// 既に攻撃中なら処理を中断
 	if (bIsAttacking)
@@ -26,10 +26,9 @@ void UBossNomalAttackComponent::StartAttack_Implementation()
 		// 再生に失敗した場合は攻撃状態をリセット
 		EndAttack();
 	}
-
 }
 
-void UBossNomalAttackComponent::EndAttack_Implementation()
+void UBossNormalAttackComponent::EndAttack_Implementation()
 {
 	// ここに近接攻撃特有の終了処理を書く（例：武器のコリジョンを無効化）
 	UE_LOG(LogTemp, Log, TEXT("Melee Attack Ended!"));

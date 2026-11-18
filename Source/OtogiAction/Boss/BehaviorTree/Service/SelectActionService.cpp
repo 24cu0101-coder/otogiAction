@@ -37,6 +37,7 @@ void USelectActionService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* No
 	TArray<EEnemyState> CandidateStates = {
 		EEnemyState::Chase,
 		EEnemyState::Strafe,
+		EEnemyState::NormalAttack,
 	};
 
 	// 直前と同じ行動を避ける設定が有効な場合、現在のStateを候補から除外

@@ -20,10 +20,10 @@ public:
 	UBossStrafeDecorator();
 
 protected:
-	// 1. 条件判定（trueならStrafeTaskを実行、falseならブロック）
+	//条件判定（trueならStrafeTaskを実行、falseならブロック）
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
 
-	// 2. BlackboardのStateが書き換わった瞬間に呼ばれる通知関数
+	//BlackboardのStateが書き換わった瞬間に呼ばれる通知関数
 	virtual EBlackboardNotificationResult OnBlackboardKeyValueChange(const UBlackboardComponent& Blackboard, FBlackboard::FKey ChangedKeyID) override;
 
 	// エディタ上で指定する比較対象のState（デフォルトでStrafeに設定）

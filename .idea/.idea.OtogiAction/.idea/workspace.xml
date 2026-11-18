@@ -19,28 +19,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="336da8fd-09ae-4b19-b53a-70a23b118d73" name="変更" comment="">
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossAIController.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossAIController.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossAnimInstance.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossAnimInstance.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossCharacter.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossCharacter.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossChaseComponent.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossChaseComponent.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossStrafeComponent.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossStrafeComponent.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossStrafeDecorator.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossStrafeDecorator.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossStrafeTask.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/BossStrafeTask.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/ChaseDecorator.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/ChaseDecorator.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/ChaseTask.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/ChaseTask.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/SelectActionService.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/SelectActionService.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/StateClass.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Enemy/StateClass.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.OtogiAction/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.OtogiAction/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Enemy/Animation/NewAnimMontage.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Enemy/BehaviorTree/BossBT.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Enemy/BehaviorTree/BossBT.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Enemy/BossCharacterBP.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Enemy/BossCharacterBP.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Decorator/BossNomalAttackDecorator.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Decorator/BossNomalAttackDecorator.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Decorator/BossStrafeDecorator.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Decorator/BossStrafeDecorator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Service/SelectActionService.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Service/SelectActionService.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Task/BossNomalAttackTask.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Task/BossNomalAttackTask.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossNomalAttackComponent.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossNomalAttackComponent.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/OtogiAction/Boss/Status/StateClass.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/OtogiAction/Boss/Status/StateClass.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,70 +57,72 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Decorator/BossNormalAttackDecorator.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/BehaviorTree/Decorator/BossNormalAttackDecorator.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/BossAttackManagerObject.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/BossAttackManagerObject.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossAttackManagerComponent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossAttackManagerComponent.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossBaseAttackComponent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossBaseAttackComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossNormalAttackComponent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/OtogiAction/Boss/Component/BossNormalAttackComponent.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0" />
-      <entry key="S5" value="1.0" />
-      <entry key="S10" value="1.0" />
-      <entry key="S30" value="1.0" />
-      <entry key="S60" value="1.0" />
-      <entry key="M2" value="1.0" />
-      <entry key="M5" value="1.0000000000000098" />
-      <entry key="M10" value="1.00000063006677" />
-      <entry key="M15" value="1.0003876292848934" />
-      <entry key="M30" value="1.3103578476637525" />
-      <entry key="H1" value="10.40135251452225" />
-      <entry key="H2" value="53.33206495490682" />
-      <entry key="H4" value="124.74650671946563" />
-      <entry key="D1" value="254.77060840507664" />
-      <entry key="W1" value="288.0441473579908" />
+      <entry key="MS100" value="1.767901991022394" />
+      <entry key="MS500" value="3.8807920405138714" />
+      <entry key="S2" value="5.97964097345067" />
+      <entry key="S5" value="8.203567340651745" />
+      <entry key="S10" value="9.719632673469434" />
+      <entry key="S30" value="11.165143992141402" />
+      <entry key="S60" value="12.564351806914035" />
+      <entry key="M2" value="17.467767200908593" />
+      <entry key="M5" value="28.105721563757744" />
+      <entry key="M10" value="35.014443122241865" />
+      <entry key="M15" value="37.938050090104696" />
+      <entry key="M30" value="41.47971505206328" />
+      <entry key="H1" value="51.20108838888575" />
+      <entry key="H2" value="92.70240573649016" />
+      <entry key="H4" value="163.86192086781375" />
+      <entry key="D1" value="297.16468361153085" />
+      <entry key="W1" value="331.7855576504049" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
       <entry key="MS500" value="0.0" />
-      <entry key="S2" value="0.0" />
-      <entry key="S5" value="0.0" />
-      <entry key="S10" value="0.0" />
-      <entry key="S30" value="4.837992480872696E-164" />
-      <entry key="S60" value="3.8074424742523474E-82" />
-      <entry key="M2" value="3.3832899149857233E-41" />
-      <entry key="M5" value="1.5976037965900626E-16" />
-      <entry key="M10" value="5.999399079462447E-8" />
-      <entry key="M15" value="5.4481226153259174E-5" />
-      <entry key="M30" value="0.05406242390349321" />
-      <entry key="H1" value="1.7448680873409856" />
-      <entry key="H2" value="9.959423082101782" />
-      <entry key="H4" value="23.818612045831287" />
-      <entry key="D1" value="49.28293829084085" />
-      <entry key="W1" value="55.8275981810441" />
+      <entry key="S2" value="1.8243401193881593E-113" />
+      <entry key="S5" value="8.024949785098823E-46" />
+      <entry key="S10" value="2.832834231842524E-23" />
+      <entry key="S30" value="3.0484124074283827E-8" />
+      <entry key="S60" value="1.7459703340630926E-4" />
+      <entry key="M2" value="0.01321351707178332" />
+      <entry key="M5" value="0.17717701151200305" />
+      <entry key="M10" value="0.4209240225284925" />
+      <entry key="M15" value="0.5616849176171861" />
+      <entry key="M30" value="0.7899335660242016" />
+      <entry key="H1" value="2.3758814265560964" />
+      <entry key="H2" value="10.19590048524916" />
+      <entry key="H4" value="23.938401972332116" />
+      <entry key="D1" value="49.98121850653219" />
+      <entry key="W1" value="56.7787593164553" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.001039424006302109" />
-      <entry key="MS500" value="0.2531387018376232" />
-      <entry key="S2" value="0.7093158053708453" />
-      <entry key="S5" value="0.8716373965602796" />
-      <entry key="S10" value="0.9336152293960717" />
-      <entry key="S30" value="0.9773631842654086" />
-      <entry key="S60" value="0.9886168035520176" />
-      <entry key="M2" value="0.9942921117820546" />
-      <entry key="M5" value="0.9977129231683165" />
-      <entry key="M10" value="0.9988564967083334" />
-      <entry key="M15" value="0.9996789760003111" />
-      <entry key="M30" value="1.3639440835765497" />
-      <entry key="H1" value="12.144494816695884" />
-      <entry key="H2" value="63.2869940429879" />
-      <entry key="H4" value="148.5597992226571" />
-      <entry key="D1" value="304.05171708723157" />
-      <entry key="W1" value="343.87144950310966" />
+      <entry key="MS100" value="1.663766563160709" />
+      <entry key="MS500" value="3.8351605898582877" />
+      <entry key="S2" value="5.962251905601361" />
+      <entry key="S5" value="8.194019918373652" />
+      <entry key="S10" value="9.7139707270524" />
+      <entry key="S30" value="11.162942939829295" />
+      <entry key="S60" value="12.562750315350597" />
+      <entry key="M2" value="17.47827003772254" />
+      <entry key="M5" value="28.279412203948354" />
+      <entry key="M10" value="35.432482072512805" />
+      <entry key="M15" value="38.49742517041811" />
+      <entry key="M30" value="42.2681800512444" />
+      <entry key="H1" value="53.57487023012773" />
+      <entry key="H2" value="102.89380886346592" />
+      <entry key="H4" value="187.7950301989034" />
+      <entry key="D1" value="347.14405602446345" />
+      <entry key="W1" value="388.564017249522" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{

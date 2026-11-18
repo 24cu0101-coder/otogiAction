@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BossNomalAttackTask.generated.h"
+#include "BossNormalAttackTask.generated.h"
 
 class UBossBaseAttackComponent;
 
@@ -12,12 +12,12 @@ class UBossBaseAttackComponent;
  * 
  */
 UCLASS()
-class OTOGIACTION_API UBossNomalAttackTask : public UBTTaskNode
+class OTOGIACTION_API UBossNormalAttackTask : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
-	UBossNomalAttackTask();
+	UBossNormalAttackTask();
 
 protected:
 	// タスク開始時に呼ばれる

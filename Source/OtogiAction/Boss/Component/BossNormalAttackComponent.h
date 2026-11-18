@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "BossBaseAttackComponent.h"
-#include "BossNomalAttackComponent.generated.h"
+#include "BossNormalAttackComponent.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class OTOGIACTION_API UBossNomalAttackComponent : public UBossBaseAttackComponent
+class OTOGIACTION_API UBossNormalAttackComponent : public UBossBaseAttackComponent
 {
 	GENERATED_BODY()
-	
 public:
 	virtual void StartAttack_Implementation() override;
 	virtual void EndAttack_Implementation() override;
+
 };

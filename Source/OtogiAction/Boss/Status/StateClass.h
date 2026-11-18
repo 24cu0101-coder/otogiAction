@@ -12,7 +12,7 @@ enum class EEnemyState : uint8
 {
 	Idle    UMETA(DisplayName = "Idle"),
 	Chase   UMETA(DisplayName = "Chase"),
-	//Attack  UMETA(DisplayName = "Attack"),
+	NormalAttack  UMETA(DisplayName = "NormalAttack"),
 	Strafe	UMETA(DisplayName = "Strafe")
 };
 

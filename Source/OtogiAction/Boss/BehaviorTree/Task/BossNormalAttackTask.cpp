@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BossNomalAttackTask.h"
+#include "BossNormalAttackTask.h"
 #include "../../Main/BossAIController.h"
 #include "../../Component/BossBaseAttackComponent.h"
 #include "../../Main/BossCharacter.h"
 
-UBossNomalAttackTask::UBossNomalAttackTask()
+UBossNormalAttackTask::UBossNormalAttackTask()
 {
 	NodeName = TEXT("Execute Attack");
 
@@ -14,8 +14,7 @@ UBossNomalAttackTask::UBossNomalAttackTask()
 	bCreateNodeInstance = true;
 }
 
-//タスク実行時関数
-EBTNodeResult::Type UBossNomalAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBossNormalAttackTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	APawn* ControlledPawn = AIController ? AIController->GetPawn() : nullptr;
@@ -35,8 +34,8 @@ EBTNodeResult::Type UBossNomalAttackTask::ExecuteTask(UBehaviorTreeComponent& Ow
 	CachedAttackComp = AttackComp;
 
 	// 終了イベントを購読（二重登録防止のため一度解除してから登録）
-	AttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNomalAttackTask::HandleAttackEnded);
-	AttackComp->OnAttackEnded.AddDynamic(this, &UBossNomalAttackTask::HandleAttackEnded);
+	AttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNormalAttackTask::HandleAttackEnded);
+	AttackComp->OnAttackEnded.AddDynamic(this, &UBossNormalAttackTask::HandleAttackEnded);
 
 	// 攻撃開始（ポリモーフィズムにより子クラスの StartAttack_Implementation が実行される）
 	AttackComp->StartAttack();
@@ -44,7 +43,7 @@ EBTNodeResult::Type UBossNomalAttackTask::ExecuteTask(UBehaviorTreeComponent& Ow
 	// 攻撃が開始されなかった（条件を満たさず即終了した）場合は Failed を返す
 	if (!AttackComp->IsAttacking())
 	{
-		AttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNomalAttackTask::HandleAttackEnded);
+		AttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNormalAttackTask::HandleAttackEnded);
 		return EBTNodeResult::Failed;
 	}
 
@@ -52,25 +51,23 @@ EBTNodeResult::Type UBossNomalAttackTask::ExecuteTask(UBehaviorTreeComponent& Ow
 	return EBTNodeResult::InProgress;
 }
 
-//タスク中断関数
-EBTNodeResult::Type UBossNomalAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBossNormalAttackTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	// ノックバックやターゲット喪失などでBTが中断された場合のクリーンアップ
 	if (CachedAttackComp.IsValid())
 	{
-		CachedAttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNomalAttackTask::HandleAttackEnded);
+		CachedAttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNormalAttackTask::HandleAttackEnded);
 		CachedAttackComp->EndAttack();
 	}
 
 	return Super::AbortTask(OwnerComp, NodeMemory);
 }
 
-//攻撃終了通知を受け取るコールバック
-void UBossNomalAttackTask::HandleAttackEnded()
+void UBossNormalAttackTask::HandleAttackEnded()
 {
 	if (CachedAttackComp.IsValid())
 	{
-		CachedAttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNomalAttackTask::HandleAttackEnded);
+		CachedAttackComp->OnAttackEnded.RemoveDynamic(this, &UBossNormalAttackTask::HandleAttackEnded);
 	}
 
 	if (CachedOwnerComp.IsValid())
