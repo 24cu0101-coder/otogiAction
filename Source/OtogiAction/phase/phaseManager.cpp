@@ -134,6 +134,8 @@ void AphaseManager::FindPhase1Minions()
 		if (bInsideArea)
 		{
 			Phase1Minions.Add(Minion);
+		
+			ApplyKintaroSkillToMinion(Minion);
 		}
 	}
 
@@ -178,6 +180,9 @@ void AphaseManager::SpawnPhase2Minions()
 		if (IsValid(Minion))
 		{
 			Phase2Minions.Add(Minion);
+
+			// 金太郎スキル状態を反映
+			ApplyKintaroSkillToMinion(Minion);
 		}
 	}
 
@@ -222,6 +227,9 @@ void AphaseManager::SpawnPhase3Minions()
 		if (IsValid(Minion))
 		{
 			Phase3Minions.Add(Minion);
+
+			// 金太郎スキル状態を反映
+			ApplyKintaroSkillToMinion(Minion);
 		}
 	}
 
@@ -609,4 +617,85 @@ void AphaseManager::PlayPhaseBGM(USoundBase* Sound)
 	}
 
 	UGameplayStatics::PlaySound2D(this,Sound);
+}
+
+// 金太郎スキル状態の設定
+void AphaseManager::SetKintaroSkillActive(bool bActive)
+{
+	bKintaroSkillActive = bActive;
+
+	// プレイヤーの目印タグを確実に付け外しする
+	if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+	{
+		if (bActive)
+		{
+			PlayerPawn->Tags.AddUnique(FName("KintaroActive"));
+		}
+		else
+		{
+			PlayerPawn->Tags.Remove(FName("KintaroActive"));
+		}
+	}
+
+	// 現在いるすべての敵に状態を即座に反映
+	TArray<AActor*> MinionActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMinionsCharacter::StaticClass(), MinionActors);
+	for (AActor* Actor : MinionActors)
+	{
+		if (AMinionsCharacter* Minion = Cast<AMinionsCharacter>(Actor))
+		{
+			ApplyKintaroSkillToMinion(Minion);
+		}
+	}
+
+	// 既存のタイマーをクリア
+	GetWorld()->GetTimerManager().ClearTimer(KintaroSkillTimerHandle);
+
+	// 有効になった場合は15秒後に自動解除するタイマーをセット
+	if (bActive)
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			KintaroSkillTimerHandle,
+			this,
+			&AphaseManager::EndKintaroSkill,
+			15.0f,
+			false
+		);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("PhaseManager KintaroSkill = %d"), bKintaroSkillActive);
+}
+
+// 15秒後に自動で呼ばれる解除関数
+void AphaseManager::EndKintaroSkill()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Kintaro 15 sec End (by PhaseManager)"));
+	SetKintaroSkillActive(false);
+}
+
+// 敵に金太郎スキル状態を反映
+void AphaseManager::ApplyKintaroSkillToMinion(
+	AMinionsCharacter* Minion)
+{
+	if (!IsValid(Minion))
+	{
+		return;
+	}
+
+	Minion->SetKintaroSkillActive(bKintaroSkillActive);
+
+	// 金太郎専用敵だけ対象
+	if (Minion->bKintaroOnlyEnemy)
+	{
+		Minion->SetCanTakeDamage(bKintaroSkillActive);
+		Minion->SetCanSpawnOrb(bKintaroSkillActive);
+	}
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[KINTARO] Apply to %s | Active=%d"),
+		*Minion->GetName(),
+		bKintaroSkillActive
+	);
 }

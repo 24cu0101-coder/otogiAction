@@ -41,7 +41,6 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-
 	// =====================================
 	// 戦闘エリア設定
 	// =====================================
@@ -267,5 +266,21 @@ private:
 
 	//Bossがスポーンしてるかどうか
 	bool bBossSpawnSucceeded = false;
+
+	// 金太郎スキルが有効か
+	bool bKintaroSkillActive = false;
+
+public:
+	// 金太郎スキル状態の設定
+	void SetKintaroSkillActive(bool bActive);
+
+	// 新しくSpawnした敵に金太郎スキル状態を反映
+	void ApplyKintaroSkillToMinion(AMinionsCharacter* Minion);
+
+	protected:
+		FTimerHandle KintaroSkillTimerHandle;
+
+		// 15秒後に自動でスキル状態を解除する関数
+		void EndKintaroSkill();
 
 };
