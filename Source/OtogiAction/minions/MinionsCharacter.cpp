@@ -7,6 +7,8 @@
 #include "Ability/GA_minionsAttack_Normal.h"
 #include "Ability/GA_minionsAttack_Middle.h"
 #include "Ability/GA_minionsAttack_Strong.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "AIController.h"
 #include "InputCoreTypes.h"
 #include "BrainComponent.h"
@@ -86,6 +88,15 @@ void AMinionsCharacter::BeginPlay()
 
 	//盾の耐久値を初期化
 	CurrentShieldDurability = MaxShieldDurability;
+
+	// プレイヤーが金太郎状態ならフラグOn
+	if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+	{
+		if (PlayerPawn->ActorHasTag(FName("KintaroActive")))
+		{
+			bIsKintaroSkillActive = true;
+		}
+	}
 
 	GetWorld()->GetTimerManager().SetTimer(ShieldInputTimerHandle,this,&AMinionsCharacter::CheckShieldGuardInput,0.02f,true);
 
@@ -168,8 +179,18 @@ void AMinionsCharacter::OnDamage(AActor* DamagedActor, float Damage, const UDama
 
 		if (bIsGuarding)
 		{
-			//金太郎スキル中なら大きく減らし、通常時なら 1 だけ減らす
-			const float ShieldDamage = bIsKintaroSkillActive ? KintaroSkillShieldDamage : NormalAttackShieldDamage;
+			// プレイヤーを取得して「KintaroActive」タグが付いているか直接確認
+			bool bPlayerInKintaro = bIsKintaroSkillActive;
+			if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+			{
+				if (PlayerPawn->ActorHasTag(FName("KintaroActive")))
+				{
+					bPlayerInKintaro = true;
+				}
+			}
+
+			//KintaroSkillなら盾破壊
+			const float ShieldDamage = bPlayerInKintaro ? KintaroSkillShieldDamage : NormalAttackShieldDamage;
 
 			CurrentShieldDurability -= ShieldDamage;
 
