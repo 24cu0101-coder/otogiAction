@@ -34,11 +34,5 @@ private:
 	UFUNCTION()
 	void AbilityFinished();
 
-	//‹à‘¾˜Yê—p“G‚ÌOrb¶¬‚ğ‰ğœ
-	UFUNCTION()
-	void DisableKintaroEnemyOrb();
-
-
-	FTimerHandle KintaroTimerHandle;
 
 };
