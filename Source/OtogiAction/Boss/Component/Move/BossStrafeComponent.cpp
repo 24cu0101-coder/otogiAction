@@ -2,8 +2,8 @@
 
 
 #include "BossStrafeComponent.h"
-#include "../Main/BossAIController.h"
-#include "../../PlayerCharacter/PlayerCharacter.h"
+#include "../../Main/BossAIController.h"
+#include "../../../PlayerCharacter/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"

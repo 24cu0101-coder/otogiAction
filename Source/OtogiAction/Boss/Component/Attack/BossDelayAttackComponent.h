@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BossBaseAttackComponent.h"
+#include "../../Component/Base/BossBaseAttackComponent.h"
 #include "BossDelayAttackComponent.generated.h"
 
 /**

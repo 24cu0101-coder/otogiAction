@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Decorators/BTDecorator_BlackboardBase.h"
-#include  "../../Status/StateClass.h"
+#include  "../../../Status/StateClass.h"
 
 #include "BossStrafeDecorator.generated.h"
 
