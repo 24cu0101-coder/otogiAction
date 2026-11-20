@@ -38,6 +38,9 @@ void USelectActionService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* No
 		EEnemyState::Chase,
 		EEnemyState::Strafe,
 		EEnemyState::NormalAttack,
+		EEnemyState::BigAttack,
+		EEnemyState::ComboAttack,
+		EEnemyState::LongRangeAttack,
 	};
 
 	// 直前と同じ行動を避ける設定が有効な場合、現在のStateを候補から除外
