@@ -8,6 +8,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "OtogiAction/UI/EnemyHPWidget.h"
+#include "AIController.h"
+#include "BrainComponent.h"
+#include "TimerManager.h"
 
 ALongRangeMinion::ALongRangeMinion()
 {
@@ -43,6 +46,8 @@ void ALongRangeMinion::BeginPlay()
 	if (HealthBarWidgetComp)
 	{
 		HealthBarWidget = Cast<UEnemyHPWidget>(HealthBarWidgetComp->GetUserWidgetObject());
+
+		HealthBarWidgetComp->SetVisibility(false);
 	}
 
 	if (WeaponMesh && GetMesh() && WeaponSocketName != NAME_None)
@@ -80,7 +85,15 @@ void ALongRangeMinion::Tick(float DeltaTime)
 	if (!PlayerPawn) return;
 
 	float Distance = FVector::Dist(GetActorLocation(), PlayerPawn->GetActorLocation());
-	if (Distance <= AttackRange)
+	bool bInRange = (Distance <= AttackRange);
+
+	//攻撃範囲内のときだけHPバーを表示し、範囲外なら隠す
+	if (HealthBarWidgetComp && HealthBarWidgetComp->IsVisible() != bInRange)
+	{
+		HealthBarWidgetComp->SetVisibility(bInRange);
+	}
+
+	if (bInRange)
 	{
 		FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PlayerPawn->GetActorLocation());
 		FRotator TargetRot = FRotator(0.0f, LookAtRot.Yaw, 0.0f);
@@ -88,7 +101,6 @@ void ALongRangeMinion::Tick(float DeltaTime)
 		SetActorRotation(NewRot);
 	}
 }
-
 void ALongRangeMinion::StartAttack()
 {
 	// いずれかの攻撃フェーズ実行中なら重複開始しない
@@ -239,27 +251,48 @@ void ALongRangeMinion::Die()
 
 	bIsDead = true;
 
-	// すべての攻撃・状態遷移タイマーを停止
-	GetWorldTimerManager().ClearTimer(FireTimerHandle);
-	GetWorldTimerManager().ClearTimer(PrepareTimerHandle);
-	GetWorldTimerManager().ClearTimer(AimTimerHandle);
-	GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+	// 敵タグを削除
+	Tags.Remove(FName("Enemy"));
 
+	// 攻撃タイマー停止
+	GetWorldTimerManager().ClearTimer(FireTimerHandle);
+
+	// 狙いタイマー停止
+	GetWorldTimerManager().ClearTimer(AimTimerHandle);
+
+	// 攻撃状態を解除
+	bIsPreparing = false;
+	bIsAiming = false;
+
+	// 移動停止・回転停止
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->DisableMovement();
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+
+	bUseControllerRotationYaw = false;
+
+	// AI停止
+	if (AAIController* AI = Cast<AAIController>(GetController()))
+	{
+		if (AI->BrainComponent)
+		{
+			AI->BrainComponent->StopLogic(TEXT("Dead"));
+		}
+	}
+
+	// 当たり判定を無効化
+	SetActorEnableCollision(false);
+
+	// 再生中のMontageを停止
 	if (GetMesh() && GetMesh()->GetAnimInstance())
 	{
-		GetMesh()->GetAnimInstance()->Montage_Stop(0.2f);
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 	}
 
-	if (GetCapsuleComponent())
-	{
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-
-	if (HealthBarWidgetComp)
-	{
-		HealthBarWidgetComp->SetVisibility(false);
-	}
-
+	// Blueprint側の死亡イベントを呼ぶ
 	OnDeath();
-	SetLifeSpan(DestroyDelay);
 }
