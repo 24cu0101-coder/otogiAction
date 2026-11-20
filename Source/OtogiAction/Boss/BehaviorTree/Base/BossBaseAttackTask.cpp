@@ -36,13 +36,13 @@ EBTNodeResult::Type UBossBaseAttackTask::ExecuteTask(UBehaviorTreeComponent& Own
 	// 終了通知デリゲートをバインド（※デリゲート名は実際のコンポーネントに合わせて変更してください）
 	AttackComp->OnAttackEnded.AddDynamic(this, &UBossBaseAttackTask::HandleAttackEnded);
 
-	// 子クラス固有の攻撃処理を実行
+	/* //子クラス固有の攻撃処理を実行
 	if (!StartAttack(AttackComp))
 	{
-		// 攻撃の開始に失敗した場合はデリゲートを解除して即座に失敗を返す
+		 攻撃の開始に失敗した場合はデリゲートを解除して即座に失敗を返す
 		CleanupTask();
 		return EBTNodeResult::Failed;
-	}
+	}*/
 
 	return EBTNodeResult::InProgress;
 }
