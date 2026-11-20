@@ -13,6 +13,9 @@ enum class EEnemyState : uint8
 	Idle    UMETA(DisplayName = "Idle"),
 	Chase   UMETA(DisplayName = "Chase"),
 	NormalAttack  UMETA(DisplayName = "NormalAttack"),
+	ComboAttack UMETA(DisplayName = "ComboAttack"),
+	BigAttack UMETA(DisplayName = "BigAttack"),
+	LongRangeAttack UMETA(DisplayName = "LongRangeAttack"),
 	Strafe	UMETA(DisplayName = "Strafe")
 };
 

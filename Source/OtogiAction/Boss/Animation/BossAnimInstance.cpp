@@ -3,7 +3,7 @@
 
 #include "BossAnimInstance.h"
 #include "../Main/BossCharacter.h"
-#include "../Component/BossStrafeComponent.h"
+#include "../Component/Move/BossStrafeComponent.h"
 #include "KismetAnimationLibrary.h"
 
 void UBossAnimInstance::NativeInitializeAnimation()
