@@ -22,7 +22,7 @@ USelectActionService::USelectActionService()
 void USelectActionService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-
+	
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	if (!AIController || !BlackboardComp) return;
@@ -33,15 +33,15 @@ void USelectActionService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* No
 	// 状況に応じてStateを選定
 	EEnemyState NewState = EEnemyState::Idle;
 
-	// ランダム抽選の候補となるStateをリストアップ（現在タスクが存在するもの）
-	TArray<EEnemyState> CandidateStates = {
-		EEnemyState::Chase,
-		EEnemyState::Strafe,
-		EEnemyState::NormalAttack,
-		EEnemyState::BigAttack,
-		EEnemyState::ComboAttack,
-		EEnemyState::LongRangeAttack,
-	};
+	// // ランダム抽選の候補となるStateをリストアップ（現在タスクが存在するもの）
+	// CandidateStates = {
+	// 	EEnemyState::Chase,
+	// 	EEnemyState::Strafe,
+	// 	EEnemyState::NormalAttack,
+	// 	EEnemyState::BigAttack,
+	// 	EEnemyState::ComboAttack,
+	// 	EEnemyState::LongRangeAttack,
+	// };
 
 	// 直前と同じ行動を避ける設定が有効な場合、現在のStateを候補から除外
 	if (bAvoidSameState && CandidateStates.Num() > 1)

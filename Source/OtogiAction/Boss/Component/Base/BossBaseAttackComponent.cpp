@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "AnimNodes/AnimNode_RandomPlayer.h"
 
 // Sets default values for this component's properties
 UBossBaseAttackComponent::UBossBaseAttackComponent()
@@ -68,6 +69,9 @@ bool UBossBaseAttackComponent::PlayAttackMontage(UAnimMontage* MontageToPlay, fl
 			const float Duration = AnimInstance->Montage_Play(MontageToPlay, PlayRate);
 			if (Duration > 0.f)
 			{
+				//再生したモンタージュを保存
+				CurrentPlayingMontage = MontageToPlay;
+				
 				if (StartSectionName != NAME_None)
 				{
 					AnimInstance->Montage_JumpToSection(StartSectionName, MontageToPlay);
@@ -87,9 +91,16 @@ bool UBossBaseAttackComponent::PlayAttackMontage(UAnimMontage* MontageToPlay, fl
 //モンタージュ終了時のコールバック
 void UBossBaseAttackComponent::OnMontageEndedCallback(UAnimMontage* Montage, bool bInterrupted)
 {
-	// 再生していた攻撃モンタージュが終わったら EndAttack を呼ぶ
-	if (Montage == AttackMontage && bIsAttacking)
+	UE_LOG(LogTemp, Warning, TEXT("OnMontageEndedCallback: Montage=%s, Current=%s, bIsAttacking=%d, bInterrupted=%d"),
+		*GetNameSafe(Montage),
+		*GetNameSafe(CurrentPlayingMontage),
+		bIsAttacking,
+		bInterrupted);
+	
+	//最後に保存されたモンタージュが終わったら EndAttack を呼ぶ
+	if (Montage == CurrentPlayingMontage && bIsAttacking)
 	{
+		CurrentPlayingMontage = nullptr;
 		EndAttack();
 	}
 }

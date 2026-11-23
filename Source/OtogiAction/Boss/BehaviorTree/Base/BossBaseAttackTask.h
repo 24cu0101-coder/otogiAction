@@ -44,4 +44,7 @@ protected:
 	// 子クラスからもアクセスできるよう protected に配置
 	TWeakObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;
 	TWeakObjectPtr<UBossBaseAttackComponent> CachedAttackComp;
+	
+	//子クラスでオーバーライドする攻撃開始関数
+	bool StartAttack(UBossBaseAttackComponent* AttackComp);
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
 #include "../../Status/StateClass.h"
+#include "Chaos/ArrayFaceND.h"
 #include "SelectActionService.generated.h"
 
 /**
@@ -40,4 +41,7 @@ protected:
 	// 直前と同じStateを連続で選ばないようにするかどうか
 	UPROPERTY(EditAnywhere, Category = "AI")
 	bool bAvoidSameState = true;
+	
+	UPROPERTY(EditAnywhere, Category = "AI")
+	TArray<EEnemyState> CandidateStates;
 };

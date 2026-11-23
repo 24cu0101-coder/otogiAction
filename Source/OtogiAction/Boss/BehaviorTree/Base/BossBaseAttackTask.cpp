@@ -23,7 +23,9 @@ EBTNodeResult::Type UBossBaseAttackTask::ExecuteTask(UBehaviorTreeComponent& Own
 	}
 
 	//ボス本体にアタッチされているコンポーネント取得
-	UBossBaseAttackComponent* AttackComp = ControlledPawn->FindComponentByClass<UBossBaseAttackComponent>();
+	UBossBaseAttackComponent* AttackComp = Cast<UBossBaseAttackComponent>(
+	ControlledPawn->GetComponentByClass(TargetAttackComponentClass)
+);
 	if (!AttackComp)
 	{
 		return EBTNodeResult::Failed;
@@ -36,13 +38,13 @@ EBTNodeResult::Type UBossBaseAttackTask::ExecuteTask(UBehaviorTreeComponent& Own
 	// 終了通知デリゲートをバインド（※デリゲート名は実際のコンポーネントに合わせて変更してください）
 	AttackComp->OnAttackEnded.AddDynamic(this, &UBossBaseAttackTask::HandleAttackEnded);
 
-	/* //子クラス固有の攻撃処理を実行
+	//子クラス固有の攻撃処理を実行
 	if (!StartAttack(AttackComp))
 	{
-		 攻撃の開始に失敗した場合はデリゲートを解除して即座に失敗を返す
+		 //攻撃の開始に失敗した場合はデリゲートを解除して即座に失敗を返す
 		CleanupTask();
 		return EBTNodeResult::Failed;
-	}*/
+	}
 
 	return EBTNodeResult::InProgress;
 }
@@ -91,4 +93,17 @@ void UBossBaseAttackTask::CleanupTask()
 
 	CachedOwnerComp.Reset();
 	CachedAttackComp.Reset();
+}
+
+//
+bool UBossBaseAttackTask::StartAttack(UBossBaseAttackComponent* AttackComp)
+{
+	if (!AttackComp)
+	{
+		return false;
+	}
+
+	AttackComp->StartAttack();
+	// StartAttack() 内でモンタージュ再生に失敗して即座に bIsAttacking が false になっていたら失敗とみなす
+	return AttackComp->IsAttacking();
 }

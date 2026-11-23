@@ -46,6 +46,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Attack|Animation")
 	bool PlayAttackMontage(UAnimMontage* MontageToPlay, float PlayRate = 1.0f, FName StartSectionName = NAME_None);
 
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> CurrentPlayingMontage;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
