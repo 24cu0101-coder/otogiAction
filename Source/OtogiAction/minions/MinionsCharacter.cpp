@@ -611,7 +611,7 @@ void AMinionsCharacter::BreakShield()
 		ShieldMesh->SetHiddenInGame(true);
 	}
 
-	// （任意）盾が壊れたときの大きな怯み（スタン）を発生させる場合
+	// 盾が壊れたときの大きな怯み（スタン）を発生させる
 	if (HitReactionComponent)
 	{
 		HitReactionComponent->PlayHitReaction(0.f);

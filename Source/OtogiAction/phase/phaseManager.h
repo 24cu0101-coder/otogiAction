@@ -1,13 +1,36 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "Sound/SoundBase.h"
 #include "phaseManager.generated.h"
 
 class UBoxComponent;
 class AMinionsCharacter;
+
+
+// =====================================
+// フェーズごとの敵スポーン設定
+// =====================================
+
+USTRUCT(BlueprintType)
+struct FPhaseMinionSpawnData
+{
+	GENERATED_BODY()
+
+	// 敵の種類
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Minion")
+	TSubclassOf<ACharacter> MinionClass;
+
+	// スポーン数
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Minion")
+	int32 SpawnCount = 1;
+
+	// スポーン位置
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Minion")
+	TArray<FTransform> SpawnTransforms;
+};
 
 
 UENUM(BlueprintType)
@@ -40,6 +63,7 @@ protected:
 public:
 
 	virtual void Tick(float DeltaTime) override;
+
 
 	// =====================================
 	// 戦闘エリア設定
@@ -91,7 +115,7 @@ public:
 	// =====================================
 
 	UPROPERTY()
-	TArray<AMinionsCharacter*> Phase1Minions;
+	TArray<ACharacter*> Phase1Minions;
 
 	void FindPhase1Minions();
 
@@ -107,24 +131,10 @@ public:
 		BlueprintReadOnly,
 		Category = "Boss Phase|Phase2"
 	)
-	TSubclassOf<AMinionsCharacter> Phase2MinionClass;
-
-	UPROPERTY(
-		EditAnywhere,
-		BlueprintReadOnly,
-		Category = "Boss Phase|Phase2"
-	)
-	int32 Phase2MinionCount = 3;
-
-	UPROPERTY(
-		EditAnywhere,
-		BlueprintReadOnly,
-		Category = "Boss Phase|Phase2"
-	)
-	TArray<FTransform> Phase2SpawnTransforms;
+	TArray<FPhaseMinionSpawnData> Phase2MinionGroups;
 
 	UPROPERTY()
-	TArray<AMinionsCharacter*> Phase2Minions;
+	TArray<ACharacter*> Phase2Minions;
 
 	void CheckPhase2Clear();
 
@@ -140,24 +150,10 @@ public:
 		BlueprintReadOnly,
 		Category = "Boss Phase|Phase3"
 	)
-	TSubclassOf<AMinionsCharacter> Phase3MinionClass;
-
-	UPROPERTY(
-		EditAnywhere,
-		BlueprintReadOnly,
-		Category = "Boss Phase|Phase3"
-	)
-	int32 Phase3MinionCount = 3;
-
-	UPROPERTY(
-		EditAnywhere,
-		BlueprintReadOnly,
-		Category = "Boss Phase|Phase3"
-	)
-	TArray<FTransform> Phase3SpawnTransforms;
+	TArray<FPhaseMinionSpawnData> Phase3MinionGroups;
 
 	UPROPERTY()
-	TArray<AMinionsCharacter*> Phase3Minions;
+	TArray<ACharacter*> Phase3Minions;
 
 	void CheckPhase3Clear();
 
@@ -264,23 +260,27 @@ private:
 	// Phase3の敵が存在するか
 	bool bHasPhase3Minions = false;
 
-	//Bossがスポーンしてるかどうか
+	// Bossがスポーンしてるかどうか
 	bool bBossSpawnSucceeded = false;
 
 	// 金太郎スキルが有効か
 	bool bKintaroSkillActive = false;
 
+
 public:
+
 	// 金太郎スキル状態の設定
 	void SetKintaroSkillActive(bool bActive);
 
 	// 新しくSpawnした敵に金太郎スキル状態を反映
-	void ApplyKintaroSkillToMinion(AMinionsCharacter* Minion);
+	void ApplyKintaroSkillToMinion(ACharacter* Minion);
 
-	protected:
-		FTimerHandle KintaroSkillTimerHandle;
 
-		// 15秒後に自動でスキル状態を解除する関数
-		void EndKintaroSkill();
+protected:
+
+	FTimerHandle KintaroSkillTimerHandle;
+
+	// 15秒後に自動でスキル状態を解除する関数
+	void EndKintaroSkill();
 
 };

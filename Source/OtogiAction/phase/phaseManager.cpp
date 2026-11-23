@@ -1,7 +1,9 @@
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "phaseManager.h"
 
 #include "OtogiAction/minions/MinionsCharacter.h"
+#include "OtogiAction/minions/LongRangeMinion.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
@@ -10,7 +12,42 @@
 #include "GameFramework/Actor.h"
 
 #include "Components/BoxComponent.h"
+#include "TimerManager.h"
 
+
+// =====================================
+// 敵の死亡判定
+// =====================================
+
+static bool IsManagedEnemyDead(ACharacter* Character)
+{
+	if (!IsValid(Character))
+	{
+		return true;
+	}
+
+	// 通常Minion・盾持ちMinion
+	if (AMinionsCharacter* Minion = Cast<AMinionsCharacter>(Character))
+	{
+		return Minion->IsDead();
+	}
+
+	// 遠距離Minion
+	if (ALongRangeMinion* LongRangeMinion =
+		Cast<ALongRangeMinion>(Character))
+	{
+		return LongRangeMinion->IsDead();
+	}
+
+	// その他のACharacter派生クラス
+	// 専用の死亡フラグがない場合はDestroyされるまで生存扱い
+	return Character->IsActorBeingDestroyed();
+}
+
+
+// =====================================
+// Constructor
+// =====================================
 
 AphaseManager::AphaseManager()
 {
@@ -42,7 +79,9 @@ AphaseManager::AphaseManager()
 }
 
 
+// =====================================
 // BeginPlay
+// =====================================
 
 void AphaseManager::BeginPlay()
 {
@@ -65,7 +104,9 @@ void AphaseManager::BeginPlay()
 }
 
 
+// =====================================
 // Tick
+// =====================================
 
 void AphaseManager::Tick(float DeltaTime)
 {
@@ -107,23 +148,46 @@ void AphaseManager::FindPhase1Minions()
 
 	TArray<AActor*> FoundActors;
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(),AMinionsCharacter::StaticClass(),FoundActors);
+	// ACharacterを継承した敵を取得
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(),
+		ACharacter::StaticClass(),
+		FoundActors
+	);
 
 	// Box範囲内の敵だけ登録
 	for (AActor* Actor : FoundActors)
 	{
-		AMinionsCharacter* Minion =
-			Cast<AMinionsCharacter>(Actor);
+		ACharacter* Character = Cast<ACharacter>(Actor);
 
-		if (!IsValid(Minion))
+		if (!IsValid(Character))
+		{
+			continue;
+		}
+
+		// プレイヤーは除外
+		if (Character == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
+		{
+			continue;
+		}
+
+		// 管理対象の敵だけ登録
+		bool bIsSupportedEnemy =
+			Character->IsA(AMinionsCharacter::StaticClass()) ||
+			Character->IsA(ALongRangeMinion::StaticClass());
+
+		if (!bIsSupportedEnemy)
 		{
 			continue;
 		}
 
 		// Actorの位置をBoxのローカル座標に変換
-		FVector LocalLocation =AreaBox->GetComponentTransform().InverseTransformPosition(Minion->GetActorLocation());
+		FVector LocalLocation =
+			AreaBox->GetComponentTransform().InverseTransformPosition(
+				Character->GetActorLocation()
+			);
 
-		FVector BoxExtent =AreaBox->GetUnscaledBoxExtent();
+		FVector BoxExtent = AreaBox->GetUnscaledBoxExtent();
 
 		// Boxの範囲内か確認
 		bool bInsideArea =
@@ -133,9 +197,17 @@ void AphaseManager::FindPhase1Minions()
 
 		if (bInsideArea)
 		{
-			Phase1Minions.Add(Minion);
-		
-			ApplyKintaroSkillToMinion(Minion);
+			Phase1Minions.Add(Character);
+
+			// 通常Minion系だけKintaroSkillを反映
+			ApplyKintaroSkillToMinion(Character);
+
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("[Phase1] Enemy Registered: %s"),
+				*Character->GetName()
+			);
 		}
 	}
 
@@ -143,6 +215,13 @@ void AphaseManager::FindPhase1Minions()
 	{
 		bHasPhase1Minions = true;
 	}
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[Phase1] Registered Enemy Count: %d"),
+		Phase1Minions.Num()
+	);
 }
 
 
@@ -156,33 +235,59 @@ void AphaseManager::SpawnPhase2Minions()
 
 	bHasPhase2Minions = false;
 
-	if (!Phase2MinionClass)
+	// 登録された敵グループを順番にスポーン
+	for (const FPhaseMinionSpawnData& Group : Phase2MinionGroups)
 	{
-		return;
-	}
-
-	for (int32 i = 0; i < Phase2MinionCount; i++)
-	{
-		if (!Phase2SpawnTransforms.IsValidIndex(i))
+		if (!Group.MinionClass)
 		{
 			continue;
 		}
 
-		// Manager基準のローカル座標をワールド座標に変換
-		FTransform SpawnTransform =Phase2SpawnTransforms[i] * GetActorTransform();
-
-		FActorSpawnParameters SpawnParams;
-
-		SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-		AMinionsCharacter* Minion =GetWorld()->SpawnActor<AMinionsCharacter>(Phase2MinionClass,SpawnTransform,SpawnParams);
-
-		if (IsValid(Minion))
+		for (int32 i = 0; i < Group.SpawnCount; i++)
 		{
-			Phase2Minions.Add(Minion);
+			if (!Group.SpawnTransforms.IsValidIndex(i))
+			{
+				UE_LOG(
+					LogTemp,
+					Warning,
+					TEXT("[Phase2] SpawnTransform is missing. Group=%s Index=%d"),
+					*Group.MinionClass->GetName(),
+					i
+				);
 
-			// 金太郎スキル状態を反映
-			ApplyKintaroSkillToMinion(Minion);
+				continue;
+			}
+
+			// Manager基準のローカル座標をワールド座標に変換
+			FTransform SpawnTransform =
+				Group.SpawnTransforms[i] * GetActorTransform();
+
+			FActorSpawnParameters SpawnParams;
+
+			SpawnParams.SpawnCollisionHandlingOverride =
+				ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+			ACharacter* Minion =
+				GetWorld()->SpawnActor<ACharacter>(
+					Group.MinionClass,
+					SpawnTransform,
+					SpawnParams
+				);
+
+			if (IsValid(Minion))
+			{
+				Phase2Minions.Add(Minion);
+
+				// 金太郎スキル状態を反映
+				ApplyKintaroSkillToMinion(Minion);
+
+				UE_LOG(
+					LogTemp,
+					Warning,
+					TEXT("[Phase2] Spawned: %s"),
+					*Minion->GetName()
+				);
+			}
 		}
 	}
 
@@ -191,6 +296,12 @@ void AphaseManager::SpawnPhase2Minions()
 		bHasPhase2Minions = true;
 	}
 
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[Phase2] Total Spawned: %d"),
+		Phase2Minions.Num()
+	);
 }
 
 
@@ -204,32 +315,59 @@ void AphaseManager::SpawnPhase3Minions()
 
 	bHasPhase3Minions = false;
 
-	if (!Phase3MinionClass)
+	// 登録された敵グループを順番にスポーン
+	for (const FPhaseMinionSpawnData& Group : Phase3MinionGroups)
 	{
-		return;
-	}
-
-	for (int32 i = 0; i < Phase3MinionCount; i++)
-	{
-		if (!Phase3SpawnTransforms.IsValidIndex(i))
+		if (!Group.MinionClass)
 		{
 			continue;
 		}
 
-		FTransform SpawnTransform =Phase3SpawnTransforms[i] * GetActorTransform();
-
-		FActorSpawnParameters SpawnParams;
-
-		SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-		AMinionsCharacter* Minion =GetWorld()->SpawnActor<AMinionsCharacter>(Phase3MinionClass,SpawnTransform,SpawnParams);
-
-		if (IsValid(Minion))
+		for (int32 i = 0; i < Group.SpawnCount; i++)
 		{
-			Phase3Minions.Add(Minion);
+			if (!Group.SpawnTransforms.IsValidIndex(i))
+			{
+				UE_LOG(
+					LogTemp,
+					Warning,
+					TEXT("[Phase3] SpawnTransform is missing. Group=%s Index=%d"),
+					*Group.MinionClass->GetName(),
+					i
+				);
 
-			// 金太郎スキル状態を反映
-			ApplyKintaroSkillToMinion(Minion);
+				continue;
+			}
+
+			// Manager基準のローカル座標をワールド座標に変換
+			FTransform SpawnTransform =
+				Group.SpawnTransforms[i] * GetActorTransform();
+
+			FActorSpawnParameters SpawnParams;
+
+			SpawnParams.SpawnCollisionHandlingOverride =
+				ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+			ACharacter* Minion =
+				GetWorld()->SpawnActor<ACharacter>(
+					Group.MinionClass,
+					SpawnTransform,
+					SpawnParams
+				);
+
+			if (IsValid(Minion))
+			{
+				Phase3Minions.Add(Minion);
+
+				// 金太郎スキル状態を反映
+				ApplyKintaroSkillToMinion(Minion);
+
+				UE_LOG(
+					LogTemp,
+					Warning,
+					TEXT("[Phase3] Spawned: %s"),
+					*Minion->GetName()
+				);
+			}
 		}
 	}
 
@@ -238,6 +376,12 @@ void AphaseManager::SpawnPhase3Minions()
 		bHasPhase3Minions = true;
 	}
 
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[Phase3] Total Spawned: %d"),
+		Phase3Minions.Num()
+	);
 }
 
 
@@ -255,37 +399,41 @@ void AphaseManager::SpawnBossPhase1()
 	}
 
 	// Manager基準のローカル座標を変換
-	FTransform SpawnTransform =BossSpawnTransform * GetActorTransform();
+	FTransform SpawnTransform =
+		BossSpawnTransform * GetActorTransform();
 
 	FActorSpawnParameters SpawnParams;
 
-	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	SpawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	BossActor =GetWorld()->SpawnActor<AActor>(BossClass,SpawnTransform,SpawnParams);
+	BossActor = GetWorld()->SpawnActor<AActor>(
+		BossClass,
+		SpawnTransform,
+		SpawnParams
+	);
 
 	if (!IsValid(BossActor))
 	{
-
 		return;
 	}
 
 	bBossSpawnSucceeded = true;
 
-
 	APawn* BossPawn = Cast<APawn>(BossActor);
 
 	if (!BossPawn)
 	{
-
 		return;
 	}
 
 	AController* Controller = BossPawn->GetController();
-
 }
 
 
+// =====================================
 // Phase1 Clear
+// =====================================
 
 void AphaseManager::CheckPhase1Clear()
 {
@@ -300,14 +448,14 @@ void AphaseManager::CheckPhase1Clear()
 		return;
 	}
 
-	for (AMinionsCharacter* Minion : Phase1Minions)
+	for (ACharacter* Minion : Phase1Minions)
 	{
 		if (!IsValid(Minion))
 		{
 			continue;
 		}
 
-		if (!Minion->IsDead())
+		if (!IsManagedEnemyDead(Minion))
 		{
 			return;
 		}
@@ -317,7 +465,9 @@ void AphaseManager::CheckPhase1Clear()
 }
 
 
+// =====================================
 // Phase1 → Phase2
+// =====================================
 
 void AphaseManager::StartPhase2()
 {
@@ -327,7 +477,6 @@ void AphaseManager::StartPhase2()
 	}
 
 	CurrentPhase = EBossPhase::Phase2;
-
 
 	SpawnPhase2Minions();
 }
@@ -349,14 +498,14 @@ void AphaseManager::CheckPhase2Clear()
 		return;
 	}
 
-	for (AMinionsCharacter* Minion : Phase2Minions)
+	for (ACharacter* Minion : Phase2Minions)
 	{
 		if (!IsValid(Minion))
 		{
 			continue;
 		}
 
-		if (!Minion->IsDead())
+		if (!IsManagedEnemyDead(Minion))
 		{
 			return;
 		}
@@ -366,7 +515,9 @@ void AphaseManager::CheckPhase2Clear()
 }
 
 
+// =====================================
 // Phase2 → Phase3
+// =====================================
 
 void AphaseManager::StartPhase3()
 {
@@ -397,14 +548,14 @@ void AphaseManager::CheckPhase3Clear()
 		return;
 	}
 
-	for (AMinionsCharacter* Minion : Phase3Minions)
+	for (ACharacter* Minion : Phase3Minions)
 	{
 		if (!IsValid(Minion))
 		{
 			continue;
 		}
 
-		if (!Minion->IsDead())
+		if (!IsManagedEnemyDead(Minion))
 		{
 			return;
 		}
@@ -414,7 +565,9 @@ void AphaseManager::CheckPhase3Clear()
 }
 
 
+// =====================================
 // Phase3 → BossPhase1
+// =====================================
 
 void AphaseManager::StartBossPhase1()
 {
@@ -424,7 +577,6 @@ void AphaseManager::StartBossPhase1()
 	}
 
 	CurrentPhase = EBossPhase::BossPhase1;
-
 
 	SpawnBossPhase1();
 
@@ -463,15 +615,16 @@ void AphaseManager::CheckBossPhase1Clear()
 
 	bBossSpawnSucceeded = false;
 
-
 	if (BossDefeatSE)
 	{
-		UGameplayStatics::PlaySound2D(this,BossDefeatSE);
+		UGameplayStatics::PlaySound2D(this, BossDefeatSE);
 	}
 }
 
 
-// 現在フェーズのMinionをリスポーン
+// =====================================
+// 現在のフェーズのMinionをリスポーン
+// =====================================
 
 void AphaseManager::RespawnCurrentPhaseMinions()
 {
@@ -479,7 +632,7 @@ void AphaseManager::RespawnCurrentPhaseMinions()
 
 	if (CurrentPhase == EBossPhase::Phase1)
 	{
-		for (AMinionsCharacter* Minion : Phase1Minions)
+		for (ACharacter* Minion : Phase1Minions)
 		{
 			if (IsValid(Minion))
 			{
@@ -491,7 +644,6 @@ void AphaseManager::RespawnCurrentPhaseMinions()
 
 		FindPhase1Minions();
 
-
 		return;
 	}
 
@@ -500,7 +652,7 @@ void AphaseManager::RespawnCurrentPhaseMinions()
 
 	if (CurrentPhase == EBossPhase::Phase2)
 	{
-		for (AMinionsCharacter* Minion : Phase2Minions)
+		for (ACharacter* Minion : Phase2Minions)
 		{
 			if (IsValid(Minion))
 			{
@@ -512,7 +664,6 @@ void AphaseManager::RespawnCurrentPhaseMinions()
 
 		SpawnPhase2Minions();
 
-
 		return;
 	}
 
@@ -521,7 +672,7 @@ void AphaseManager::RespawnCurrentPhaseMinions()
 
 	if (CurrentPhase == EBossPhase::Phase3)
 	{
-		for (AMinionsCharacter* Minion : Phase3Minions)
+		for (ACharacter* Minion : Phase3Minions)
 		{
 			if (IsValid(Minion))
 			{
@@ -532,7 +683,6 @@ void AphaseManager::RespawnCurrentPhaseMinions()
 		Phase3Minions.Empty();
 
 		SpawnPhase3Minions();
-
 
 		return;
 	}
@@ -600,7 +750,6 @@ FTransform AphaseManager::GetRespawnTransform() const
 void AphaseManager::SetRespawning(bool bRespawning)
 {
 	bIsRespawning = bRespawning;
-
 }
 
 
@@ -612,14 +761,17 @@ void AphaseManager::PlayPhaseBGM(USoundBase* Sound)
 {
 	if (!Sound)
 	{
-
 		return;
 	}
 
-	UGameplayStatics::PlaySound2D(this,Sound);
+	UGameplayStatics::PlaySound2D(this, Sound);
 }
 
+
+// =====================================
 // 金太郎スキル状態の設定
+// =====================================
+
 void AphaseManager::SetKintaroSkillActive(bool bActive)
 {
 	bKintaroSkillActive = bActive;
@@ -637,9 +789,15 @@ void AphaseManager::SetKintaroSkillActive(bool bActive)
 		}
 	}
 
-	// 現在いるすべての敵に状態を即座に反映
+	// 現在いるすべての通常Minion系の敵に状態を即座に反映
 	TArray<AActor*> MinionActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMinionsCharacter::StaticClass(), MinionActors);
+
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(),
+		AMinionsCharacter::StaticClass(),
+		MinionActors
+	);
+
 	for (AActor* Actor : MinionActors)
 	{
 		if (AMinionsCharacter* Minion = Cast<AMinionsCharacter>(Actor))
@@ -663,20 +821,45 @@ void AphaseManager::SetKintaroSkillActive(bool bActive)
 		);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("PhaseManager KintaroSkill = %d"), bKintaroSkillActive);
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("PhaseManager KintaroSkill = %d"),
+		bKintaroSkillActive
+	);
 }
 
+
+// =====================================
 // 15秒後に自動で呼ばれる解除関数
+// =====================================
+
 void AphaseManager::EndKintaroSkill()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Kintaro 15 sec End (by PhaseManager)"));
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Kintaro 15 sec End (by PhaseManager)")
+	);
+
 	SetKintaroSkillActive(false);
 }
 
+
+// =====================================
 // 敵に金太郎スキル状態を反映
-void AphaseManager::ApplyKintaroSkillToMinion(
-	AMinionsCharacter* Minion)
+// =====================================
+
+void AphaseManager::ApplyKintaroSkillToMinion(ACharacter* Character)
 {
+	if (!IsValid(Character))
+	{
+		return;
+	}
+
+	// 通常Minion系だけ対象
+	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(Character);
+
 	if (!IsValid(Minion))
 	{
 		return;

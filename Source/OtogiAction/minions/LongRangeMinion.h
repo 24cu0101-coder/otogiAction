@@ -30,6 +30,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SpawnArrow();
 
+	UFUNCTION(BlueprintCallable, Category = "Status")
+	bool IsDead() const
+	{
+		return bIsDead;
+	};
+
 protected:
 	// HPバー
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -112,6 +118,19 @@ protected:
 	// 武器をアタッチするスケルトンのソケット
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	FName WeaponSocketName = TEXT("ArrowSocket");
+
+	// 死亡アニメーション
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* DeathMontage;
+
+	// 死亡アニメーション終了時に呼ばれる関数
+	void OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	// 死亡タイマー
+	FTimerHandle DeathTimerHandle;
+
+	// 死亡アニメーション終了後の処理
+	void PlayDeathEffect();
 
 
 private:

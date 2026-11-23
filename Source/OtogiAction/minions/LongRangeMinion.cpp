@@ -256,13 +256,14 @@ void ALongRangeMinion::Die()
 
 	// 攻撃タイマー停止
 	GetWorldTimerManager().ClearTimer(FireTimerHandle);
-
-	// 狙いタイマー停止
+	GetWorldTimerManager().ClearTimer(PrepareTimerHandle);
 	GetWorldTimerManager().ClearTimer(AimTimerHandle);
+	GetWorldTimerManager().ClearTimer(AttackTimerHandle);
 
-	// 攻撃状態を解除
+	// 攻撃状態解除
 	bIsPreparing = false;
 	bIsAiming = false;
+	bIsAttacking = false;
 
 	// 移動停止・回転停止
 	if (GetCharacterMovement())
@@ -293,6 +294,39 @@ void ALongRangeMinion::Die()
 		GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 	}
 
+	// 死亡アニメーション再生
+	float AnimDuration = 0.0f;
+
+	if (DeathMontage && GetMesh() && GetMesh()->GetAnimInstance())
+	{
+		AnimDuration = PlayAnimMontage(DeathMontage, 1.0f);
+	}
+
+	// Montageが再生できなかった場合
+	if (AnimDuration <= 0.0f)
+	{
+		PlayDeathEffect();
+		return;
+	}
+
+	// Montage終了後にBlueprintイベントを呼ぶ
+	GetWorldTimerManager().SetTimer(
+		DeathTimerHandle,
+		this,
+		&ALongRangeMinion::PlayDeathEffect,
+		AnimDuration,
+		false
+	);
+}
+
+void ALongRangeMinion::OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// 死亡アニメーション終了後にBlueprintイベントを呼ぶ
+	OnDeath();
+}
+
+void ALongRangeMinion::PlayDeathEffect()
+{
 	// Blueprint側の死亡イベントを呼ぶ
 	OnDeath();
 }
