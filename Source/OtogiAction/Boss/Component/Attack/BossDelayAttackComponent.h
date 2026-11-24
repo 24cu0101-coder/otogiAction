@@ -9,9 +9,12 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OTOGIACTION_API UBossDelayAttackComponent : public UBossBaseAttackComponent
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void StartAttack_Implementation() override;
+	virtual void EndAttack_Implementation() override;
+
 };
