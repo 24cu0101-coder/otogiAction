@@ -2,8 +2,8 @@
 
 
 #include "BossBaseAttackTask.h"
-#include "../../Component/Base/BossBaseAttackComponent.h"
-#include "../../Main/BossAIController.h"
+#include "../../../Component/Base/BossBaseAttackComponent.h"
+#include "../../../Main/BossAIController.h"
 
 UBossBaseAttackTask::UBossBaseAttackTask()
 {
