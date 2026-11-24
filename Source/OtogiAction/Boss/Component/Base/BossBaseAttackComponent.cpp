@@ -90,13 +90,7 @@ bool UBossBaseAttackComponent::PlayAttackMontage(UAnimMontage* MontageToPlay, fl
 
 //モンタージュ終了時のコールバック
 void UBossBaseAttackComponent::OnMontageEndedCallback(UAnimMontage* Montage, bool bInterrupted)
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnMontageEndedCallback: Montage=%s, Current=%s, bIsAttacking=%d, bInterrupted=%d"),
-		*GetNameSafe(Montage),
-		*GetNameSafe(CurrentPlayingMontage),
-		bIsAttacking,
-		bInterrupted);
-	
+{	
 	//最後に保存されたモンタージュが終わったら EndAttack を呼ぶ
 	if (Montage == CurrentPlayingMontage && bIsAttacking)
 	{

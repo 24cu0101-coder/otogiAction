@@ -41,6 +41,26 @@ protected:
 	//死亡時の処理
 	void Die();
 
+	// モンタージュ再生終了時のコールバック
+	UFUNCTION()
+	void OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	//最大HP
+	UPROPERTY(EditAnywhere, Category = "Boss|Status")
+	float MaxHP;
+
+	//現在HP
+	UPROPERTY(EditAnywhere, Category = "Boss|Status")
+	float CurrentHP;
+
+	//Tag
+	UPROPERTY(EditAnywhere, Category = "Boss|Status")
+	FName BossTag = "Enemy";
+
+	//死亡時モンタージュ
+	UPROPERTY(EditAnywhere, Category = "Boss|Status")
+	TObjectPtr<UAnimMontage> DeathMontage;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -48,4 +68,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+	bool bIsDead = false;
 };

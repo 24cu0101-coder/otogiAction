@@ -3,28 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTService.h"
-#include "../../Status/StateClass.h"
-#include "Chaos/ArrayFaceND.h"
-#include "SelectActionService.generated.h"
+#include "BehaviorTree/BTTaskNode.h"
+#include "../../../Status/StateClass.h"
+
+#include "BossAttackSelectTask.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OTOGIACTION_API USelectActionService : public UBTService
+class OTOGIACTION_API UBossAttackSelectTask : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
 public:
-	USelectActionService();
+	UBossAttackSelectTask();
 
 protected:
-	// サービスの更新間隔ごとに呼ばれる処理
-	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	//タスク実行時に一回だけ呼ばれる処理
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
 
-	//ターゲット（プレイヤー）のBBキー
+	//ターゲットのBBキー
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector TargetActorKey;
 
@@ -32,16 +32,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector AIStateKey;
 
-	//UPROPERTY(EditAnywhere, Category = "AI")
-	//float AttackRange = 200.0f;
-
-	//UPROPERTY(EditAnywhere, Category = "AI")
-	//float StrafeRange = 600.0f;
-
 	// 直前と同じStateを連続で選ばないようにするかどうか
 	UPROPERTY(EditAnywhere, Category = "AI")
 	bool bAvoidSameState = true;
-	
+
+	// 抽選対象のStateをエディタでも設定できるように
 	UPROPERTY(EditAnywhere, Category = "AI")
 	TArray<EEnemyState> CandidateStates;
+
 };
