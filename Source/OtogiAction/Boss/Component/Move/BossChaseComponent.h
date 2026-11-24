@@ -38,6 +38,13 @@ public:
 	//実際の移動命令を実行する関数
 	void TrackingPlayer();
 
+	// プレイヤーに指定距離以内まで近づいたか判定する
+	bool IsWithinAcceptanceRadius(float Radius) const;
+
+	// 追跡の停止・完了判定に使うデフォルト距離
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chase")
+	float AcceptanceRadius = 150.0f;
+
 private:
 	//追跡対象
 	UPROPERTY(VisibleAnywhere, Category = "AI|Tracking")

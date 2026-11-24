@@ -120,3 +120,16 @@ void UBossChaseComponent::TrackingPlayer()
     }
 }
 
+bool UBossChaseComponent::IsWithinAcceptanceRadius(float Radius) const
+{
+    AActor* Owner = GetOwner();
+    if (!Owner || !TargetActor)
+    {
+        return false;
+    }
+
+    // 2点間の距離（2D平面で判定したい場合は FVector::Dist2D を使用）
+    const float Distance = FVector::Dist(Owner->GetActorLocation(), TargetActor->GetActorLocation());
+    return Distance <= Radius;
+}
+
