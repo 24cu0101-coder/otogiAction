@@ -40,6 +40,8 @@ public:
 
 	bool IsValidTargetActor(AActor* Actor) const;
 
+public:
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 private:
 	//現在ターゲットしているアクター
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target", meta = (AllowPrivateAccess = true));
