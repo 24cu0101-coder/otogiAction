@@ -44,6 +44,11 @@ void AArrowActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	{
 		return;
 	}
+	//敵に当たらない
+	if (OtherActor->ActorHasTag(TEXT("Enemy")))
+	{
+		return;
+	}
 
 	// 相手にダメージを通知
 	UGameplayStatics::ApplyDamage(OtherActor, Damage, GetInstigatorController(), this, UDamageType::StaticClass());

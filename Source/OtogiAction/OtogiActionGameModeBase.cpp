@@ -98,7 +98,12 @@ void AOtogiActionGameModeBase::RespawmPlayer(AController* TargetController)
 	FTransform RespawnTransform =
 		CurrentCheckpointTransform;
 
-	if (PhaseManager)
+	AActor* PlayerStart = FindPlayerStart(TargetController);
+	if (PlayerStart)
+	{
+		RespawnTransform = PlayerStart->GetActorTransform();
+	}
+	/*if (PhaseManager)
 	{
 		RespawnTransform =
 			PhaseManager->GetRespawnTransform();
@@ -109,7 +114,7 @@ void AOtogiActionGameModeBase::RespawmPlayer(AController* TargetController)
 			TEXT("Respawn Phase: %d"),
 			(int32)PhaseManager->GetCurrentPhase()
 		);
-	}
+	}*/
 
 	// ƒvƒŒƒCƒ„[¶¬
 
