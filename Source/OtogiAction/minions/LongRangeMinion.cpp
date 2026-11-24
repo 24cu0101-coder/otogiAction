@@ -25,11 +25,11 @@ ALongRangeMinion::ALongRangeMinion()
 	MuzzlePoint->SetupAttachment(RootComponent);
 	MuzzlePoint->SetRelativeLocation(FVector(60.0f, 0.0f, 40.0f));
 
-	HealthBarWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
+	/*HealthBarWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidget"));
 	HealthBarWidgetComp->SetupAttachment(RootComponent);
 	HealthBarWidgetComp->SetRelativeLocation(FVector(0.0f, 0.0f, 110.0f));
 	HealthBarWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
-	HealthBarWidgetComp->SetDrawSize(FVector2D(120.0f, 15.0f));
+	HealthBarWidgetComp->SetDrawSize(FVector2D(120.0f, 15.0f));*/
 
 	// 武器メッシュの作成とメッシュへのアタッチ
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
@@ -43,24 +43,24 @@ void ALongRangeMinion::BeginPlay()
 
 	CurrentHealth = MaxHealth;
 
-	if (HealthBarWidgetComp)
+	/*if (HealthBarWidgetComp)
 	{
 		HealthBarWidget = Cast<UEnemyHPWidget>(HealthBarWidgetComp->GetUserWidgetObject());
 
 		HealthBarWidgetComp->SetVisibility(false);
-	}
+	}*/
 
 	if (WeaponMesh && GetMesh() && WeaponSocketName != NAME_None)
 	{
 		WeaponMesh->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,WeaponSocketName);
 	}
 
-	UpdateHealthBar(1.0f);
+	//UpdateHealthBar(1.0f);
 
 	GetWorldTimerManager().SetTimer(FireTimerHandle,this,&ALongRangeMinion::StartAttack,FireInterval,true);
 }
 
-void ALongRangeMinion::UpdateHealthBar(float HealthPercent)
+/*void ALongRangeMinion::UpdateHealthBar(float HealthPercent)
 {
 	if (!HealthBarWidget && HealthBarWidgetComp)
 	{
@@ -73,7 +73,7 @@ void ALongRangeMinion::UpdateHealthBar(float HealthPercent)
 	}
 
 	HealthBarWidget->SetHP(CurrentHealth, MaxHealth);
-}
+}*/
 
 void ALongRangeMinion::Tick(float DeltaTime)
 {
@@ -88,10 +88,10 @@ void ALongRangeMinion::Tick(float DeltaTime)
 	bool bInRange = (Distance <= AttackRange);
 
 	//攻撃範囲内のときだけHPバーを表示し、範囲外なら隠す
-	if (HealthBarWidgetComp && HealthBarWidgetComp->IsVisible() != bInRange)
+	/*if (HealthBarWidgetComp && HealthBarWidgetComp->IsVisible() != bInRange)
 	{
 		HealthBarWidgetComp->SetVisibility(bInRange);
-	}
+	}*/
 
 	if (bInRange)
 	{
@@ -235,7 +235,7 @@ float ALongRangeMinion::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	CurrentHealth = FMath::Clamp(CurrentHealth - ActualDamage, 0.0f, MaxHealth);
 
 	float HealthPercent = (MaxHealth > 0.0f) ? CurrentHealth / MaxHealth : 0.0f;
-	UpdateHealthBar(HealthPercent);
+	//UpdateHealthBar(HealthPercent);
 
 	if (CurrentHealth <= 0.0f)
 	{
@@ -252,11 +252,11 @@ void ALongRangeMinion::Die()
 	bIsDead = true;
 
 	// 死亡した瞬間にHPバーを非表示にする
-	if (HealthBarWidgetComp)
+	/*if (HealthBarWidgetComp)
 	{
 		HealthBarWidgetComp->SetVisibility(false);
 		HealthBarWidgetComp->SetHiddenInGame(true);
-	}
+	}*/
 
 	// 敵タグを削除
 	Tags.Remove(FName("Enemy"));

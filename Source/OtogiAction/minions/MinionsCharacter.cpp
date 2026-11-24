@@ -49,13 +49,13 @@ AMinionsCharacter::AMinionsCharacter()
 	HitReactionComponent = CreateDefaultSubobject<UMinionsHitReactionComponent>(TEXT("HitReactionComponent"));
 
 	//HPwidget
-	HPWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPWidget"));
+	/*HPWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPWidget"));
 
 	HPWidgetComponent->SetupAttachment(RootComponent);
 
 	HPWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
 
-	HPWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	HPWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);*/
 
 	//盾
 	ShieldMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMesh"));
@@ -79,7 +79,7 @@ void AMinionsCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateHPWidgetVisibility();
+	//UpdateHPWidgetVisibility();
 }
 
 void AMinionsCharacter::BeginPlay()
@@ -128,10 +128,10 @@ void AMinionsCharacter::BeginPlay()
 
 	//AttackComponent->Attack();
 
-	if (UEnemyHPWidget* HPWidget = Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
+	/*if (UEnemyHPWidget* HPWidget = Cast<UEnemyHPWidget>(HPWidgetComponent->GetUserWidgetObject()))
 	{
 		HPWidget->SetHP(StatusComponent->GetCurrentHP(), StatusComponent->GetMaxHP());
-	}
+	}*/
 }
 
 void AMinionsCharacter::GiveDefaultAbilities()
