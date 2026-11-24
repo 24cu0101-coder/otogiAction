@@ -16,7 +16,8 @@ enum class EEnemyState : uint8
 	ComboAttack UMETA(DisplayName = "ComboAttack"),
 	BigAttack UMETA(DisplayName = "BigAttack"),
 	LongRangeAttack UMETA(DisplayName = "LongRangeAttack"),
-	DelayAttack UMETA(DisplayName = "DelayAttack")
+	DelayAttack UMETA(DisplayName = "DelayAttack"),
+	None UMETA(DisplayName = "None")
 };
 
 class OTOGIACTION_API StateClass
