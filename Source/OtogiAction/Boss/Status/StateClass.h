@@ -10,6 +10,8 @@
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
+	Idle			UMETA(DisplayName = "Idle"),
+	Strafe			UMETA(DisplayName = "Strafe"),
 	NormalAttack  UMETA(DisplayName = "NormalAttack"),
 	ComboAttack UMETA(DisplayName = "ComboAttack"),
 	BigAttack UMETA(DisplayName = "BigAttack"),
