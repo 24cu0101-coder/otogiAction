@@ -242,7 +242,7 @@ void UCameraSystemComponent::UpdateTargetLockCamera(float DeltaTime)
 	if (!IsValid(TargetActor))
 	{
 		// ƒ^[ƒQƒbƒg‚ªŽ€–SE”jŠü‚³‚ê‚½
-		TargetComp->ToggleTargetLock();
+		//TargetComp->ToggleTargetLock();
 
 		SetCameraMode(ECameraMode::Normal);
 

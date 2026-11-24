@@ -9,7 +9,7 @@
 // Sets default values for this component's properties
 UPlayerTargetComponent::UPlayerTargetComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	CurrentTargetActor = nullptr;
 }
 
@@ -18,6 +18,17 @@ UPlayerTargetComponent::UPlayerTargetComponent()
 void UPlayerTargetComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UPlayerTargetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ロックオン中に Enemy タグが消えた（＝Dead / Die が呼ばれた）ら即座にロック解除
+	if (CurrentTargetActor != nullptr && !IsValidTargetActor(CurrentTargetActor))
+	{
+		CurrentTargetActor = nullptr;
+	}
 }
 
 //ターゲットロックオン開始解除
@@ -198,7 +209,7 @@ AActor* UPlayerTargetComponent::GetCloseEnemyInRadius(float Radius)
 
 bool UPlayerTargetComponent::IsValidTargetActor(AActor* Actor) const
 {
-	if (!Actor)return false;
+	if (!IsValid(Actor))return false;
 
 	return Actor->ActorHasTag(TEXT("Enemy"));
 }

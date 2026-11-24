@@ -60,6 +60,12 @@ void UTargetLockWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 		return;
 	}
 
+	if (!IsValid(TargetActor) || !TargetActor->ActorHasTag(TEXT("Enemy")))
+	{
+		ClearTarget();
+		return;
+	}
+
 	UpdateTargetPosition();
 
 	//========================================

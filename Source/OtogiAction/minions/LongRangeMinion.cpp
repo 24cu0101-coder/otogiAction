@@ -251,6 +251,13 @@ void ALongRangeMinion::Die()
 
 	bIsDead = true;
 
+	// 死亡した瞬間にHPバーを非表示にする
+	if (HealthBarWidgetComp)
+	{
+		HealthBarWidgetComp->SetVisibility(false);
+		HealthBarWidgetComp->SetHiddenInGame(true);
+	}
+
 	// 敵タグを削除
 	Tags.Remove(FName("Enemy"));
 

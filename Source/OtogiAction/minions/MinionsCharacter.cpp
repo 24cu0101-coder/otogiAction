@@ -448,6 +448,12 @@ void AMinionsCharacter::UpdateHPWidgetVisibility()
 		return;
 	}
 
+	if (bIsDead)
+	{
+		HPWidgetComponent->SetVisibility(false);
+		return;
+	}
+
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
 	if (!PlayerPawn)
