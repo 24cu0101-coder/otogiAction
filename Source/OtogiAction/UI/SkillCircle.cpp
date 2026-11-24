@@ -6,6 +6,22 @@
 void USkillCircle::UpdateSkillCircle(int32 CurrentIndex)
 {
 	TargetAngle = CurrentIndex * 90.0f;
+
+	// 選択中のアイコンだけ表示
+	if (Skill_Kintaro)
+	{
+		Skill_Kintaro->SetVisibility(CurrentIndex == 0? ESlateVisibility::Visible: ESlateVisibility::Hidden);
+	}
+
+	if (Skill_Kaguya)
+	{
+		Skill_Kaguya->SetVisibility(CurrentIndex == 1? ESlateVisibility::Visible: ESlateVisibility::Hidden);
+	}
+
+	if (Skill_Urasima)
+	{
+		Skill_Urasima->SetVisibility(CurrentIndex == 2? ESlateVisibility::Visible: ESlateVisibility::Hidden);
+	}
 }
 
 
