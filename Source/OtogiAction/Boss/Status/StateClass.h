@@ -10,13 +10,13 @@
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
-	Idle			UMETA(DisplayName = "Idle"),
-	Strafe			UMETA(DisplayName = "Strafe"),
+	Strafe UMETA(DisplayName = "Strafe"),
 	NormalAttack  UMETA(DisplayName = "NormalAttack"),
 	ComboAttack UMETA(DisplayName = "ComboAttack"),
 	BigAttack UMETA(DisplayName = "BigAttack"),
 	LongRangeAttack UMETA(DisplayName = "LongRangeAttack"),
 	DelayAttack UMETA(DisplayName = "DelayAttack"),
+	PushAttack UMETA(DisplayName = "PushAttack"),
 	None UMETA(DisplayName = "None")
 };
 

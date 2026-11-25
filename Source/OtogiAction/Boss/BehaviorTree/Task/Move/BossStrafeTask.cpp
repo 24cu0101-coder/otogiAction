@@ -9,6 +9,11 @@
 UBossStrafeTask::UBossStrafeTask()
 {
 	NodeName = TEXT("Strafe Task");
+
+	// TickTaskを毎フレーム呼ぶために必須
+	bNotifyTick = true;
+	// メンバ変数（ElapsedTime）を安全に保持するためにインスタンス化
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UBossStrafeTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -19,11 +24,32 @@ EBTNodeResult::Type UBossStrafeTask::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		return EBTNodeResult::Failed;
 	}
 
+	// タイマーをリセットして見合い処理を有効化
+	ElapsedTime = 0.0f;
+
 	// コンポーネントの見合い処理を有効化
 	StrafeComp->SetStrafeEnabled(true);
 
 	// StateがStrafeである間は継続実行するため InProgress を返す
 	return EBTNodeResult::InProgress;
+}
+
+void UBossStrafeTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	ElapsedTime += DeltaSeconds;
+
+	// 指定時間が経過したら見合い行動を終了し、次のタスク（Select Next Action）へ進める
+	if (ElapsedTime >= StrafeDuration)
+	{
+		if (UBossStrafeComponent* StrafeComp = GetStrafeComponent(OwnerComp))
+		{
+			StrafeComp->SetStrafeEnabled(false);
+		}
+
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	}
 }
 
 EBTNodeResult::Type UBossStrafeTask::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

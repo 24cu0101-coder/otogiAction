@@ -28,5 +28,5 @@ protected:
 
 	// エディタ上で比較対象として指定するState
 	UPROPERTY(EditAnywhere, Category = "Condition")
-	EEnemyState RequiredState = EEnemyState::Idle;
+	EEnemyState RequiredState = EEnemyState::None;
 };
