@@ -52,8 +52,7 @@ void ATutorialMinionCharacter::PlayTutorialAttack()
         return;
     }
 
-    UAnimInstance* AnimInstance =
-        GetMesh()->GetAnimInstance();
+    UAnimInstance* AnimInstance =GetMesh()->GetAnimInstance();
 
     if (!AnimInstance)
     {
@@ -73,8 +72,7 @@ void ATutorialMinionCharacter::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 }
 
-void ATutorialMinionCharacter::SetupPlayerInputComponent(
-    UInputComponent* PlayerInputComponent)
+void ATutorialMinionCharacter::SetupPlayerInputComponent( UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
@@ -87,14 +85,10 @@ void ATutorialMinionCharacter::ApplyTutorialAttackDamage()
     }
 
     // 敵の前方に攻撃判定を作る
-    const FVector HitLocation =
-        GetActorLocation()
-        + GetActorForwardVector() * HitDistance
-        + FVector(0.0f, 0.0f, 50.0f);
+    const FVector HitLocation = GetActorLocation()+ GetActorForwardVector() * HitDistance + FVector(0.0f, 0.0f, 50.0f);
 
     // 球形の攻撃判定
-    FCollisionShape Sphere =
-        FCollisionShape::MakeSphere(HitRadius);
+    FCollisionShape Sphere =FCollisionShape::MakeSphere(HitRadius);
 
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(this);
@@ -118,8 +112,7 @@ void ATutorialMinionCharacter::ApplyTutorialAttackDamage()
     // 判定内にいるプレイヤーへダメージ
     for (const FOverlapResult& Result : OverlapResults)
     {
-        APlayerCharacter* Player =
-            Cast<APlayerCharacter>(Result.GetActor());
+        APlayerCharacter* Player = Cast<APlayerCharacter>(Result.GetActor());
 
         if (!Player)
         {
@@ -189,22 +182,14 @@ void ATutorialMinionCharacter::DisappearWithEffect()
     // 再生後に終了通知を登録
     FOnMontageEnded EndDelegate;
 
-    EndDelegate.BindUObject(
-        this,
-        &ATutorialMinionCharacter::OnDisappearMontageEnded
-    );
+    EndDelegate.BindUObject(this, &ATutorialMinionCharacter::OnDisappearMontageEnded );
 
-    AnimInstance->Montage_SetEndDelegate(
-        EndDelegate,
-        DisappearMontage
-    );
+    AnimInstance->Montage_SetEndDelegate(EndDelegate, DisappearMontage );
 
 }
 
 
-void ATutorialMinionCharacter::OnDisappearMontageEnded(
-    UAnimMontage* Montage,
-    bool bInterrupted)
+void ATutorialMinionCharacter::OnDisappearMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
     if (!IsValid(this))
     {
