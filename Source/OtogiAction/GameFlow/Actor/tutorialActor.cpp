@@ -44,8 +44,7 @@ void ATutorialActor::BeginPlay()
         UE_LOG(LogTemp, Warning, TEXT("Tutorial BGMを再生しました"));
     }
 
-    APlayerController* PC =
-        UGameplayStatics::GetPlayerController(this, 0);
+    APlayerController* PC =UGameplayStatics::GetPlayerController(this, 0);
 
     if (PC)
     {
@@ -53,12 +52,7 @@ void ATutorialActor::BeginPlay()
 
         if (InputComponent)
         {
-            InputComponent->BindKey(
-                EKeys::P,
-                IE_Pressed,
-                this,
-                &ATutorialActor::ForceCompleteTutorial
-            );
+            InputComponent->BindKey(EKeys::P,IE_Pressed,this,&ATutorialActor::ForceCompleteTutorial);
 
             UE_LOG(LogTemp, Warning,
                 TEXT("Pキー入力を登録しました"));
@@ -67,11 +61,7 @@ void ATutorialActor::BeginPlay()
         // Widgetを作成して画面に表示
         if (TutorialWidgetClass)
         {
-            TutorialWidget =
-                CreateWidget<UTutorialGuideWidget>(
-                    PC,
-                    TutorialWidgetClass
-                );
+            TutorialWidget =CreateWidget<UTutorialGuideWidget>( PC, TutorialWidgetClass );
 
             if (TutorialWidget)
             {
@@ -101,16 +91,14 @@ void ATutorialActor::UpdateTutorialImage()
     // 全ステップ完了
     if (CurrentStep >= TutorialImages.Num())
     {
-        TutorialWidget->SetTutorialImage(
-            TutorialCompleteImage);
+        TutorialWidget->SetTutorialImage(TutorialCompleteImage);
         return;
     }
 
     // 現在のステップに対応する画像を表示
     if (TutorialImages.IsValidIndex(CurrentStep))
     {
-        TutorialWidget->SetTutorialImage(
-            TutorialImages[CurrentStep]);
+        TutorialWidget->SetTutorialImage(TutorialImages[CurrentStep]);
     }
 }
 
@@ -249,18 +237,14 @@ void ATutorialActor::StartStep7Sequence()
     // チュートリアルWidgetを非表示にする
     if (TutorialWidget)
     {
-        TutorialWidget->SetVisibility(
-            ESlateVisibility::Collapsed
-        );
+        TutorialWidget->SetVisibility(ESlateVisibility::Collapsed );
 
         // 15秒後にWidgetを再表示する
         GetWorld()->GetTimerManager().SetTimer(TutorialWidgetTimerHandle, [this]()
             {
                 if (IsValid(this) && IsValid(TutorialWidget))
                 {
-                    TutorialWidget->SetVisibility(
-                        ESlateVisibility::Visible
-                    );
+                    TutorialWidget->SetVisibility( ESlateVisibility::Visible );
                 }
             },
             12.0f,
@@ -276,9 +260,7 @@ void ATutorialActor::StartStep7Sequence()
         {
             PlayerPawn->DisableInput(PC);
 
-            GetWorld()->GetTimerManager().SetTimer(
-                PlayerControlTimerHandle,
-                [PC, PlayerPawn]()
+            GetWorld()->GetTimerManager().SetTimer(PlayerControlTimerHandle,[PC, PlayerPawn]()
                 {
                     if (IsValid(PC) && IsValid(PlayerPawn))
                     {
@@ -329,11 +311,7 @@ void ATutorialActor::RemoveAllEnemies()
 {
     TArray<AActor*> AllActors;
 
-    UGameplayStatics::GetAllActorsWithTag(
-        GetWorld(),
-        FName("Enemy"),
-        AllActors
-    );
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(),FName("Enemy"),AllActors);
 
     for (AActor* Actor : AllActors)
     {
@@ -373,8 +351,7 @@ void ATutorialActor::PlayTutorialClearSequence()
 
         if (PC && !TutorialCutsceneWidget)
         {
-            TutorialCutsceneWidget = CreateWidget<UUserWidget>(
-                PC, TutorialCutsceneWidgetClass);
+            TutorialCutsceneWidget = CreateWidget<UUserWidget>(PC, TutorialCutsceneWidgetClass);
 
             if (TutorialCutsceneWidget)
             {
@@ -392,13 +369,7 @@ void ATutorialActor::PlayTutorialClearSequence()
     // CreateLevelSequencePlayerの第4引数には通常のポインタを渡す
     ALevelSequenceActor* SequenceActor = nullptr;
 
-    TutorialSequencePlayer =
-        ULevelSequencePlayer::CreateLevelSequencePlayer(
-            GetWorld(),
-            TutorialClearSequence,
-            Settings,
-            SequenceActor
-        );
+    TutorialSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer( GetWorld(),TutorialClearSequence,Settings,SequenceActor );
 
     // 作成したシーケンスアクターを保存
     TutorialSequenceActor = SequenceActor;
@@ -408,16 +379,8 @@ void ATutorialActor::PlayTutorialClearSequence()
         // 無限ループするため、終了イベントで完了画像を切り替えない
         TutorialSequencePlayer->Play();
 
-        UE_LOG(LogTemp, Warning,
-            TEXT("チュートリアル演出を無限ループで開始しました"));
-
         // 続いてカメラ演出を開始
         PlayCameraSequence();
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error,
-            TEXT("レベルシーケンスのプレイヤー作成に失敗しました"));
     }
 }
 
@@ -448,11 +411,9 @@ void ATutorialActor::ForceCompleteTutorial()
     RemoveAllEnemies();
 
     // 13秒後に実行するタイマーを停止
-    GetWorld()->GetTimerManager().ClearTimer(
-        PlayerControlTimerHandle);
+    GetWorld()->GetTimerManager().ClearTimer(PlayerControlTimerHandle);
 
-    GetWorld()->GetTimerManager().ClearTimer(
-        TutorialWidgetTimerHandle);
+    GetWorld()->GetTimerManager().ClearTimer(TutorialWidgetTimerHandle);
 
     // プレイヤーの操作を再開
     APlayerController* PC = GetWorld()->GetFirstPlayerController();
@@ -501,8 +462,7 @@ void ATutorialActor::ForceCompleteTutorial()
         {
             if (Component)
             {
-                Component->SetCollisionEnabled(
-                    ECollisionEnabled::NoCollision);
+                Component->SetCollisionEnabled( ECollisionEnabled::NoCollision);
 
                 Component->SetVisibility(false, true);
             }
@@ -536,13 +496,7 @@ void ATutorialActor::PlayCameraSequence()
 
     ALevelSequenceActor* SequenceActor = nullptr;
 
-    CameraSequencePlayer =
-        ULevelSequencePlayer::CreateLevelSequencePlayer(
-            GetWorld(),
-            CameraSequence,
-            Settings,
-            SequenceActor
-        );
+    CameraSequencePlayer =ULevelSequencePlayer::CreateLevelSequencePlayer( GetWorld(), CameraSequence,Settings, SequenceActor );
 
     CameraSequenceActor = SequenceActor;
 

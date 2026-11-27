@@ -3,9 +3,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 
-void UMinionsAnimNotify::Notify(
-    USkeletalMeshComponent* MeshComp,
-    UAnimSequenceBase* Animation)
+void UMinionsAnimNotify::Notify( USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
     Super::Notify(MeshComp, Animation);
 
