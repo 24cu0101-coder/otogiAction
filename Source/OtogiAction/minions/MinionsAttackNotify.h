@@ -47,6 +47,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack|Sound")
 	USoundBase* HitSound = nullptr;
 
+	//可視化するかどうか
+	UPROPERTY(EditAnywhere, Category = "AttackSettings")
+	bool bIsVisible = false;
 
 
 };

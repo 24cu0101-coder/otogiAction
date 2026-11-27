@@ -29,8 +29,13 @@ public:
 		float HitStopTimeScale,
 		float ForwardOffset,
 		float SideOffset,
-		USoundBase* HitSound
+		USoundBase* HitSound,
+		bool IsVisible
 	);
+
+	//コリジョンのデバッグ判定の可視化フラグ
+	UPROPERTY(BlueprintReadWrite, Category = "Attack")
+	bool Visualization = false;
 
 protected:
 	// Called when the game starts
