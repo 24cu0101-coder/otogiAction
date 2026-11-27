@@ -4,7 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "SkillGaugeComponent.generated.h"
 
-// ã‚²ãƒ¼ã‚¸ãŒå¤‰æ›´ã•ã‚ŒãŸã¨ãã«é€šçŸ¥ã™ã‚‹Delegate
+// ƒQ[ƒW‚ª•ÏX‚³‚ê‚½‚Æ‚«‚É’Ê’m‚·‚éDelegate
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillGaugeChanged);
 
 
@@ -30,47 +30,51 @@ public:
 	) override;
 
 
-	// ã‚¹ã‚­ãƒ«ç™ºå‹•æ™‚ã«ã‚¹ã‚­ãƒ«ã‚²ãƒ¼ã‚¸ãŒè¶³ã‚Šã¦ã„ã‚‹ã‹ç¢ºèª
+	// ƒXƒLƒ‹”­“®‚ÉƒXƒLƒ‹ƒQ[ƒW‚ª‘«‚è‚Ä‚¢‚é‚©Šm”F
 	UFUNCTION(BlueprintCallable, Category = "SkillGauge")
 	bool CanUseSkill(float SkillCost) const;
 
 
-	// ã‚¹ã‚­ãƒ«ä½¿ç”¨æ™‚ã«ã‚²ãƒ¼ã‚¸ã‚’æ¸›ã‚‰ã™
+	// ƒXƒLƒ‹g—p‚ÉƒQ[ƒW‚ğŒ¸‚ç‚·
 	UFUNCTION(BlueprintCallable, Category = "SkillGauge")
 	bool ConsumeGauge(float Amount);
 
 
-	// ã‚²ãƒ¼ã‚¸ã‚’å›å¾©
+	// ƒQ[ƒW‚ğ‰ñ•œ
 	UFUNCTION(BlueprintCallable, Category = "SkillGauge")
 	void ModifyGauge(float Amount);
 
 
-	// ã‚²ãƒ¼ã‚¸å‰²åˆã‚’å–å¾—
+	// ƒQ[ƒWŠ„‡‚ğæ“¾
 	UFUNCTION(BlueprintCallable, Category = "SkillGauge")
 	float GetGaugeRatio() const;
 
+	//ƒfƒoƒbƒO—pƒXƒLƒ‹ƒQ[ƒWƒ}ƒbƒNƒXƒRƒ}ƒ“ƒh
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void DebugSkillGaugeMax();
 
-	// ç¾åœ¨ã®ã‚²ãƒ¼ã‚¸ã‚’å–å¾—
+
+	// Œ»İ‚ÌƒQ[ƒW‚ğæ“¾
 	FORCEINLINE float GetCurrentGauge() const
 	{
 		return CurrentSkillGauge;
 	}
 
 
-	// ã‚²ãƒ¼ã‚¸ãŒå¤‰æ›´ã•ã‚ŒãŸã¨ãã«é€šçŸ¥
+	// ƒQ[ƒW‚ª•ÏX‚³‚ê‚½‚Æ‚«‚É’Ê’m
 	UPROPERTY(BlueprintAssignable, Category = "SkillGauge")
 	FOnSkillGaugeChanged OnSkillGaugeChanged;
 
 
 protected:
 
-	// ã‚²ãƒ¼ã‚¸ã®æœ€å¤§å€¤
+	// ƒQ[ƒW‚ÌÅ‘å’l
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkillGauge")
 	float MaxSkillGauge = 500.f;
 
 
 private:
 
-	// ç¾åœ¨ã®ã‚²ãƒ¼ã‚¸
+	// Œ»İ‚ÌƒQ[ƒW
 	float CurrentSkillGauge;
 };

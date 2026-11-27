@@ -54,7 +54,8 @@ void UMinionsAttackNotify::Notify(USkeletalMeshComponent* MeshComp,UAnimSequence
 		1.f,
 		ForwardOffset,
 		SideOffset,
-		HitSound
+		HitSound,
+		bIsVisible
 	);
 
 

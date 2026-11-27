@@ -86,3 +86,8 @@ float USkillGaugeComponent::GetGaugeRatio() const
 
 	return CurrentSkillGauge / MaxSkillGauge;
 }
+
+void USkillGaugeComponent::DebugSkillGaugeMax()
+{
+	ModifyGauge(MaxSkillGauge - CurrentSkillGauge);
+}
