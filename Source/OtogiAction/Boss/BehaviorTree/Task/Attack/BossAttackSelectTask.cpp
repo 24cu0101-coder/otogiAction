@@ -47,11 +47,11 @@ EBTNodeResult::Type UBossAttackSelectTask::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Failed;
 	}
 	
-	// 1. プレイヤーとの距離を計算（水平距離にしたい場合は FVector::Dist2D を使用）
-	const float DistanceToTarget = FVector::Dist(ControlledPawn->GetActorLocation(), TargetActor->GetActorLocation());
+	//プレイヤーとの水平距離を計算
+	const float DistanceToTarget = FVector::Dist2D(ControlledPawn->GetActorLocation(), TargetActor->GetActorLocation());
 	const EEnemyState CurrentState = static_cast<EEnemyState>(BlackboardComp->GetValueAsEnum(AIStateKey.SelectedKeyName));
 
-	// 2. 条件（距離・重み）に合う候補を抽出しつつ、合計の重みを計算
+	//条件（距離・重み）に合う候補を抽出しつつ、合計の重みを計算
 	TArray<FBossAttackCandidate> ValidCandidates;
 	float TotalWeight = 0.0f;
 
@@ -71,7 +71,7 @@ EBTNodeResult::Type UBossAttackSelectTask::ExecuteTask(UBehaviorTreeComponent& O
 		TotalWeight += Candidate.Weight;
 	}
 
-	// 3. 「直前と同じ行動を避ける」処理（有効な候補が2つ以上ある場合のみ除外）
+	//「直前と同じ行動を避ける」処理（有効な候補が2つ以上ある場合のみ除外）
 	if (bAvoidSameState && ValidCandidates.Num() > 1)
 	{
 		for (int32 i = ValidCandidates.Num() - 1; i >= 0; --i)
@@ -84,7 +84,7 @@ EBTNodeResult::Type UBossAttackSelectTask::ExecuteTask(UBehaviorTreeComponent& O
 		}
 	}
 
-	// 4. 有効な候補が1つもない場合の処理（距離が遠すぎる等）
+	//有効な候補が1つもない場合の処理（距離が遠すぎる等）
 	if (ValidCandidates.IsEmpty() || TotalWeight <= 0.0f)
 	{
 		if (FallbackState != EEnemyState::None)
@@ -95,7 +95,7 @@ EBTNodeResult::Type UBossAttackSelectTask::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Failed;
 	}
 
-	// 5. 重み付きランダム選出
+	//重み付きランダム選出
 	float RandomValue = FMath::FRandRange(0.0f, TotalWeight);
 	EEnemyState SelectedState = ValidCandidates.Last().State;
 
@@ -111,6 +111,10 @@ EBTNodeResult::Type UBossAttackSelectTask::ExecuteTask(UBehaviorTreeComponent& O
 
 	// Blackboardに選定結果（Enum）を書き込む
 	BlackboardComp->SetValueAsEnum(AIStateKey.SelectedKeyName, static_cast<uint8>(SelectedState));
+
+	//プレイヤーとの距離、有力候補、現在のStateを確認
+	UE_LOG(LogTemp, Warning, TEXT("Dist2D: %f, ValidCount: %d, CurrentState: %d"),
+		DistanceToTarget, ValidCandidates.Num(), static_cast<int32>(CurrentState));
 
 	return EBTNodeResult::Succeeded;
 }
