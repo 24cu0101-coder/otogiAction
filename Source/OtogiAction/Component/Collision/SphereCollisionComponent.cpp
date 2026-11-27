@@ -48,7 +48,7 @@ void USphereCollisionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 }
 
 
-void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage,float StunPoint, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset, USoundBase* HitSound)
+void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, float Damage,float StunPoint, float HitStopDuration, float HitStopTimeScale,float ForwardOffset,float SideOffset, USoundBase* HitSound,bool IsVisible)
 {
 	//コンポーネントの親クラスを取得
 	AActor* Owner = GetOwner();
@@ -91,9 +91,6 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 		HitCollisionShape,    //判定をとる形
 		QueryParams         //無視するオブジェクト
 	);
-
-	// 可視化するかどうか(高山)
-	bool Visualization = false;
 
 	if (bHasOverlap)
 	{
@@ -142,7 +139,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 					}
 				}
 				
-				if (Visualization)
+				if (IsVisible)
 				{
 					//デバッグ用の表示
 					DrawDebugSphere(
@@ -166,7 +163,7 @@ void USphereCollisionComponent::ExcuteAreaAttack(float Radius, FName TargetTag, 
 	}
 	else
 	{
-		if (Visualization)
+		if (IsVisible)
 		{
 			//デバッグ用の表示
 			DrawDebugSphere(
