@@ -14,8 +14,7 @@ void UAnimNotify_TutorialMinionAttack::Notify(
         return;
     }
 
-    ATutorialMinionCharacter* Minion =
-        Cast<ATutorialMinionCharacter>(MeshComp->GetOwner());
+    ATutorialMinionCharacter* Minion =Cast<ATutorialMinionCharacter>(MeshComp->GetOwner());
 
     if (!Minion)
     {

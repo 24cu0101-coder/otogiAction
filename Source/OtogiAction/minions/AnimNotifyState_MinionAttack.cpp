@@ -2,19 +2,13 @@
 #include "MinionsCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 
-void UAnimNotifyState_MinionAttack::NotifyBegin(
-    USkeletalMeshComponent* MeshComp,
-    UAnimSequenceBase* Animation,
-    float TotalDuration,
-    const FAnimNotifyEventReference& EventReference)
+void UAnimNotifyState_MinionAttack::NotifyBegin( USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
-    Super::NotifyBegin(
-        MeshComp, Animation, TotalDuration, EventReference);
+    Super::NotifyBegin( MeshComp, Animation, TotalDuration, EventReference);
 
     if (!MeshComp) return;
 
-    AMinionsCharacter* Minion =
-        Cast<AMinionsCharacter>(MeshComp->GetOwner());
+    AMinionsCharacter* Minion =Cast<AMinionsCharacter>(MeshComp->GetOwner());
 
     if (Minion)
     {
@@ -22,18 +16,13 @@ void UAnimNotifyState_MinionAttack::NotifyBegin(
     }
 }
 
-void UAnimNotifyState_MinionAttack::NotifyEnd(
-    USkeletalMeshComponent* MeshComp,
-    UAnimSequenceBase* Animation,
-    const FAnimNotifyEventReference& EventReference)
+void UAnimNotifyState_MinionAttack::NotifyEnd( USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,const FAnimNotifyEventReference& EventReference)
 {
-    Super::NotifyEnd(
-        MeshComp, Animation, EventReference);
+    Super::NotifyEnd( MeshComp, Animation, EventReference);
 
     if (!MeshComp) return;
 
-    AMinionsCharacter* Minion =
-        Cast<AMinionsCharacter>(MeshComp->GetOwner());
+    AMinionsCharacter* Minion = Cast<AMinionsCharacter>(MeshComp->GetOwner());
 
     if (Minion)
     {
