@@ -13,45 +13,27 @@ ATutorialPoint::ATutorialPoint()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    TriggerBox = CreateDefaultSubobject<UBoxComponent>(
-        TEXT("TriggerBox")
-    );
+    TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox") );
 
     RootComponent = TriggerBox;
 
-    TriggerBox->SetCollisionEnabled(
-        ECollisionEnabled::QueryOnly
-    );
+    TriggerBox->SetCollisionEnabled( ECollisionEnabled::QueryOnly );
 
-    TriggerBox->SetCollisionResponseToAllChannels(
-        ECR_Ignore
-    );
+    TriggerBox->SetCollisionResponseToAllChannels( ECR_Ignore );
 
-    TriggerBox->SetCollisionResponseToChannel(
-        ECC_Pawn,
-        ECR_Overlap
-    );
+    TriggerBox->SetCollisionResponseToChannel( ECC_Pawn, ECR_Overlap);
 }
 
 void ATutorialPoint::BeginPlay()
 {
     Super::BeginPlay();
 
-    TriggerBox->OnComponentBeginOverlap.AddDynamic(
-        this,
-        &ATutorialPoint::OnTriggerBeginOverlap
-    );
+    TriggerBox->OnComponentBeginOverlap.AddDynamic( this, &ATutorialPoint::OnTriggerBeginOverlap );
 
     // 管理Actorが未設定ならレベル内から探す
     if (!TutorialManager)
     {
-        TutorialManager =
-            Cast<ATutorialActor>(
-                UGameplayStatics::GetActorOfClass(
-                    GetWorld(),
-                    ATutorialActor::StaticClass()
-                )
-            );
+        TutorialManager =Cast<ATutorialActor>( UGameplayStatics::GetActorOfClass( GetWorld(),ATutorialActor::StaticClass() ) );
     }
 }
 

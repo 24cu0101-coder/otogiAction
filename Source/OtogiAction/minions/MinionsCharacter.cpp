@@ -389,13 +389,7 @@ void AMinionsCharacter::Dead()
 	}
 
 	// Montage終了後に削除
-	GetWorldTimerManager().SetTimer(
-		DeathTimerHandle,
-		this,
-		&AMinionsCharacter::PlayDeathEffect,
-		AnimDuration,
-		false
-	);
+	GetWorldTimerManager().SetTimer(DeathTimerHandle,this,&AMinionsCharacter::PlayDeathEffect,AnimDuration,false);
 }
 
 void AMinionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -490,11 +484,7 @@ void AMinionsCharacter::PlayDeathEffect()
 	// 死亡エフェクト
 	if (DeathEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
-			DeathEffect,
-			GetActorLocation() + FVector(0.f, 0.f, 40.f)
-		);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),DeathEffect,GetActorLocation() + FVector(0.f, 0.f, 40.f));
 	}
 }
 
@@ -520,8 +510,7 @@ void AMinionsCharacter::SetAttackRotationLock(bool bLock)
 	if (bLock)
 	{
 		// 元の設定を保存
-		bOriginalUseControllerDesiredRotation =
-			GetCharacterMovement()->bUseControllerDesiredRotation;
+		bOriginalUseControllerDesiredRotation =GetCharacterMovement()->bUseControllerDesiredRotation;
 
 		// AIコントローラーに合わせた回転を停止
 		GetCharacterMovement()->bUseControllerDesiredRotation = false;
@@ -529,8 +518,7 @@ void AMinionsCharacter::SetAttackRotationLock(bool bLock)
 	else
 	{
 		// 攻撃終了後に元へ戻す
-		GetCharacterMovement()->bUseControllerDesiredRotation =
-			bOriginalUseControllerDesiredRotation;
+		GetCharacterMovement()->bUseControllerDesiredRotation =bOriginalUseControllerDesiredRotation;
 	}
 }
 
