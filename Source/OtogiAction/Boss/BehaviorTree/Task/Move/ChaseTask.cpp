@@ -12,6 +12,7 @@ UChaseTask::UChaseTask()
     NodeName = TEXT("Chase Task");
 
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 // タスク開始時に呼ばれる
@@ -28,6 +29,9 @@ EBTNodeResult::Type UChaseTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
 	{
 		return EBTNodeResult::Succeeded;
 	}
+
+	// 経過時間をリセット
+	ElapsedTime = 0.0f;
 
 	// コンポーネント側の停止距離と同期させる
 	ChaseComp->AcceptanceRadius = CompleteDistance;
@@ -51,8 +55,10 @@ void UChaseTask::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, 
 		return;
 	}
 
+	ElapsedTime += DeltaSeconds;
+
 	// 一定距離以内に近づいたら追跡を止めてタスクを成功(完了)にする
-	if (ChaseComp->IsWithinAcceptanceRadius(CompleteDistance))
+	if (ChaseComp->IsWithinAcceptanceRadius(CompleteDistance) || ElapsedTime >= MaxChaseDuration)
 	{
 		ChaseComp->SetTrackingEnabled(false);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

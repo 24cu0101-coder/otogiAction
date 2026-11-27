@@ -32,7 +32,14 @@ protected:
 	// Behavior Treeエディタ側から追跡完了の距離を調整できるようにする
 	UPROPERTY(EditAnywhere, Category = "Chase")
 	float CompleteDistance = 150.0f;
+
+	// 追跡を打ち切って次の行動抽選（Select Next Action）へ移行する最大時間（秒）
+	UPROPERTY(EditAnywhere, Category = "Chase")
+	float MaxChaseDuration = 3.0f;
 private:
 	// ボスキャラからChaseComponentを取得するヘルパー関数
 	class UBossChaseComponent* GetChaseComponent(UBehaviorTreeComponent& OwnerComp) const;
+
+	// 追跡経過時間
+	float ElapsedTime = 0.0f;
 };
