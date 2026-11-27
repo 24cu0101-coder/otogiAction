@@ -28,7 +28,7 @@ public:
 
 	//ダメージ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	float Damage = 20.f;
+	float Damage = 10.f;
 
 	//スタン値
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")

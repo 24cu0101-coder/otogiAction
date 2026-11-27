@@ -21,7 +21,6 @@ UMinionsHitReactionComponent::UMinionsHitReactionComponent()
 
 
 // Stance追加
-
 void UMinionsHitReactionComponent::AddStance(float Value)
 {
 	// 大スタン中はStanceを減らさない
@@ -65,7 +64,6 @@ void UMinionsHitReactionComponent::AddStance(float Value)
 
 
 // Stance Break
-
 bool UMinionsHitReactionComponent::IsStanceBreak() const
 {
 	return CurrentStance <= 0.f;
@@ -74,7 +72,6 @@ bool UMinionsHitReactionComponent::IsStanceBreak() const
 
 
 // Stance Reset
-
 void UMinionsHitReactionComponent::ResetStance()
 {
 	CurrentStance = MaxStance;
@@ -85,7 +82,6 @@ void UMinionsHitReactionComponent::ResetStance()
 
 
 // 大きい怯み
-
 void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 {
 	// 攻撃キャンセル処理
@@ -169,7 +165,6 @@ void UMinionsHitReactionComponent::PlayHitReaction(float DamageAmount)
 
 
 // FearMax
-
 void UMinionsHitReactionComponent::OnFearMax()
 {
 
@@ -182,7 +177,6 @@ void UMinionsHitReactionComponent::OnFearMax()
 
 
 // Stun
-
 void UMinionsHitReactionComponent::OnStunMax()
 {
 	AMinionsCharacter* Minion = Cast<AMinionsCharacter>(GetOwner());
@@ -224,7 +218,6 @@ void UMinionsHitReactionComponent::OnStunMax()
 
 
 // Stun復帰
-
 void UMinionsHitReactionComponent::RecoverFromStun()
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
@@ -259,7 +252,6 @@ void UMinionsHitReactionComponent::RecoverFromStun()
 }
 
 // 移動停止
-
 void UMinionsHitReactionComponent::StopMovement()
 {
 
@@ -285,7 +277,6 @@ void UMinionsHitReactionComponent::StopMovement()
 
 
 // AI停止
-
 void UMinionsHitReactionComponent::StopAI()
 {
 
@@ -319,7 +310,6 @@ void UMinionsHitReactionComponent::StopAI()
 
 
 // AI復帰
-
 void UMinionsHitReactionComponent::RestartAI()
 {
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
@@ -361,7 +351,6 @@ void UMinionsHitReactionComponent::RestartAI()
 
 
 // 攻撃方向
-
 void UMinionsHitReactionComponent::SetHitDirection(AActor* Attacker)
 {
 
@@ -625,6 +614,7 @@ void UMinionsHitReactionComponent::StartShieldGuard()
 		false
 	);
 }
+
 // ガード解除
 void UMinionsHitReactionComponent::EndShieldGuard()
 {

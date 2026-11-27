@@ -22,6 +22,7 @@
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "TimerManager.h"
+#include "Components/CapsuleComponent.h"
 
 AMinionsCharacter::AMinionsCharacter()
 {
@@ -365,7 +366,8 @@ void AMinionsCharacter::Dead()
 	}
 
 	// 当たり判定を無効化
-	SetActorEnableCollision(false);
+	//SetActorEnableCollision(false);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	// 再生中のMontageを停止
 	if (GetMesh() && GetMesh()->GetAnimInstance())
