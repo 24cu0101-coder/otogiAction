@@ -24,8 +24,6 @@ void UMinionsAttackNotify::Notify(USkeletalMeshComponent* MeshComp,UAnimSequence
 
 
 	// 攻撃中チェック
-
-
 	if (!Minion->IsAttacking())
 	{
 
